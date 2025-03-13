@@ -21,7 +21,7 @@ from Table 7 (table7)."><!-- mathjax --><script src="https://cdnjs.cloudflare.co
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CBMutils</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.7.9011</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0</span>
       </span>
     </div>
 
@@ -68,7 +68,7 @@ from Table 7 (<code>table7</code>).</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">biomProp</span><span class="op">(</span><span class="va">table6</span>, <span class="va">table7</span>, <span class="va">vol</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">biomProp</span><span class="op">(</span><span class="va">table6</span>, <span class="va">table7</span>, <span class="va">x</span>, type <span class="op">=</span> <span class="st">"volume"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -77,16 +77,26 @@ from Table 7 (<code>table7</code>).</p>
 
 <dl><dt id="arg-table-">table6<a class="anchor" aria-label="anchor" href="#arg-table-"></a></dt>
 <dd><p><code>data.frame</code> corresponding to Table 6 from Boudewyn et al. (2007),
-available from <a href="https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv" class="external-link">https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv</a>.</p></dd>
+available from <a href="https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv" class="external-link">https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv</a>.
+The alternative table 6 for equations using total biomass as independent variable
+is available from <a href="https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv" class="external-link">https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv</a>.</p></dd>
 
 
 <dt id="arg-table-">table7<a class="anchor" aria-label="anchor" href="#arg-table-"></a></dt>
 <dd><p><code>data.frame</code> corresponding to Table 7 from Boudewyn et al. (2007),
-available from <a href="https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv" class="external-link">https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv</a>.</p></dd>
+available from <a href="https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv" class="external-link">https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv</a>.
+The alternative table 7 for equations using total biomass as independent variable
+is available from <a href="https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv" class="external-link">https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv</a>.</p></dd>
 
 
-<dt id="arg-vol">vol<a class="anchor" aria-label="anchor" href="#arg-vol"></a></dt>
-<dd><p>gross merchantable volume per hectare (\(m^3/ha\))</p></dd>
+<dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p><code>vector</code> gross merchantable volume per hectare (\(m^3/ha\)) or
+total biomass (\(tonnes/ha\))</p></dd>
+
+
+<dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
+<dd><p><code>character</code> specifies if the <code>x</code> represents gross merchantable
+volume per hectare ("volume") or total biomass ("biomass").</p></dd>
 
 </dl></div>
     <div id="value">
@@ -117,7 +127,7 @@ Pacific Forestry Centre. <a href="https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/2743
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CBMutils</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.7.9011</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0</span>
       </span>
     </div>
 
@@ -58,10 +58,6 @@
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
-          <p><code><a href="CBMutils-package.html">CBMutils</a></code> <code><a href="CBMutils-package.html">CBMutils-package</a></code> </p>
-        </td>
-        <td><p><code>CBMutils</code></p></td>
-      </tr><tr><td>
           <p><code><a href="ComputeGrowthAndDeclineMatrices.html">ComputeGrowthAndDeclineMatrices</a></code> </p>
         </td>
         <td><p>Compute growth and decline matrices</p></td>
@@ -162,6 +158,10 @@
         </td>
         <td><p>Compute slow mixing matrix</p></td>
       </tr><tr><td>
+          <p><code><a href="convertAGB2pools.html">convertAGB2pools()</a></code> </p>
+        </td>
+        <td><p>Convert total above ground biomass into 3 pools (\(T/ha\))</p></td>
+      </tr><tr><td>
           <p><code><a href="convertM3biom.html">convertM3biom()</a></code> </p>
         </td>
         <td><p>Calculate biomass from gross merchantable volume</p></td>
@@ -169,6 +169,10 @@
           <p><code><a href="cumPoolsCreate.html">cumPoolsCreate()</a></code> </p>
         </td>
         <td><p>Create <code>cumPools</code> data.table</p></td>
+      </tr><tr><td>
+          <p><code><a href="cumPoolsCreateAGB.html">cumPoolsCreateAGB()</a></code> </p>
+        </td>
+        <td><p>Convert total above ground biomass into 3 pools (\(T/ha\))</p></td>
       </tr><tr><td>
           <p><code><a href="cumPoolsSmooth.html">cumPoolsSmooth()</a></code> </p>
         </td>
@@ -206,6 +210,10 @@
         </td>
         <td><p>getIdentityCoordinateMatrix</p></td>
       </tr><tr><td>
+          <p><code><a href="getParameters.html">getParameters()</a></code> </p>
+        </td>
+        <td><p>Extract the parameters to apply to convert total biomass into pool biomass</p></td>
+      </tr><tr><td>
           <p><code><a href="getTable.html">getTable()</a></code> </p>
         </td>
         <td><p>getTable</p></td>
@@ -216,7 +224,7 @@
       </tr><tr><td>
           <p><code><a href="histDist.html">histDist()</a></code> </p>
         </td>
-        <td><p>Historical disturbances</p></td>
+        <td><p>CBM-CFS3 Historical Disturbances</p></td>
       </tr><tr><td>
           <p><code><a href="loadDisturbanceMatrixIds.html">loadDisturbanceMatrixIds()</a></code> </p>
         </td>
@@ -304,7 +312,11 @@
       </tr><tr><td>
           <p><code><a href="spuDist.html">spuDist()</a></code> </p>
         </td>
-        <td><p>Identify the ID number (CBM-CFS3 legacy) possible in the current spatial unit</p></td>
+        <td><p>CBM-CFS3 Spatial Unit Disturbances</p></td>
+      </tr><tr><td>
+          <p><code><a href="spuDistMatch.html">spuDistMatch()</a></code> </p>
+        </td>
+        <td><p>CBM-CFS3 Disturbances Match</p></td>
       </tr><tr><td>
           <p><code><a href="ws3Build.html">ws3Build()</a></code> </p>
         </td>
@@ -322,7 +334,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>
