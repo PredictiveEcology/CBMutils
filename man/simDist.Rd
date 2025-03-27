@@ -2,18 +2,15 @@
 % Please edit documentation in R/CBM-DB_disturbances.R
 \name{simDist}
 \alias{simDist}
-\title{get the descriptive name and proportions transferred for disturbances in a simulation
-requires a simulation list post simulations (from spades())
-and returns a list of data.frames. Each data had the descriptive name of a
-disturbance used in the simulations, the disturbance matrix identification
-number from cbm_defaults, the pool from which carbon is taken (source pools)
-in this specific disturbance, the pools into which carbon goes, and the
-proportion in which the carbon-transfers are completed.}
+\title{See disturbances in simList}
 \usage{
 simDist(sim)
 }
 \arguments{
 \item{sim}{A \code{SpaDES} CBM simulation (\code{simList}) object.}
+}
+\value{
+List of \code{data.frame} for each disturbance matrix id in the study area, named by disturbance name
 }
 \description{
 get the descriptive name and proportions transferred for disturbances in a simulation

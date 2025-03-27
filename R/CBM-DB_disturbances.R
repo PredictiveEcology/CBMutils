@@ -1,5 +1,5 @@
 
-utils::globalVariables("spatial_unit_id")
+utils::globalVariables(c("spatial_unit_id", "name"))
 
 #' CBM-CFS3 Disturbances Match
 #'
@@ -440,6 +440,8 @@ seeDist <- function(EXN = TRUE, matrixIDs = NULL,
   return(distTables)
 }
 
+#' See disturbances in simList
+#'
 #' get the descriptive name and proportions transferred for disturbances in a simulation
 #' requires a simulation list post simulations (from spades())
 #' and returns a list of data.frames. Each data had the descriptive name of a
@@ -449,14 +451,10 @@ seeDist <- function(EXN = TRUE, matrixIDs = NULL,
 #' proportion in which the carbon-transfers are completed.
 #'
 #' @param sim A `SpaDES` CBM simulation (`simList`) object.
-#' @param disturbanceMeta Table defining the disturbance event types created in the CBM_dataPrep module.
-#' @param disturbanceMatrix Default disturbance data table created in the CBM_defaults module.
-#' @param dbPath Path to CBM-CFS3 SQLite database file.
 #'
 #' @return List of `data.frame` for each disturbance matrix id in the study area, named by disturbance name
 #'
 #' @export
-#' @importFrom data.table
 simDist <- function(sim) {
   # Getting the disturbances in study area
   DMID <- unique(sim@.envir$disturbanceMeta[, 6])
