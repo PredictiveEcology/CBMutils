@@ -182,7 +182,7 @@ test_that("adjustStandAges backwards with disturbances", {
     c(id = 6, age = NA)
   )))
 
-  ## Check warning: stand ages indicate that disturbances are missing events
+  ## Check warning: stands lost
   agesAdjust <- expect_warning(
     adjustStandAges(
       yearInput = 2000, yearOutput = 1990,
@@ -193,12 +193,11 @@ test_that("adjustStandAges backwards with disturbances", {
     c(id = 1, age = NA)
   )))
 
-  agesAdjust <- expect_warning(
-    adjustStandAges(
-      yearInput = 2000, yearOutput = 1990,
-      standAges         = data.frame(id = 1, age = 2, default = 10),
-      disturbanceEvents = data.frame(id = 1, year = 2009)
-    ))
+  agesAdjust <- adjustStandAges(
+    yearInput = 2000, yearOutput = 1990,
+    standAges         = data.frame(id = 1, age = 2, default = 10),
+    disturbanceEvents = data.frame(id = 1, year = 2009)
+  )
   expect_equal(as.data.frame(agesAdjust), as.data.frame(rbind(
     c(id = 1, age = 10)
   )))
