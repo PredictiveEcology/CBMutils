@@ -39,7 +39,7 @@ spatialPlot <- function(cbmPools, years, masterRaster, spatialDT) {
   setkey(totalCarbon, pixelGroup)
   temp <- merge(t, totalCarbon, allow.cartesian=TRUE)
   setkey(temp, pixelIndex)
-  plotM <- terra::rast(masterRaster, vals = 0)
+  plotM <- terra::rast(masterRaster)
   terra::values(plotM)[temp$pixelIndex] <- temp$totalCarbon
   pixSize <- prod(terra::res(masterRaster))/10000
   temp[, `:=`(pixTC, totalCarbon * pixSize)]
