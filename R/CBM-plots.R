@@ -17,7 +17,7 @@ utils::globalVariables(c(
 #' @param cbmPools TODO
 #' @param years TODO
 #' @template masterRaster
-#' @param spatialDT TODO
+#' @param cohortGroupKeep TODO
 #'
 #' @return TODO
 #'
@@ -26,7 +26,7 @@ utils::globalVariables(c(
 #' @importFrom ggforce theme_no_axes
 #' @importFrom ggplot2 aes geom_raster ggplot ggtitle scale_fill_continuous
 #' @importFrom terra rast res unwrap values
-spatialPlot <- function(cbmPools, years, masterRaster, spatialDT) {
+spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
 
   masterRaster <- terra::unwrap(masterRaster)
   cbmPools <- as.data.table(cbmPools)
@@ -34,9 +34,9 @@ spatialPlot <- function(cbmPools, years, masterRaster, spatialDT) {
                        1, "sum")
   totalCarbon <- cbind(cbmPools, totalCarbon)
   totalCarbon <- totalCarbon[simYear == years,]
-  t <- spatialDT[, .(pixelIndex, pixelGroup)]
-  setkey(t, pixelGroup)
-  setkey(totalCarbon, pixelGroup)
+  t <- cohortGroupKeep[, .(pixelIndex, cohortGroupID)]
+  setkey(t, cohortGroupID)
+  setkey(totalCarbon, cohortGroupID)
   temp <- merge(t, totalCarbon, allow.cartesian=TRUE)
   setkey(temp, pixelIndex)
   plotM <- terra::rast(masterRaster)
@@ -90,7 +90,7 @@ carbonOutPlot <- function(emissionsProducts) {
 
 #' `NPPplot`
 #'
-#' @param spatialDT TODO
+#' @param cohortGroupKeep TODO
 #' @param NPP TODO
 #' @template masterRaster
 #'
