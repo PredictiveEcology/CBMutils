@@ -4,7 +4,7 @@
 \alias{spatialPlot}
 \title{\code{spatialPlot}}
 \usage{
-spatialPlot(cbmPools, years, masterRaster, spatialDT)
+spatialPlot(cbmPools, years, masterRaster, cohortGroupKeep)
 }
 \arguments{
 \item{cbmPools}{TODO}
@@ -13,7 +13,7 @@ spatialPlot(cbmPools, years, masterRaster, spatialDT)
 
 \item{masterRaster}{A \code{SpatRaster} object to use as the template}
 
-\item{spatialDT}{TODO}
+\item{cohortGroupKeep}{TODO}
 }
 \value{
 TODO

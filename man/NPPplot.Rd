@@ -4,10 +4,10 @@
 \alias{NPPplot}
 \title{\code{NPPplot}}
 \usage{
-NPPplot(spatialDT, NPP, masterRaster)
+NPPplot(cohortGroupKeep, NPP, masterRaster)
 }
 \arguments{
-\item{spatialDT}{TODO}
+\item{cohortGroupKeep}{TODO}
 
 \item{NPP}{TODO}
 

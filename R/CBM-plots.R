@@ -1,12 +1,11 @@
 utils::globalVariables(c(
   "AboveGroundFastSoil", "AboveGroundSlowSoil", "AboveGroundVeryFastSoil", "AGB", "AGlive",
   "BelowGroundFastSoil", "BelowGroundSlowSoil", "BelowGroundVeryFastSoil", "BGB", "BGlive",
-  "BranchSnag", "carbon", "CH4", "CO", "CO2", "CoarseRoots",
+  "BranchSnag", "carbon", "CH4", "CO", "CO2", "CoarseRoots", "cohortGroup",
   "description", "disturbance_matrix_id", "disturbance_type_id",
   "DOM", "Emissions", "emissionsCH4", "emissionsCO", "emissionsCO2",
   "FineRoots", "Foliage", "HardwoodBranchSnag", "HardwoodStemSnag",
-  "locale_id", "MediumSoil", "Merch", "Other",
-  "pixelCount", "pixelGroup", "pixelIndex", "pixNPP", "pixTC",
+  "locale_id", "MediumSoil", "Merch", "N", "Other","pixelIndex", "pixNPP", "pixTC",
   "pool", "products", "Products",
   "res", "simYear", "snags", "SoftwoodBranchSnag", "SoftwoodStemSnag", "soil", "StemSnag", "weight",
   "x", "y", "ldSp_TestArea"
@@ -17,7 +16,7 @@ utils::globalVariables(c(
 #' @param cbmPools TODO
 #' @param years TODO
 #' @template masterRaster
-#' @param spatialDT TODO
+#' @param cohortGroupKeep TODO
 #'
 #' @return TODO
 #'
@@ -26,7 +25,7 @@ utils::globalVariables(c(
 #' @importFrom ggforce theme_no_axes
 #' @importFrom ggplot2 aes geom_raster ggplot ggtitle scale_fill_continuous
 #' @importFrom terra rast res unwrap values
-spatialPlot <- function(cbmPools, years, masterRaster, spatialDT) {
+spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
 
   masterRaster <- terra::unwrap(masterRaster)
   cbmPools <- as.data.table(cbmPools)
@@ -34,9 +33,9 @@ spatialPlot <- function(cbmPools, years, masterRaster, spatialDT) {
                        1, "sum")
   totalCarbon <- cbind(cbmPools, totalCarbon)
   totalCarbon <- totalCarbon[simYear == years,]
-  t <- spatialDT[, .(pixelIndex, pixelGroup)]
-  setkey(t, pixelGroup)
-  setkey(totalCarbon, pixelGroup)
+  t <- cohortGroupKeep[, .(pixelIndex, cohortGroupID)]
+  setkey(t, cohortGroupID)
+  setkey(totalCarbon, cohortGroupID)
   temp <- merge(t, totalCarbon, allow.cartesian=TRUE)
   setkey(temp, pixelIndex)
   plotM <- terra::rast(masterRaster)
@@ -45,7 +44,7 @@ spatialPlot <- function(cbmPools, years, masterRaster, spatialDT) {
   temp[, `:=`(pixTC, totalCarbon * pixSize)]
   overallTC <- sum(temp$pixTC)/(nrow(temp) * pixSize)
   Plot <- ggplot() + geom_raster(data = plotM, aes(x = x, y = y, fill = ldSp_TestArea)) +
-    theme_no_axes() + scale_fill_continuous(low = "red", high = "green", na.value = "transparent", guide = "colorbar") +
+    theme_no_axes() + scale_fill_continuous(low = "red", high = "green", na.value = "transparent", guide = "colorbar") + labs(fill = "Carbon (MgC)" ) +
     ggtitle(paste0("Total Carbon in ", years, " in MgC/ha"))
 }
 
@@ -90,7 +89,7 @@ carbonOutPlot <- function(emissionsProducts) {
 
 #' `NPPplot`
 #'
-#' @param spatialDT TODO
+#' @param cohortGroupKeep TODO
 #' @param NPP TODO
 #' @template masterRaster
 #'
@@ -101,15 +100,15 @@ carbonOutPlot <- function(emissionsProducts) {
 #' @importFrom ggforce theme_no_axes
 #' @importFrom ggplot2 ggplot geom_raster aes scale_fill_continuous ggtitle
 #' @importFrom terra rast res unwrap values
-NPPplot <- function(spatialDT, NPP, masterRaster) {
+NPPplot <- function(cohortGroupKeep, NPP, masterRaster) {
   masterRaster <- terra::unwrap(masterRaster)
   npp <- as.data.table(copy(NPP))
-  npp[, `:=`(avgNPP, mean(NPP)), by = c("pixelGroup")]
+  npp[, `:=`(avgNPP, mean(NPP)), by = c("cohortGroupID")]
   cols <- c("simYear", "NPP")
   avgNPP <- unique(npp[, `:=`((cols), NULL)])
-  t <- spatialDT[, .(pixelIndex, pixelGroup)]
-  setkey(t, pixelGroup)
-  setkey(avgNPP, pixelGroup)
+  t <- cohortGroupKeep[, .(pixelIndex, cohortGroupID)]
+  setkey(t, cohortGroupID)
+  setkey(avgNPP, cohortGroupID)
   temp <- merge(t, avgNPP, allow.cartesian=TRUE)
   setkey(temp, pixelIndex)
   plotMaster <- terra::rast(masterRaster)
@@ -119,7 +118,7 @@ NPPplot <- function(spatialDT, NPP, masterRaster) {
   temp[, `:=`(pixNPP, avgNPP * pixSize)]
   overallAvgNpp <- sum(temp$pixNPP)/(nrow(temp) * pixSize)
   Plot <- ggplot() + geom_raster(data = plotMaster, aes(x = x, y = y, fill = ldSp_TestArea)) +
-    theme_no_axes() + scale_fill_continuous(low = "red", high = "green", na.value = "transparent", guide = "colorbar") +
+    theme_no_axes() + scale_fill_continuous(low = "red", high = "green", na.value = "transparent", guide = "colorbar") + labs(fill = "NPP (MgC)" ) +
     ggtitle(paste0("Pixel-level average NPP\n",
                    "Landscape average: ", round(overallAvgNpp, 3), "  MgC/ha/yr."))
 }
@@ -137,16 +136,16 @@ NPPplot <- function(spatialDT, NPP, masterRaster) {
 #' scale_fill_brewer scale_fill_discrete scale_y_continuous theme_classic
 barPlot <- function(cbmPools) {
   cbmPools <- as.data.table(cbmPools)
-  cbmPools$pixelGroup <- as.character(cbmPools$pixelGroup)
-  pixelNo <- sum(cbmPools$pixelCount/length(unique(cbmPools$simYear)))
+  cbmPools$cohortGroupID <- as.character(cbmPools$cohortGroupID)
+  pixelNo <- sum(cbmPools$N/length(unique(cbmPools$simYear)))
   cbmPools$simYear <- as.character(cbmPools$simYear)
   carbonCompartments <- cbmPools[, .(soil = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
                                                 AboveGroundFastSoil, BelowGroundFastSoil,
                                                 AboveGroundSlowSoil, BelowGroundSlowSoil, MediumSoil),
                                      AGlive = sum(Merch, Foliage, Other),
                                      BGlive = sum(CoarseRoots,FineRoots),
-                                     snags = sum(StemSnag, BranchSnag), weight = pixelCount/pixelNo),
-                                 by = .(pixelGroup, simYear)]
+                                     snags = sum(StemSnag, BranchSnag), weight = N/pixelNo),
+                                 by = .(cohortGroupID, simYear)]
   outTable <- carbonCompartments[, .(soil = sum(soil * weight),
                                      AGlive = sum(AGlive * weight),
                                      BGlive = sum(BGlive * weight),
