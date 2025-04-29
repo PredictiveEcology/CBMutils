@@ -1,6 +1,6 @@
 
 utils::globalVariables(c(
-  "year", "age", "ageCalc"
+  "age", "ageCalc", "ageDist", "id", "prev", "year"
 ))
 
 #' Adjust stand ages
@@ -35,7 +35,7 @@ utils::globalVariables(c(
 #'
 #' @return \code{standAges} with ages adjusted to \code{yearOutput}.
 #'
-#' @importFrom data.table as.data.table key setkeyv
+#' @importFrom data.table as.data.table key setkeyv setnames
 #' @export
 adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents = NULL,
                             delay = NULL, default = NULL, warn = TRUE){
@@ -50,7 +50,7 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
   standAges <- data.table::as.data.table(standAges)
   if (!"age" %in% names(standAges)){
     if ("ages" %in% names(standAges)){
-      standAges$age <- standAges$ages
+      data.table::setnames(standAges, "ages", "age")
     }else stop("'standAges' must have column 'age'")
   }
 
@@ -61,17 +61,17 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
     data.table::setkeyv(standAges, ageKey)
   }
 
-  if (yearInput == yearOutput) return(standAges[, c(ageKey, "age"), with = FALSE])
+  if (yearInput == yearOutput) return(standAges[, .SD, .SDcols = c(ageKey, "age")])
 
   # Initiate table of adjusted ages
-  ageAdjust <- copy(subset(standAges, !is.na(age)))[
-    , intersect(names(standAges), c(ageKey, "age", "default", "delay")), with = FALSE]
-  names(ageAdjust)[[1]] <- "id"
+  ageAdjust <- copy(standAges[!is.na(age),])[
+    , .SD, .SDcols = intersect(names(standAges), c(ageKey, "age", "default", "delay"))]
+  data.table::setnames(ageAdjust, ageKey, "id")
 
   # Add delays to input table
   if (!is.null(disturbanceEvents)){
     if (!is.null(delay)) ageAdjust$delay <- delay
-    if (!"delay" %in% names(ageAdjust)) ageAdjust$delay <- 0
+    if (!"delay" %in% names(ageAdjust)) ageAdjust[, delay := 0]
   }
 
   # Add default age to input table
@@ -88,20 +88,20 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
     if (!"year" %in% names(disturbanceEvents)) stop("'disturbanceEvents' must have column 'year'")
 
     # Filter disturbance events by relevant IDs
-    if (ageKey != "id") disturbanceEvents$id <- disturbanceEvents[[ageKey]]
+    if (ageKey != "id") disturbanceEvents[, id := disturbanceEvents[[ageKey]]]
     disturbanceEvents <- disturbanceEvents[id %in% ageAdjust$id,]
 
     if (yearOutput > yearInput){
 
       # Find the most recent disturbance before the year required
-      lastEvent <- disturbanceEvents[year %in% yearInput:(yearOutput - 1), ][, .(id, year)]
+      lastEvent <- disturbanceEvents[year %in% yearInput:(yearOutput - 1), ][, .SD, .SDcols = c("id", "year")]
 
       if (nrow(lastEvent) > 0){
 
         lastEvent <- unique(lastEvent[, year := max(year), by = "id"])
 
         # Add delays to table
-        lastEvent <- merge(lastEvent, ageAdjust[, .(id, delay)], by = "id", all.x = TRUE)
+        lastEvent <- merge(lastEvent, ageAdjust[, .SD, .SDcols = c("id", "delay")], by = "id", all.x = TRUE)
 
         # Calculate the age as the number of years after the disturbance
         lastEvent[, age := yearOutput - (year + delay)]
@@ -117,15 +117,15 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
     if (yearOutput < yearInput){
 
       # Determine which pixels were disturbed within time frame
-      firstEvent <- disturbanceEvents[year %in% yearOutput:(yearInput - 1),][, .(id, year)]
+      firstEvent <- disturbanceEvents[year %in% yearOutput:(yearInput - 1),][, .SD, .SDcols = c("id", "year")]
 
       # Add events when stands were established
-      negAges <- subset(ageAdjust, age < 0 & !id %in% firstEvent$id)
+      negAges <- ageAdjust[age < 0 & !id %in% firstEvent$id,]
       if (nrow(negAges) > 0){
 
         negAges[, year := yearOutput - age]
 
-        firstEvent <- rbind(firstEvent, negAges[, .(id, year)])
+        firstEvent <- rbind(firstEvent, negAges[, .SD, .SDcols = c("id", "year")])
         rm(negAges)
       }
 
@@ -134,15 +134,15 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
         firstEvent <- unique(firstEvent[, year := min(year), by = "id"])
 
         # Add delays to table
-        firstEvent <- merge(firstEvent, ageAdjust[, .(id, delay)], by = "id", all.x = TRUE)
+        firstEvent <- merge(firstEvent, ageAdjust[, .SD, .SDcols = c("id", "delay")], by = "id", all.x = TRUE)
 
         # Find most recent event before year output
-        prevEvent <- disturbanceEvents[year <= yearOutput,][, .(id, year)]
+        prevEvent <- disturbanceEvents[year <= yearOutput,][, .SD, .SDcols = c("id", "year")]
         if (nrow(prevEvent) > 0){
 
           prevEvent <- unique(prevEvent[, prev := max(year), by = "id"])
 
-          firstEvent <- merge(firstEvent, prevEvent[, .(id, prev)], by = "id", all.x = TRUE)
+          firstEvent <- merge(firstEvent, prevEvent[, .SD, .SDcols = c("id", "prev")], by = "id", all.x = TRUE)
           rm(prevEvent)
 
         }else firstEvent$prev <- NA_real_
@@ -170,12 +170,12 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
           currEvent <- unique(currEvent[, year := max(year), by = "id"])
 
           # Calculate the age the stand "should" be
-          currEvent$ageDist <- yearInput - currEvent$year
+          currEvent[, ageDist := yearInput - year, ]
 
           # Compare with input ages
-          ageMismatch <- subset(
-            merge(currEvent, ageAdjust[, .(id, age)], by = "id", all.x = TRUE),
-            age > ageDist)
+          ageMismatch <- merge(
+            currEvent, ageAdjust[, .SD, .SDcols = c("id", "age")], by = "id", all.x = TRUE)[
+            age > ageDist,]
 
           if (nrow(ageMismatch) > 0) warning(
             nrow(ageMismatch),
@@ -204,10 +204,10 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
   }
 
   # Set key and return
-  names(ageAdjust)[[1]] <- ageKey
+  data.table::setnames(ageAdjust, names(ageAdjust)[[1]], ageKey)
   ageAdjust <- rbind(
-    ageAdjust[, c(ageKey, "age"), with = FALSE],
-    standAges[is.na(age), c(ageKey, "age"), with = FALSE]
+    ageAdjust[, .SD, .SDcols = c(ageKey, "age")],
+    standAges[is.na(age), .SD, .SDcols = c(ageKey, "age")]
   )
   data.table::setkeyv(ageAdjust, ageKey)
   ageAdjust

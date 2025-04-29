@@ -1,5 +1,8 @@
 
-utils::globalVariables(c("spatial_unit_id", "name"))
+utils::globalVariables(c(
+  "locale_id", "name", "spatial_unit_id",
+  "disturbance_type_id", "disturbance_matrix_id"
+))
 
 #' CBM-CFS3 Disturbances Match
 #'

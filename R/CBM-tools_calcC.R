@@ -10,7 +10,8 @@ utils::globalVariables(c(
   "HardwoodCoarseRoots", "HardwoodFineRoots",
   "BelowGroundVeryFastSoil",
   "BelowGroundFastSoil", "MediumSoil",
-  "BelowGroundSlowSoil"
+  "BelowGroundSlowSoil",
+  "pixelCount", "pixelGroup", "simYear"
 ))
 
 #' Sum carbon for `totalCarbon` or `aboveGround` or `belowGround`
