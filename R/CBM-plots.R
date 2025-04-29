@@ -1,12 +1,11 @@
 utils::globalVariables(c(
   "AboveGroundFastSoil", "AboveGroundSlowSoil", "AboveGroundVeryFastSoil", "AGB", "AGlive",
   "BelowGroundFastSoil", "BelowGroundSlowSoil", "BelowGroundVeryFastSoil", "BGB", "BGlive",
-  "BranchSnag", "carbon", "CH4", "CO", "CO2", "CoarseRoots",
+  "BranchSnag", "carbon", "CH4", "CO", "CO2", "CoarseRoots", "cohortGroup",
   "description", "disturbance_matrix_id", "disturbance_type_id",
   "DOM", "Emissions", "emissionsCH4", "emissionsCO", "emissionsCO2",
   "FineRoots", "Foliage", "HardwoodBranchSnag", "HardwoodStemSnag",
-  "locale_id", "MediumSoil", "Merch", "Other",
-  "pixelCount", "pixelGroup", "pixelIndex", "pixNPP", "pixTC",
+  "locale_id", "MediumSoil", "Merch", "N", "Other","pixelIndex", "pixNPP", "pixTC",
   "pool", "products", "Products",
   "res", "simYear", "snags", "SoftwoodBranchSnag", "SoftwoodStemSnag", "soil", "StemSnag", "weight",
   "x", "y", "ldSp_TestArea"
