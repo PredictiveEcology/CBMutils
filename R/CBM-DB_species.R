@@ -41,7 +41,7 @@ sppMatch <- function(species, matchCol = NULL, sppEquivalencies = NULL,
 
   # Set function for matching character columns
   ## All character lower case
-  ## Remove training white space
+  ## Remove leading and trailing white space
   ## Remove all punctuation
   ## Remove "'s" on species names where (.e.g "Engelmann's spruce" -> "Engelmann spruce")
   .chSimple <- function(ch){
