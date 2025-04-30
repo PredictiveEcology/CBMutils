@@ -1,5 +1,5 @@
-Latin_full,EN_generic_short,EN_generic_full,CanfiCode,CBM_speciesID,Broadleaf
-Abies amabilis,Ama fir,Amabilis fir,301,28,FALSE
-,Fir-Spruce,Fir-Spruce,300,35,FALSE
-Acer platanoides,Nor map,Norway maple,1400,88,TRUE
-Ulmus americana,Am elm,American elm,2201,122,TRUE
+Latin_full,EN_generic_short,EN_generic_full,LandR,CanfiCode,CBM_speciesID,Broadleaf
+,Fir-Spruce,Fir-Spruce,Abie_pic,300,35,FALSE
+Abies amabilis,Ama fir,Amabilis fir,Abie_ama,301,28,FALSE
+Acer platanoides,Nor map,Norway maple,Acer_pla,1400,88,TRUE
+Ulmus americana,Am elm,American elm,Ulmu_ame,2201,122,TRUE

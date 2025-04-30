@@ -93,18 +93,25 @@ test_that("sppMatch to a chosen column", {
 
   # Match with a specific column
   sppTable <- sppMatch(
-    species  = c(301, 2201),
+    species  = c(2201, 301),
     matchCol = "CanfiCode",
     sppEquivalencies = sppEquivalencies
   )
-  expect_equal(sppTable$CBM_speciesID, c(28, 122))
+  expect_equal(sppTable$CBM_speciesID, c(122, 28))
 
   sppTable <- sppMatch(
-    species  = c("Abies amabilis", "Ulmus americana"),
+    species  = c("ulmu_ame", "abie_ama"),
+    matchCol = "LandR",
+    sppEquivalencies = sppEquivalencies
+  )
+  expect_equal(sppTable$CBM_speciesID, c(122, 28))
+
+  sppTable <- sppMatch(
+    species  = c("ulmus americana", "abies amabilis"),
     matchCol = "Latin_full",
     sppEquivalencies = sppEquivalencies
   )
-  expect_equal(sppTable$CBM_speciesID, c(28, 122))
+  expect_equal(sppTable$CBM_speciesID, c(122, 28))
 
   # 0 matches
   sppTable <- sppMatch(
