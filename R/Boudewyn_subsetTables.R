@@ -1,3 +1,13 @@
+#' Subset Boudewyn tables to fit study area
+#'
+#' @param table Boudewyn table to subset
+#' @param thisAdmin study area attributes
+#' @param eco ecozones in study area
+#'
+#' @return `smallTable` data.table
+#'
+#' @export
+#' @importFrom data.table data.table
 boudewynSubsetTables <- function(table, thisAdmin, eco) {
   # not all ecozones are in tables 3-7. There may be some mismatch here.
   # these are the ecozones in the tables
