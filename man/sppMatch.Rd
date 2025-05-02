@@ -6,21 +6,26 @@
 \usage{
 sppMatch(
   species,
-  matchCol = NULL,
-  sppEquivalencies = NULL,
-  checkNA = c("CBM_speciesID", "Broadleaf")
+  match = NULL,
+  return = NULL,
+  checkNA = !is.null(return),
+  sppEquivalencies = NULL
 )
 }
 \arguments{
 \item{species}{Species identifiers.}
 
-\item{matchCol}{character. \code{sppEquivalencies} columns to match \code{species} with.
+\item{match}{character. \code{sppEquivalencies} columns to match \code{species} with.
 Defaults to \code{LandR::sppEquivalencies_CA} columns with Latin and generic English species names.}
+
+\item{return}{character. \code{sppEquivalencies} columns to return.
+All columns will be returned by default.}
+
+\item{checkNA}{logical. Check for NA values in the returned columns.
+Defaults to TRUE if the \code{return} argument is used; otherwise FALSE.}
 
 \item{sppEquivalencies}{data.table. Table of species identifiers and metadata.
 Defaults to \code{LandR::sppEquivalencies_CA}.}
-
-\item{checkNA}{character. \code{sppEquivalencies} columns to check for NA values in.}
 }
 \value{
 data.table. Subset of \code{sppEquivalencies} with 1 row per species.
