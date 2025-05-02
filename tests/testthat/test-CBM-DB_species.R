@@ -70,7 +70,8 @@ test_that("sppMatch", {
   expect_error(
     sppMatch(
       species = speciesNames,
-      checkNA = c("CBM_speciesID", "Broadleaf"),
+      return  = c("CBM_speciesID", "Broadleaf"),
+      check   = TRUE,
       sppEquivalencies = cbind(
         sppEquivalencies[sppEquivalencies$CBM_speciesID %in% c(35, 88), .SD, .SDcols = !"CBM_speciesID"],
         CBM_speciesID = c(NA, 1))
@@ -81,7 +82,8 @@ test_that("sppMatch", {
   expect_error(
     sppMatch(
       species = speciesNames,
-      checkNA = c("CanfiCode", "column_not_found"),
+      return  = c("CBM_speciesID", "column_not_found"),
+      check   = TRUE,
       sppEquivalencies = sppEquivalencies
     )
   )
@@ -93,30 +95,30 @@ test_that("sppMatch to a chosen column", {
 
   # Match with a specific column
   sppTable <- sppMatch(
-    species  = c(2201, 301),
-    matchCol = "CanfiCode",
+    species = c(2201, 301),
+    match   = "CanfiCode",
     sppEquivalencies = sppEquivalencies
   )
   expect_equal(sppTable$CBM_speciesID, c(122, 28))
 
   sppTable <- sppMatch(
-    species  = c("ulmu_ame", "abie_ama"),
-    matchCol = "LandR",
+    species = c("ulmu_ame", "abie_ama"),
+    match   = "LandR",
     sppEquivalencies = sppEquivalencies
   )
   expect_equal(sppTable$CBM_speciesID, c(122, 28))
 
   sppTable <- sppMatch(
-    species  = c("ulmus americana", "abies amabilis"),
-    matchCol = "Latin_full",
+    species = c("ulmus americana", "abies amabilis"),
+    match   = "Latin_full",
     sppEquivalencies = sppEquivalencies
   )
   expect_equal(sppTable$CBM_speciesID, c(122, 28))
 
   # 0 matches
   sppTable <- sppMatch(
-    species  = c(),
-    matchCol = "CanfiCode",
+    species = c(),
+    match   = "CanfiCode",
     sppEquivalencies = sppEquivalencies
   )
   expect_equal(nrow(sppTable), 0)
@@ -124,8 +126,8 @@ test_that("sppMatch to a chosen column", {
   # Expect error: NAs in input
   expect_error(
     sppMatch(
-      species  = c(NA, 2201),
-      matchCol = "CanfiCode",
+      species = c(NA, 2201),
+      match   = "CanfiCode",
       sppEquivalencies = sppEquivalencies
     )
   )
@@ -133,8 +135,8 @@ test_that("sppMatch to a chosen column", {
   # Expect error: match to a column that doesn't exist
   expect_error(
     sppMatch(
-      species  = c(301, 2201),
-      matchCol = "CanfiCode",
+      species = c(301, 2201),
+      match   = "CanfiCode",
       sppEquivalencies = sppEquivalencies[, .SD, .SDcols = c(
         "Latin_full", "CBM_speciesID", "Broadleaf")])
   )
@@ -142,8 +144,8 @@ test_that("sppMatch to a chosen column", {
   # Expect error: match not found
   expect_error(
     sppMatch(
-      species  = c(301, 2201),
-      matchCol = "CanfiCode",
+      species = c(301, 2201),
+      match   = "CanfiCode",
       sppEquivalencies = sppEquivalencies[!sppEquivalencies$CanfiCode %in% 301,]
     ),
     "301")
@@ -151,8 +153,8 @@ test_that("sppMatch to a chosen column", {
   # Expect error: multiple matches
   expect_error(
     sppMatch(
-      species  = c(301, 2201),
-      matchCol = "CanfiCode",
+      species = c(301, 2201),
+      match   = "CanfiCode",
       sppEquivalencies = rbind(
         sppEquivalencies,
         sppEquivalencies[sppEquivalencies$CanfiCode %in% 301,]
@@ -162,9 +164,10 @@ test_that("sppMatch to a chosen column", {
   # Expect error: NAs found
   expect_error(
     sppMatch(
-      species  = c(301, 2201),
-      matchCol = "CanfiCode",
-      checkNA  = c("CBM_speciesID", "Broadleaf"),
+      species = c(301, 2201),
+      match   = "CanfiCode",
+      return  = c("CBM_speciesID", "Broadleaf"),
+      check   = TRUE,
       sppEquivalencies = cbind(
         sppEquivalencies[sppEquivalencies$CanfiCode %in% c(301, 2201), .SD, .SDcols = !"CBM_speciesID"],
         CBM_speciesID = c(NA, 1))
@@ -174,9 +177,10 @@ test_that("sppMatch to a chosen column", {
   # Expect error: check NAs for a column that doesn't exist
   expect_error(
     sppMatch(
-      species  = c(301, 2201),
-      matchCol = "CanfiCode",
-      checkNA  = c("CanfiCode", "column_not_found"),
+      species = c(301, 2201),
+      match   = "CanfiCode",
+      return  = c("CBM_speciesID", "column_not_found"),
+      check   = TRUE,
       sppEquivalencies = sppEquivalencies
     )
   )
