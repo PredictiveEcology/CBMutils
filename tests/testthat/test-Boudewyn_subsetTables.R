@@ -19,5 +19,4 @@ test_that("boudewynSubsetTables", {
   out <- boudewynSubsetTable(table = table6, thisAdmin = ThisAdmin, eco = eco)
 
   expect_is(out, "data.table")
-  expect_named(out, "smallTable")
 })

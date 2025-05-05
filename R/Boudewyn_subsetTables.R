@@ -45,6 +45,7 @@ boudewynSubsetTables <- function(table, thisAdmin, eco) {
   abreviation <- c("PE", "QC", "ON", "MB", "SK", "YK", "NU", "NS")
   tabreviation <- c("NB", "NL", "NL", "AB", "AB", "NT", "NT", "NB")
   abreviationReplace <- data.table(abreviation, tabreviation)
+  thisAdmin <- as.data.table(thisAdmin)
   if (any(eco %in% ecoNotInT)) { #if the study area is in ecozones not in the tables
     thisAdmin <- merge(ecoReplace, thisAdmin, by.x = "ecoNotInT", by.y = "EcoBoundaryID")
     smallTable <- as.data.table(table[table$juris_id %in% thisAdmin$abreviation &
