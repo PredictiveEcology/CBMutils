@@ -16,7 +16,7 @@ thisAdmin <- data.frame(
 )
 
 test_that("boudewynSubsetTables", {
-  out <- boudewynSubsetTables(table = table3, thisAdmin = ThisAdmin, eco = eco)
+  out <- boudewynSubsetTables(table = table3, thisAdmin = thisAdmin, eco = eco)
 
   expect_is(out, "data.table")
 })
