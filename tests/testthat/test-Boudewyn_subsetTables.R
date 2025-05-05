@@ -6,7 +6,7 @@ table3 <- reproducible::prepInputs(url = "https://nfi.nfis.org/resources/biomass
                                       filename2 = "appendix2_table3.csv")
 eco <- c("9")
 
-thisAdmin <- data.table(
+thisAdmin <- data.frame(
   AdminBoundaryID = 9,
   stump_parameter_id = 9,
   adminName = "Saskatchewan",
@@ -16,7 +16,7 @@ thisAdmin <- data.table(
 )
 
 test_that("boudewynSubsetTables", {
-  out <- boudewynSubsetTable(table = table6, thisAdmin = ThisAdmin, eco = eco)
+  out <- boudewynSubsetTable(table = table3, thisAdmin = ThisAdmin, eco = eco)
 
   expect_is(out, "data.table")
 })
