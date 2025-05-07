@@ -63,8 +63,6 @@ spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
 #' @importFrom scales pretty_breaks
 carbonOutPlot <- function(emissionsProducts) {
   totalOutByYr <- as.data.table(emissionsProducts)
-  cols <- c("CO2", "CH4", "CO")
-  totalOutByYr[, `:=`((cols), NULL)]
   outTable <- data.table::melt.data.table(totalOutByYr, id.vars = "simYear",
                                           measure.vars = c("CO2", "CH4", "CO"),
                                           variable.name = "emissionType", value.name = "emission")
@@ -77,10 +75,9 @@ carbonOutPlot <- function(emissionsProducts) {
     scale_fill_manual(values = c("#733958", "#4e88b9", "#c3a44c"), labels = c('CO2', "CH4", "CO"))
 
   Products <- ggplot(data = totalOutByYr, aes(x = simYear, y = Products)) +
-    geom_bar(stat = "identity") +
+    geom_bar(stat = "identity", fill = "#4e88b9") +
     labs(x = "Year", y = "Carbon in MgC") + theme_classic() + ggtitle("Yearly Products") +
-    scale_y_continuous(expand = c(0,0)) +
-    guides(fill = guide_legend(title.position= "top", title ="Gas") )
+    scale_y_continuous(expand = c(0,0))
 
   plot_grid(Emissions, Products, ncol = 2)
 }
