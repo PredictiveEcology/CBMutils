@@ -1,7 +1,7 @@
 utils::globalVariables(c(
   "AboveGroundFastSoil", "AboveGroundSlowSoil", "AboveGroundVeryFastSoil", "AGB", "AGlive",
   "BelowGroundFastSoil", "BelowGroundSlowSoil", "BelowGroundVeryFastSoil", "BGB", "BGlive",
-  "BranchSnag", "carbon", "CH4", "CO", "CO2", "CoarseRoots", "cohortGroup",
+  "BranchSnag", "carbon", "CH4", "CO", "CO2", "CoarseRoots", "cohortGroup", "cohortGroupID",
   "description", "disturbance_matrix_id", "disturbance_type_id",
   "DOM", "Emissions", "emissionsCH4", "emissionsCO", "emissionsCO2",
   "FineRoots", "Foliage", "HardwoodBranchSnag", "HardwoodStemSnag",
