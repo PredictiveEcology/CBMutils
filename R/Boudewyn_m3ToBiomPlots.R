@@ -6,19 +6,13 @@ utils::globalVariables(c(
 #'
 #' @param inc DESCRIPTION NEEDED
 #' @param id_col DESCRIPTION NEEDED
-#' @param nrow DESCRIPTION NEEDED
-#' @param ncol DESCRIPTION NEEDED
-#' @param filenameBase DESCRIPTION NEEDED
-#' @param path DESCRIPTION NEEDED
-#' @param title DESCRIPTION NEEDED
 #'
 #' @export
 #' @importFrom data.table copy melt
 #' @importFrom ggforce facet_wrap_paginate
-#' @importFrom ggplot2 aes element_text facet_wrap geom_line ggplot ggsave labs theme theme_bw
-#' @importFrom patchwork wrap_plots
-m3ToBiomPlots <- function(inc = "increments", id_col = "gcids", nrow = 5, ncol = 5,
-                          title = "Cumulative merch fol other by gcid") {
+#' @importFrom ggplot2 aes element_text geom_line ggplot labs theme theme_bw
+#' @importFrom patchwork wrap_plots plot_layout plot_annotation
+m3ToBiomPlots <- function(inc = "increments", id_col = "gcids") {
   gInc <- copy(inc)
   colsToRemove <- c("id", "ecozone")
   gInc <- gInc[, (colsToRemove) := NULL]
