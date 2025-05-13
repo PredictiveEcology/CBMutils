@@ -3,7 +3,7 @@ utils::globalVariables(c(
   "BelowGroundFastSoil", "BelowGroundSlowSoil", "BelowGroundVeryFastSoil", "BGB", "BGlive",
   "BranchSnag", "carbon", "CH4", "CO", "CO2", "CoarseRoots", "cohortGroup", "cohortGroupID",
   "description", "disturbance_matrix_id", "disturbance_type_id",
-  "DOM", "Emissions", "emissionsCH4", "emissionsCO", "emissionsCO2",
+  "DOM", "emission", "Emissions", "emissionType", "emissionsCH4", "emissionsCO", "emissionsCO2",
   "FineRoots", "Foliage", "HardwoodBranchSnag", "HardwoodStemSnag",
   "locale_id", "MediumSoil", "Merch", "N", "Other","pixelIndex", "pixNPP", "pixTC",
   "pool", "products", "Products",
@@ -57,8 +57,8 @@ spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
 #' @export
 #' @importFrom cowplot plot_grid
 #' @importFrom data.table as.data.table melt.data.table
-#' @importFrom ggplot2 aes element_text geom_col geom_line ggplot labs
-#' @importFrom ggplot2 scale_fill_discrete scale_x_continuous scale_y_continuous
+#' @importFrom ggplot2 aes element_text geom_bar geom_col geom_line ggplot
+#' guides labs  scale_fill_manual scale_x_continuous scale_y_continuous
 #' sec_axis theme theme_classic xlab
 #' @importFrom scales pretty_breaks
 carbonOutPlot <- function(emissionsProducts) {
