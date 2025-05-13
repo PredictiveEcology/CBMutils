@@ -27,6 +27,7 @@ Imports:
     knitr,
     LandR,
     methods,
+    patchwork,
     reproducible,
     reticulate,
     robustbase,
