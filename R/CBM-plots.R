@@ -44,7 +44,7 @@ spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
   temp[, `:=`(pixTC, totalCarbon * pixSize)]
   overallTC <- sum(temp$pixTC)/(nrow(temp) * pixSize)
   Plot <- ggplot() + geom_raster(data = plotM, aes(x = x, y = y, fill = ldSp_TestArea)) +
-    theme_no_axes() + scale_fill_continuous(low = "red", high = "green", na.value = "transparent", guide = "colorbar") + labs(fill = "Carbon (MgC)" ) +
+    theme_no_axes() + scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") + labs(fill = "Carbon (MgC)" ) +
     ggtitle(paste0("Total Carbon in ", years, " in MgC/ha"))
 }
 
@@ -63,28 +63,23 @@ spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
 #' @importFrom scales pretty_breaks
 carbonOutPlot <- function(emissionsProducts) {
   totalOutByYr <- as.data.table(emissionsProducts)
-  cols <- c("CO2", "CH4", "CO")
-  totalOutByYr[, `:=`((cols), NULL)]
+  outTable <- data.table::melt.data.table(totalOutByYr, id.vars = "simYear",
+                                          measure.vars = c("CO2", "CH4", "CO"),
+                                          variable.name = "emissionType", value.name = "emission")
 
-  absCbyYrProducts <- ggplot(totalOutByYr, aes(x = simYear, y = Products)) +
-    geom_line(linewidth = 1.5) +
-    scale_y_continuous(name = "Products in MgC") +
-    scale_x_continuous(breaks = scales::pretty_breaks()) +
-    xlab("Simulation Years") + theme_classic() +
-    ggtitle("Yearly Forest Products") +
-    theme(axis.title.y = element_text(size = 10),
-          axis.title.x = element_text(size = 10))
+  Emissions <- ggplot(data = outTable, aes(x = simYear, y = emission, fill = emissionType)) +
+    geom_bar(stat = "identity") +
+    labs(x = "Year", y = "Carbon in MgC") + theme_classic() + ggtitle("Yearly Emissions") +
+    guides(fill = guide_legend(title.position= "top", title ="Emission") ) +
+    scale_y_continuous(expand = c(0,0)) +
+    scale_fill_manual(values = c("#733958", "#4e88b9", "#c3a44c"), labels = c('CO2', "CH4", "CO"))
 
-  absCbyYrEmissions <- ggplot(data = totalOutByYr, aes(x = simYear, y = Emissions)) +
-    geom_line(linewidth = 1.5) +
-    scale_y_continuous(limits = c(0, NA)) +
-    scale_x_continuous(breaks = scales::pretty_breaks()) +
-    labs(x = "Simulation Years", y = expression(paste('Emissions (CO'[2]*'+CH'[4]*'+CO) in MgC'))) +
-    theme_classic() +
-    ggtitle("Yearly Emissions") +
-    theme(axis.title.y = element_text(size = 10),
-          axis.title.x = element_text(size = 10))
-  plot_grid(absCbyYrProducts, absCbyYrEmissions, ncol = 2)
+  Products <- ggplot(data = totalOutByYr, aes(x = simYear, y = Products)) +
+    geom_bar(stat = "identity", fill = "#4e88b9") +
+    labs(x = "Year", y = "Carbon in MgC") + theme_classic() + ggtitle("Yearly Products") +
+    scale_y_continuous(expand = c(0,0))
+
+  plot_grid(Emissions, Products, ncol = 2)
 }
 
 #' `NPPplot`
@@ -118,7 +113,7 @@ NPPplot <- function(cohortGroupKeep, NPP, masterRaster) {
   temp[, `:=`(pixNPP, avgNPP * pixSize)]
   overallAvgNpp <- sum(temp$pixNPP)/(nrow(temp) * pixSize)
   Plot <- ggplot() + geom_raster(data = plotMaster, aes(x = x, y = y, fill = ldSp_TestArea)) +
-    theme_no_axes() + scale_fill_continuous(low = "red", high = "green", na.value = "transparent", guide = "colorbar") + labs(fill = "NPP (MgC)" ) +
+    theme_no_axes() + scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") + labs(fill = "NPP (MgC)" ) +
     ggtitle(paste0("Pixel-level average NPP\n",
                    "Landscape average: ", round(overallAvgNpp, 3), "  MgC/ha/yr."))
 }

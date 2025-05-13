@@ -4,33 +4,12 @@
 \alias{m3ToBiomPlots}
 \title{Plot all columns that are not id_col}
 \usage{
-m3ToBiomPlots(
-  inc = "increments",
-  id_col = "gcids",
-  nrow = 5,
-  ncol = 5,
-  filenameBase = "rawCumBiomass_",
-  path = NULL,
-  title = "Cumulative merch fol other by gc id",
-  scales = "free_y"
-)
+m3ToBiomPlots(inc = "increments", id_col = "gcids")
 }
 \arguments{
 \item{inc}{DESCRIPTION NEEDED}
 
 \item{id_col}{DESCRIPTION NEEDED}
-
-\item{nrow}{DESCRIPTION NEEDED}
-
-\item{ncol}{DESCRIPTION NEEDED}
-
-\item{filenameBase}{DESCRIPTION NEEDED}
-
-\item{path}{DESCRIPTION NEEDED}
-
-\item{title}{DESCRIPTION NEEDED}
-
-\item{scales}{DESCRIPTION NEEDED}
 }
 \description{
 Plot all columns that are not id_col
