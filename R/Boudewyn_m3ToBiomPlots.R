@@ -12,7 +12,7 @@ utils::globalVariables(c(
 #' @importFrom ggforce facet_wrap_paginate
 #' @importFrom ggplot2 aes element_text geom_line ggplot labs theme theme_bw
 #' @importFrom patchwork wrap_plots plot_layout plot_annotation
-m3ToBiomPlots <- function(inc = "increments", id_col = "gcids") {
+m3ToBiomPlots <- function(inc, id_col = "gcids") {
   gInc <- copy(inc)
   colsToRemove <- c("id", "ecozone")
   gInc <- gInc[, (colsToRemove) := NULL]
