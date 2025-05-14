@@ -14,8 +14,10 @@ utils::globalVariables(c(
 #' @importFrom patchwork wrap_plots plot_layout plot_annotation
 m3ToBiomPlots <- function(inc, id_col = "gcids") {
   gInc <- copy(inc)
-  colsToRemove <- c("id", "ecozone")
-  gInc <- gInc[, (colsToRemove) := NULL]
+  colsToRemove <- intersect(c("id", "ecozone"), names(gInc))
+  if (length(colsToRemove) > 0) {
+    gInc[, (colsToRemove) := NULL]
+  }
   gc <- data.table::melt(gInc, id.vars = c(id_col, "age"))
 
   gc[is.na(value), "value"] <- 0
