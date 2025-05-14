@@ -15,16 +15,15 @@ utils::globalVariables(c(
 #' @importFrom patchwork wrap_plots plot_layout plot_annotation
 m3ToBiomPlots <- function(inc, id_col = "gcids", title) {
   gInc <- copy(inc)
-  colsToRemove <- intersect(c("id", "ecozone"), names(gInc))
-  if (length(colsToRemove) > 0) {
-    gInc[, (colsToRemove) := NULL]
-  }
+  colsToRemove <- c("id", "ecozone")
+  gInc[, (colsToRemove) := NULL]
   gc <- data.table::melt(gInc, id.vars = c(id_col, "age"))
 
   gc[is.na(value), "value"] <- 0
   set(gc, NULL, "valueNumeric", as.numeric(gc$value))
 
   splitGc <- split(gc, gc[[id_col]])
+
   plots <- lapply(names(splitGc), function(name) {
     data <- splitGc[[name]]
     ggplot(data, aes(x = age, y = valueNumeric, group = variable, color = variable)) +
