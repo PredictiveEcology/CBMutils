@@ -4,7 +4,7 @@
 \alias{m3ToBiomPlots}
 \title{Plot all columns that are not id_col}
 \usage{
-m3ToBiomPlots(inc = "increments", id_col = "gcids")
+m3ToBiomPlots(inc, id_col = "gcids")
 }
 \arguments{
 \item{inc}{DESCRIPTION NEEDED}
