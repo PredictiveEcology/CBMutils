@@ -2,15 +2,17 @@
 % Please edit documentation in R/Boudewyn_m3ToBiomPlots.R
 \name{m3ToBiomPlots}
 \alias{m3ToBiomPlots}
-\title{Plot all columns that are not id_col}
+\title{Makes plots of all columns for each id_col ID}
 \usage{
 m3ToBiomPlots(inc, id_col = "gcids", title)
 }
 \arguments{
-\item{inc}{DESCRIPTION NEEDED}
+\item{inc}{increment data}
 
-\item{id_col}{DESCRIPTION NEEDED}
+\item{id_col}{column by which to group plots}
+
+\item{title}{Title of plots}
 }
 \description{
-Plot all columns that are not id_col
+Makes plots of all columns for each id_col ID
 }
