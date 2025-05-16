@@ -25,12 +25,36 @@ test_that("sppMatch", {
   )
   expect_equal(sppTable$CBM_speciesID, c(35, rep(88, 5)))
 
+  # Match with duplicated species names
+  sppTableDup <- sppMatch(
+    species = c(speciesNames, speciesNames),
+    sppEquivalencies = sppEquivalencies
+  )
+  expect_identical(sppTableDup, rbind(sppTable, sppTable))
+
+  # Match with alternate species names
+  sppTable <- sppMatch(
+    species = "Maybe a fir", otherNames = list("Maybe a fir" = "Fir-Spruce"),
+    sppEquivalencies = sppEquivalencies
+  )
+  expect_equal(sppTable$CBM_speciesID, 35)
+
   # 0 matches
   sppTable <- sppMatch(
     species = c(),
     sppEquivalencies = sppEquivalencies
   )
   expect_equal(nrow(sppTable), 0)
+
+  # Multiple matches but unique result
+  sppTable <- sppMatch(
+    species = speciesNames,
+    return  = "CBM_speciesID",
+    sppEquivalencies = rbind(
+      sppEquivalencies,
+      sppEquivalencies[sppEquivalencies$CBM_speciesID %in% 35,]
+    ))
+  expect_equal(sppTable$CBM_speciesID, c(35, rep(88, 5)))
 
   # Expect error: NAs in input
   expect_error(
@@ -115,6 +139,21 @@ test_that("sppMatch to a chosen column", {
   )
   expect_equal(sppTable$CBM_speciesID, c(122, 28))
 
+  # Match with duplicated species names
+  sppTableDup <- sppMatch(
+    species = c("ulmus americana", "abies amabilis", "ulmus americana", "abies amabilis"),
+    match   = "Latin_full",
+    sppEquivalencies = sppEquivalencies
+  )
+  expect_identical(sppTableDup, rbind(sppTable, sppTable))
+
+  # Match with alternate species names
+  sppTable <- sppMatch(
+    species = "Not sure", otherNames = list("Not sure" = "ulmus americana"),
+    sppEquivalencies = sppEquivalencies
+  )
+  expect_equal(sppTable$CBM_speciesID, 122)
+
   # 0 matches
   sppTable <- sppMatch(
     species = c(),
@@ -122,6 +161,17 @@ test_that("sppMatch to a chosen column", {
     sppEquivalencies = sppEquivalencies
   )
   expect_equal(nrow(sppTable), 0)
+
+  # Multiple matches but unique result
+  sppTable <- sppMatch(
+    species = c(301, 2201),
+    match   = "CanfiCode",
+    return  = "CBM_speciesID",
+    sppEquivalencies = rbind(
+      sppEquivalencies,
+      sppEquivalencies[sppEquivalencies$CanfiCode %in% 301,]
+    ))
+  expect_equal(sppTable$CBM_speciesID, c(28, 122))
 
   # Expect error: NAs in input
   expect_error(

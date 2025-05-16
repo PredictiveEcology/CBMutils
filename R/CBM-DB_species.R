@@ -6,6 +6,8 @@
 #' @param species Species identifiers.
 #' @param match character. \code{sppEquivalencies} columns to match \code{species} with.
 #' Defaults to \code{LandR::sppEquivalencies_CA} columns with Latin and generic English species names.
+#' @param otherNames list. A list of alternative species identified to allow in matching.
+#' Item names must match `species` and item contents must be vectors of additional allowable matches.
 #' @param return character. \code{sppEquivalencies} columns to return.
 #' All columns will be returned by default.
 #' @param checkNA logical. Check for NA values in the returned columns.
@@ -17,30 +19,41 @@
 #'
 #' @export
 #' @importFrom data.table as.data.table
-sppMatch <- function(species, match = NULL, return = NULL, checkNA = !is.null(return),
+sppMatch <- function(species, match = NULL, otherNames = NULL,
+                     return = NULL, checkNA = !is.null(return),
                      sppEquivalencies = NULL){
-
-  # Set matching columns
-  if (is.null(match)) match <- c("Latin_full", "EN_generic_short", "EN_generic_full")
-
-  # Check for NAs
-  if (length(species) > 0 && any(is.na(species))) stop("species contains NAs")
 
   # Read species equivalencies table
   if (is.null(sppEquivalencies)) sppEquivalencies <- LandR::sppEquivalencies_CA
-  sppEquivalencies <- tryCatch(
+  sppEquiv <- tryCatch(
     as.data.table(sppEquivalencies),
     error = function(e) stop(
       "sppEquivalencies could not be converted to data.table: ", e$message, call. = FALSE))
 
   # Return 0 rows
-  if (length(species) == 0) return(sppEquivalencies[0,])
+  if (length(species) == 0) return(sppEquiv[0,])
 
-  # Check that required columns are available
-  colExists <- tolower(c(match, return)) %in% tolower(names(sppEquivalencies))
+  # Set matching columns
+  if (is.null(match)) match <- c("Latin_full", "EN_generic_short", "EN_generic_full")
+
+  colExists <- c(match, return) %in% names(sppEquiv)
   if (!all(colExists)) stop(
     "column(s) not found in sppEquivalencies: ",
     paste(shQuote(c(match, return)[!colExists]), collapse = ", "))
+
+  if (!is.null(return)){
+
+    # Allow duplicate matches if there is a single unique set of return rows
+    ## Create secondary matches from duplicated rows
+    sppEquivUQ <- sppEquiv[, lapply(.SD, function(x) list(list(x))), by = return]
+
+    sppEquiv  <- sppEquivUQ[, .SD, .SDcols = c(match, return)]
+    sppExtras <- sppEquivUQ[, .SD, .SDcols = setdiff(names(sppEquiv), c(match, return))]
+    if (ncol(sppExtras) == 0) sppExtras <- NULL
+
+  }else{
+    sppExtras <- NULL
+  }
 
   # Set function for matching character columns
   ## All character lower case
@@ -53,49 +66,67 @@ sppMatch <- function(species, match = NULL, return = NULL, checkNA = !is.null(re
   }
 
   # Match allowing multiples
-  matchIdx <- lapply(match, function(mCol){
+  speciesUQ <- unique(species)
 
-    matchTo <- sppEquivalencies[[which(tolower(names(sppEquivalencies)) == tolower(mCol))]]
+  matchIdx <- lapply(sppEquiv[, .SD, .SDcols = match], function(choiceCol){
 
-    if (is.character(matchTo)){
-      matchTo <- .chSimple(matchTo)
-      matchIn <- .chSimple(species)
+    if (!is.list(choiceCol)){
+
+      choices <- choiceCol
+      nearMatches <- list()
 
     }else{
-      matchIn <- as(species, class(matchTo))
+
+      chMatches <- lapply(choiceCol, function(ch){
+        ch <- unlist(ch)
+        ch <- ch[!is.na(ch)]
+        ch <- ch[ch != ""]
+        if (length(ch) > 0) ch else NA_character_
+      })
+
+      choices <- sapply(chMatches, `[[`, 1)
+
+      nearMatches <- chMatches
+      names(nearMatches) <- choices
+      nearMatches <- nearMatches[sapply(nearMatches, length) > 1]
     }
 
-    lapply(matchIn, function(mIn) which(mIn == matchTo))
+    nearMatchNm <- c(names(nearMatches), names(otherNames))
+    nearMatches <- lapply(nearMatchNm, function(nm) c(nearMatches[[nm]], otherNames[[nm]]))
+    names(nearMatches) <- nearMatchNm
+
+    .matchSelect(
+      inputs      = speciesUQ,
+      choices     = choices,
+      choiceTable = sppEquiv,
+      choiceTableExtra = sppExtras,
+      identical   = TRUE,
+      funSimplify = .chSimple,
+      nearMatches = nearMatches,
+      allowNA     = TRUE,
+      ask         = "never"
+    )
   })
-  matchIdx <- lapply(1:length(species), function(i){
-    unique(do.call(c, lapply(matchIdx, `[[`, i)))
+  matchIdx <- lapply(1:length(speciesUQ), function(i){
+    unique(na.omit(do.call(c, lapply(matchIdx, `[[`, i))))
   })
-
-  # Subset table by columns to return
-  ## If multiple matches are found only error if they would return a different set of columns.
-  if (!is.null(return)){
-
-    sppEquivalencies <- sppEquivalencies[, .SD, .SDcols = return]
-
-    for (i in which(sapply(matchIdx, length) > 1)){
-      matchIdx[[i]] <- matchIdx[[i]][[which(!duplicated(sppEquivalencies[matchIdx[[i]],]))]]
-    }
-  }
 
   if (any(sapply(matchIdx, length) > 1)) stop(
     "specie(s) with multiple matches in sppEquivalencies: ",
-    paste(shQuote(unique(species[sapply(matchIdx, length) > 1])), collapse = ", "))
+    paste(shQuote(unique(speciesUQ[sapply(matchIdx, length) > 1])), collapse = ", "))
 
   if (any(sapply(matchIdx, length) == 0)) stop(
     "specie(s) not found in sppEquivalencies: ",
-    paste(shQuote(unique(species[sapply(matchIdx, length) == 0])), collapse = ", "))
+    paste(shQuote(unique(speciesUQ[sapply(matchIdx, length) == 0])), collapse = ", "))
 
-  sppMatchTable <- sppEquivalencies[unlist(matchIdx),]
+  # Set table to return
+  sppEquiv <- sppEquiv[unlist(matchIdx)[match(species, speciesUQ)],]
+  if (!is.null(return)) sppEquiv <- sppEquiv[, .SD, .SDcols = return]
 
   # Check for column NAs
   if (checkNA){
 
-    colNA <- is.na(sppMatchTable)
+    colNA <- is.na(sppEquiv)
 
     if (any(colNA)) stop(
       "NA(s) found in sppEquivalencies table:\n",
@@ -104,7 +135,7 @@ sppMatch <- function(species, match = NULL, return = NULL, checkNA = !is.null(re
   }
 
   # Return
-  return(sppMatchTable)
+  return(sppEquiv)
 }
 
 
