@@ -2,12 +2,13 @@
 % Please edit documentation in R/CBM-DB_disturbances.R
 \name{spuDistMatch}
 \alias{spuDistMatch}
-\title{CBM-CFS3 Disturbances Match}
+\title{CBM-CFS3 Spatial Unit Disturbances Match}
 \usage{
 spuDistMatch(
   distTable,
-  ask = interactive(),
   nearMatches = TRUE,
+  identical = !ask,
+  ask = interactive(),
   listDist = NULL,
   ...
 )
@@ -17,22 +18,24 @@ spuDistMatch(
 The name column will be matched with disturbance names and descriptions
 in the CBM-CFS3 database.}
 
-\item{ask}{logical.
-If TRUE, prompt the user to choose the correct disturbance matches.
-If FALSE, the function will look for exact name matches.}
-
 \item{nearMatches}{logical. Allow for near matches; e.g. "clearcut" can match "clear-cut".}
 
-\item{listDist}{data.table. Optional. Result of a call to \code{\link{spuDist}}.
+\item{identical}{logical. Require identical matches.}
+
+\item{ask}{logical.
+If TRUE, prompt the user to choose the correct matches.
+If FALSE, the function will look for a single match to each input.}
+
+\item{listDist}{data.table. Optional. Result of a call to \code{\link{spuDistList}}.
 A list of possible disturbances in the spatial unit(s) with columns
 'spatial_unit_id', 'disturbance_type_id', 'disturbance_matrix_id', 'name', 'description'.}
 
-\item{...}{arguments to \code{\link{spuDist}}
+\item{...}{arguments to \code{\link{spuDistList}}
 for listing the possible disturbances in the spatial units.}
 }
 \value{
-\code{data.table} with columns 'spatial_unit_id'
-'disturbance_type_id', 'disturbance_matrix_id', 'name', 'description'
+\code{data.table} with columns
+'spatial_unit_id', 'disturbance_type_id', 'disturbance_matrix_id', 'name', 'description'
 }
 \description{
 Match disturbance names with CBM-CFS3 spatial unit disturbances.

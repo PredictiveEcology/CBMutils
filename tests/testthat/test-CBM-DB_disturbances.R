@@ -5,8 +5,8 @@ if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 dbPath <- {
   url = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"
   destfile <- file.path(testDirs$temp$inputs, basename(url))
-  download.file(url = url, destfile = destfile, mode = "wb", quiet = TRUE)
-  file.path(testDirs$temp$inputs, basename(url))
+  if (!file.exists(destfile)) download.file(url = url, destfile = destfile, mode = "wb", quiet = TRUE)
+  destfile
 }
 exnDB <- {
   csvNames <- c("disturbance_matrix_association", "disturbance_matrix_value")
@@ -20,19 +20,49 @@ exnDB <- {
   })
 }
 
-test_that("spuDist", {
+test_that("distList", {
+
+  listDist <- distList(dbPath = dbPath)
+
+  expect_true(inherits(listDist, "data.table"))
+  expect_true(all(c(
+    "disturbance_type_id", "name", "description"
+  ) %in% names(listDist)))
+
+  expect_true(nrow(listDist) == 172)
+})
+
+test_that("distMatch", {
+
+  distNames <- c("Wildfire", "Clearcut harvesting without salvage",
+                 "Generic 20% mortality", "Deforestation")
+
+  listDist <- distMatch(distNames, dbPath = dbPath, ask = FALSE)
+
+  expect_true(inherits(listDist, "data.table"))
+  expect_true(all(c(
+    "disturbance_type_id", "name", "description"
+  ) %in% names(listDist)))
+
+  expect_true(nrow(listDist) == 4)
+
+  expect_equal(listDist$disturbance_type_id, c(1, 204, 168, 7))
+
+})
+
+test_that("spuDistList", {
 
   # cbm_exn = FALSE
 
   ## Expect error: dbPath missing
   expect_error(
-    spuDist(spuIDs = 27, EXN = FALSE, dbPath = NULL,
+    spuDistList(spuIDs = 27, EXN = FALSE, dbPath = NULL,
             disturbance_matrix_association = exnDB[["disturbance_matrix_association"]]),
     "dbPath"
   )
 
   ## Expect success
-  listDist <- spuDist(spuIDs = 27, EXN = FALSE, dbPath = dbPath)
+  listDist <- spuDistList(spuIDs = 27, EXN = FALSE, dbPath = dbPath)
 
   expect_true(inherits(listDist, "data.table"))
 
@@ -48,20 +78,20 @@ test_that("spuDist", {
 
   ## Expect error: dbPath missing
   expect_error(
-    spuDist(spuIDs = 27, EXN = TRUE, dbPath = NULL,
+    spuDistList(spuIDs = 27, EXN = TRUE, dbPath = NULL,
             disturbance_matrix_association = exnDB[["disturbance_matrix_association"]]),
     'dbPath'
   )
 
   ## Expect error: disturbance_matrix_association missing
   expect_error(
-    spuDist(spuIDs = 27, EXN = TRUE, dbPath = dbPath,
+    spuDistList(spuIDs = 27, EXN = TRUE, dbPath = dbPath,
             disturbance_matrix_association = NULL),
     'disturbance_matrix_association'
   )
 
   ## Expect success
-  listDist <- spuDist(
+  listDist <- spuDistList(
     spuIDs = 27, EXN = TRUE, dbPath = dbPath,
     disturbance_matrix_association = exnDB[["disturbance_matrix_association"]])
   expect_true(all(listDist$spatial_unit_id == 27))
@@ -73,10 +103,10 @@ test_that("spuDistMatch", {
 
   # Set list of disturbance types
   distTypes <- rbind(
-    data.frame(rasterID = 1, wholeStand = 1, distName = "Wildfire"),
-    data.frame(rasterID = 2, wholeStand = 1, distName = "Clearcut harvesting without salvage"),
-    data.frame(rasterID = 3, wholeStand = 0, distName = "Generic 20% mortality"),
-    data.frame(rasterID = 4, wholeStand = 1, distName = "Deforestation")
+    data.frame(eventID = 1, wholeStand = 1, name = "Wildfire"),
+    data.frame(eventID = 2, wholeStand = 1, name = "Clearcut harvesting without salvage"),
+    data.frame(eventID = 3, wholeStand = 0, name = "Generic 20% mortality"),
+    data.frame(eventID = 4, wholeStand = 1, name = "Deforestation")
   )
 
   # EXN = FALSE
@@ -128,7 +158,7 @@ test_that("spuDistMatch", {
   listDist2 <- spuDistMatch(
     distTable = rbind(cbind(spatial_unit_id = 27, distTypes),
                       cbind(spatial_unit_id = 28, distTypes)),
-    listDist = spuDist(EXN = FALSE, dbPath = dbPath),
+    listDist = spuDistList(EXN = FALSE, dbPath = dbPath),
     ask = FALSE)
 
   expect_identical(listDist, listDist2)
@@ -180,17 +210,17 @@ test_that("spuDistMatch", {
   )
 })
 
-test_that("histDist", {
+test_that("spuHistDist", {
 
   # EXN = FALSE
 
   ## Expect error: dbPath missing
   expect_error(
-    histDist(spuIDs = 27, EXN = FALSE, dbPath = NULL),
+    spuHistDist(spuIDs = 27, EXN = FALSE, dbPath = NULL),
     "dbPath"
   )
 
-  listDist <- histDist(spuIDs = 27, EXN = FALSE, dbPath = dbPath)
+  listDist <- spuHistDist(spuIDs = 27, EXN = FALSE, dbPath = dbPath)
 
   expect_true(inherits(listDist, "data.table"))
 
@@ -210,17 +240,17 @@ test_that("histDist", {
 
   ## Expect error: dbPath missing
   expect_error(
-    histDist(spuIDs = 27, EXN = TRUE, dbPath = NULL),
+    spuHistDist(spuIDs = 27, EXN = TRUE, dbPath = NULL),
     "dbPath"
   )
 
   ## Expect error: disturbance_matrix_association missing
   expect_error(
-    histDist(spuIDs = 27, EXN = TRUE, dbPath = dbPath),
+    spuHistDist(spuIDs = 27, EXN = TRUE, dbPath = dbPath),
     "disturbance_matrix_association"
   )
 
-  listDist <- histDist(
+  listDist <- spuHistDist(
     spuIDs = 27, EXN = TRUE, dbPath = dbPath,
     disturbance_matrix_association = exnDB[["disturbance_matrix_association"]])
 

@@ -7,6 +7,7 @@
 sppMatch(
   species,
   match = NULL,
+  otherNames = NULL,
   return = NULL,
   checkNA = !is.null(return),
   sppEquivalencies = NULL
@@ -17,6 +18,9 @@ sppMatch(
 
 \item{match}{character. \code{sppEquivalencies} columns to match \code{species} with.
 Defaults to \code{LandR::sppEquivalencies_CA} columns with Latin and generic English species names.}
+
+\item{otherNames}{list. A list of alternative species identified to allow in matching.
+Item names must match \code{species} and item contents must be vectors of additional allowable matches.}
 
 \item{return}{character. \code{sppEquivalencies} columns to return.
 All columns will be returned by default.}
