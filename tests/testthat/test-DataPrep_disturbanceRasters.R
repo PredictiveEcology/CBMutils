@@ -1,17 +1,17 @@
 
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-# Set URL to disturbance rasters ZIP archive
-## Raster test data is a subset of the Wulder and White disturbance rasters covering SK 1984-2011
-disturbanceRastersURL <- file.path(
-  "https://raw.githubusercontent.com/PredictiveEcology/CBMutils/refs/heads/development",
-  "tests/testthat/testdata/SaskDist_1985-1857_crop.zip")
-
-# Set output path
-destinationPath <- file.path(testDirs$temp$outputs, "dataPrep_disturbanceRasters")
-dir.create(destinationPath)
-
 test_that("dataPrep_disturbanceRastersURL", {
+
+  # Set output path
+  destinationPath <- file.path(testDirs$temp$outputs, "dataPrep_disturbanceRasters")
+  dir.create(destinationPath)
+
+  # Set URL to disturbance rasters ZIP archive
+  ## Raster test data is a subset of the Wulder and White disturbance rasters covering SK 1984-2011
+  disturbanceRastersURL <- file.path(
+    "https://raw.githubusercontent.com/PredictiveEcology/CBMutils/refs/heads/development",
+    "tests/testthat/testdata/disturbanceRasters/SaskDist_1985-1857_crop.zip")
 
   # Test: archive file with 1 raster file per year
   disturbanceRasters <- dataPrep_disturbanceRastersURL(
@@ -42,9 +42,10 @@ test_that("dataPrep_disturbanceRasters", {
   # Read validation data
   validEvents <- lapply(
     list(
-      resampleSkip = file.path(destinationPath, "SaskDist_1985-1857_crop/SaskDist_1985-1987_crop_events.csv"),
-      resample10m  = file.path(destinationPath, "SaskDist_1985-1857_crop/SaskDist_1985_resample10m_events.csv"),
-      resample100m = file.path(destinationPath, "SaskDist_1985-1857_crop/SaskDist_1985_resample100m_events.csv")
+      resampleSkip = file.path(testDirs$testdata, "disturbanceRasters/SaskDist_1985-1987_crop_events.csv"),
+      resample10m  = file.path(testDirs$testdata, "disturbanceRasters/SaskDist_1985_resample10m_events.csv"),
+      resample100m = file.path(testDirs$testdata, "disturbanceRasters/SaskDist_1985_resample100m_events.csv"),
+      reproject    = file.path(testDirs$testdata, "disturbanceRasters/SaskDist_1985_reproject_events.csv")
     ),
     function(csv) data.table::fread(csv, key = c("year", "eventID")) |> subset(eventID != 0)
   )
@@ -53,9 +54,9 @@ test_that("dataPrep_disturbanceRasters", {
   disturbanceRastersList <- list(
     files = lapply(
       list(
-        "1985" = file.path(destinationPath, "SaskDist_1985-1857_crop/SaskDist_1985_crop.tif"),
-        "1986" = file.path(destinationPath, "SaskDist_1985-1857_crop/SaskDist_1986_crop.tif"),
-        "1987" = file.path(destinationPath, "SaskDist_1985-1857_crop/SaskDist_1987_crop.tif")
+        "1985" = file.path(testDirs$testdata, "disturbanceRasters/SaskDist_1985-1857_crop/SaskDist_1985_crop.tif"),
+        "1986" = file.path(testDirs$testdata, "disturbanceRasters/SaskDist_1985-1857_crop/SaskDist_1986_crop.tif"),
+        "1987" = file.path(testDirs$testdata, "disturbanceRasters/SaskDist_1985-1857_crop/SaskDist_1987_crop.tif")
       ),
       terra::rast
     ))
@@ -170,6 +171,24 @@ test_that("dataPrep_disturbanceRasters", {
       distEvents100m[, .(count = .N), by = c("year", "eventID")],
       year, eventID),
     validEvents[["resample100m"]]
+  )
+
+  # Test: with raster template: reproject
+  distEventsReproj <- dataPrep_disturbanceRasters(
+    disturbanceRasters = disturbanceRastersList[["files"]]["1985"],
+    templateRast       = terra::rast(
+      res  = 10, vals = NA,
+      xmin =  452000, xmax =  453500,
+      ymin = 6083500, ymax = 6085000,
+      crs  = "EPSG:32613"
+    )
+  )
+
+  expect_equal(
+    data.table::setkey(
+      distEventsReproj[, .(count = .N), by = c("year", "eventID")],
+      year, eventID),
+    validEvents[["reproject"]]
   )
 })
 

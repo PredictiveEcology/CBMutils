@@ -22,8 +22,7 @@
 #'
 #' @importFrom data.table data.table
 #' @importFrom exactextractr exact_resample
-#' @importFrom reproducible Cache
-#' @importFrom terra compareGeom rast
+#' @importFrom terra cellSize compareGeom crs disagg mosaic project rast
 #' @export
 dataPrep_disturbanceRasters <- function(
     disturbanceRasters, eventID = NULL, templateRast = NULL, year = NULL){
@@ -62,10 +61,10 @@ dataPrep_disturbanceRasters <- function(
       # Get year disturbances
       annualDist <- disturbanceRasters[[year]]
 
-      # Convert to SpatRaster
-      if (!is(annualDist, "SpatRaster")){
+      # Convert to SpatRaster; mosaic tiles if need be
+      if (!inherits(annualDist, "SpatRaster")){
         annualDist <- tryCatch(
-          terra::rast(annualDist),
+          do.call(terra::mosaic, lapply(annualDist, terra::rast)),
           error = function(e) stop(
             "'disturbanceRaster' for year ", year, " failed to be read as terra SpatRaster: ",
             e$message, call. = FALSE))
@@ -74,20 +73,34 @@ dataPrep_disturbanceRasters <- function(
       # Align with template raster
       if (!is.null(templateRast)){
 
-        needsAlign <- !terra::compareGeom(
+        reproj <- !terra::compareGeom(
           annualDist, templateRast,
-          lyrs = FALSE,
-          crs = TRUE, warncrs = FALSE,
-          ext = TRUE, rowcol = TRUE, res = TRUE,
-          stopOnError = FALSE, messages = FALSE)
+          lyrs = FALSE, crs = TRUE, ext = FALSE, rowcol = FALSE, res = FALSE,
+          warncrs = FALSE, stopOnError = FALSE, messages = FALSE)
 
-        if (needsAlign){
+        if (reproj){
 
-          # assumption: max is faster if values are not required
-          annualDist <- exactextractr::exact_resample(
+          cAreas <- lapply(list(inp = annualDist, out = templateRast), function(rast){
+            terra::values(terra::cellSize(
+              terra::crop(rast, terra::ext(rast, cells = 1)),
+              unit = "m", transform = FALSE))[1,1]
+          })
+          if (cAreas$out < cAreas$inp){
+            annualDist <- terra::disagg(annualDist, ceiling(cAreas$inp / cAreas$out) + 1)
+          }
+
+          annualDist <- terra::project(annualDist, templateRast, method = "mode")
+
+        }else{
+
+          align <- !terra::compareGeom(
             annualDist, templateRast,
-            fun = ifelse(is.null(eventID), "mode", "max")
-          ) |> Cache()
+            lyrs = FALSE, crs = TRUE, ext = TRUE, rowcol = TRUE, res = TRUE,
+            warncrs = FALSE, stopOnError = FALSE, messages = FALSE)
+
+          if (align){
+            annualDist <- exactextractr::exact_resample(annualDist, templateRast, fun = "mode")
+          }
         }
       }
 
@@ -142,7 +155,7 @@ dataPrep_disturbanceRasters <- function(
 #' If URL is a single raster file: a terra \code{\link[terra]{SpatRaster}}
 #' where each raster band layer is named by the disturbance year.
 #'
-#' @importFrom reproducible Cache preProcess
+#' @importFrom reproducible preProcess
 #' @importFrom terra nlyr rast
 #' @export
 dataPrep_disturbanceRastersURL <- function(
