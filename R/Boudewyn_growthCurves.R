@@ -265,14 +265,15 @@ convertM3biom <- function(meta, gCvalues, spsMatch, ecozones, params3, params4, 
   spec <- unique(spsMatch[species == meta$species, ]$canfi_species)
   ## might have to put in a loop here for each ecozone?
   ez <- ecozones[SpatialUnitID == meta$spatial_unit_id, ]$EcoBoundaryID
+  jurisID <- ecozones[SpatialUnitID == meta$spatial_unit_id, ]$abreviation
   gen <- unique(spsMatch[species == meta$species, ]$genus)
 
-  params3 <- params3[canfi_species == spec & ecozone == ez,]
-  params4 <- params4[canfi_species == spec & ecozone == ez,]
+  params3 <- params3[canfi_species == spec & ecozone == ez & juris_id == jurisID,]
+  params4 <- params4[canfi_species == spec & ecozone == ez & juris_id == jurisID,]
   # table 5 is different than the others
-  params5 <- params5[genus == gen & ecozone == ez,]
-  params6 <- params6[canfi_species == spec & ecozone == ez,]
-  params7 <- params7[canfi_species == spec & ecozone == ez,]
+  params5 <- params5[genus == gen & ecozone == ez & juris_id == jurisID,]
+  params6 <- params6[canfi_species == spec & ecozone == ez & juris_id == jurisID,]
+  params7 <- params7[canfi_species == spec & ecozone == ez & juris_id == jurisID,]
   # Equations are numbered following the flowchart of the biomass model application in
   # Boudewyn et al. 2007 p7 (Fig3)
   # eq1 returns the total stem wood biomass in metric tonnes/ha, when you give it
