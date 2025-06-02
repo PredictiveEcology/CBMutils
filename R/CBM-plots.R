@@ -8,7 +8,7 @@ utils::globalVariables(c(
   "locale_id", "MediumSoil", "Merch", "N", "Other","pixelIndex", "pixNPP", "pixTC",
   "pool", "products", "Products",
   "res", "simYear", "snags", "SoftwoodBranchSnag", "SoftwoodStemSnag", "soil", "StemSnag", "weight",
-  "x", "y", "ldSp_TestArea"
+  "x", "y", "totalCarbon"
 ))
 
 #' `spatialPlot`
@@ -39,11 +39,12 @@ spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
   temp <- merge(t, totalCarbon, allow.cartesian=TRUE)
   setkey(temp, pixelIndex)
   plotM <- terra::rast(masterRaster)
+  names(plotM) <- "totalCarbon"
   terra::values(plotM)[temp$pixelIndex] <- temp$totalCarbon
   pixSize <- prod(terra::res(masterRaster))/10000
   temp[, `:=`(pixTC, totalCarbon * pixSize)]
   overallTC <- sum(temp$pixTC)/(nrow(temp) * pixSize)
-  Plot <- ggplot() + geom_raster(data = plotM, aes(x = x, y = y, fill = ldSp_TestArea)) +
+  Plot <- ggplot() + geom_raster(data = plotM, aes(x = x, y = y, fill = totalCarbon)) +
     theme_no_axes() + scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") + labs(fill = "Carbon (MgC)" ) +
     ggtitle(paste0("Total Carbon in ", years, " in MgC/ha"))
 }
