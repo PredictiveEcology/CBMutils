@@ -8,7 +8,7 @@ utils::globalVariables(c(
   "locale_id", "MediumSoil", "Merch", "N", "Other","pixelIndex", "pixNPP", "pixTC",
   "pool", "products", "Products",
   "res", "simYear", "snags", "SoftwoodBranchSnag", "SoftwoodStemSnag", "soil", "StemSnag", "weight",
-  "x", "y", "totalCarbon"
+  "x", "y", "avgNPP", "totalCarbon"
 ))
 
 #' `spatialPlot`
@@ -108,12 +108,13 @@ NPPplot <- function(cohortGroupKeep, NPP, masterRaster) {
   temp <- merge(t, avgNPP, allow.cartesian=TRUE)
   setkey(temp, pixelIndex)
   plotMaster <- terra::rast(masterRaster)
+  names(plostMaster) <- "avgNPP"
   # plotMaster[] <- 0
   plotMaster[temp$pixelIndex] <- temp$avgNPP
   pixSize <- prod(res(masterRaster))/10000
   temp[, `:=`(pixNPP, avgNPP * pixSize)]
   overallAvgNpp <- sum(temp$pixNPP)/(nrow(temp) * pixSize)
-  Plot <- ggplot() + geom_raster(data = plotMaster, aes(x = x, y = y, fill = ldSp_TestArea)) +
+  Plot <- ggplot() + geom_raster(data = plotMaster, aes(x = x, y = y, fill = avgNPP)) +
     theme_no_axes() + scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") + labs(fill = "NPP (MgC)" ) +
     ggtitle(paste0("Pixel-level average NPP\n",
                    "Landscape average: ", round(overallAvgNpp, 3), "  MgC/ha/yr."))
