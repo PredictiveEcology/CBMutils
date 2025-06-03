@@ -270,10 +270,19 @@ convertM3biom <- function(meta, gCvalues, spsMatch, ecozones, params3, params4, 
 
   params3 <- params3[canfi_species == spec & ecozone == ez & juris_id == jurisID,]
   params4 <- params4[canfi_species == spec & ecozone == ez & juris_id == jurisID,]
-  # table 5 is different than the others
-  params5 <- params5[genus == gen & ecozone == ez]
   params6 <- params6[canfi_species == spec & ecozone == ez & juris_id == jurisID,]
   params7 <- params7[canfi_species == spec & ecozone == ez & juris_id == jurisID,]
+  # table 5 is different than the others
+  if (!any(ecozones$abreviation %in% params5$juris_id)){
+    abreviation <- c("PE", "QC", "ON", "MB", "SK", "YK", "NU", "NS")
+    tabreviation <- c("NB", "NL", "NL", "AB", "AB", "NT", "NT", "NB")
+    abreviationReplace <- data.table(abreviation, tabreviation)
+    thisAdminT <- merge(abreviationReplace, ecozones)
+    thisAdminT[, c("abreviation", "tabreviation") := list(tabreviation, NULL)]
+    jurisID <- thisAdminT[SpatialUnitID == meta$spatial_unit_id, ]$abreviation
+  }
+  params5 <- params5[genus == gen & ecozone == ez & juris_id == jurisID,]
+
   # Equations are numbered following the flowchart of the biomass model application in
   # Boudewyn et al. 2007 p7 (Fig3)
   # eq1 returns the total stem wood biomass in metric tonnes/ha, when you give it
