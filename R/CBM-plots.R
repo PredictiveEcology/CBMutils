@@ -26,21 +26,23 @@ utils::globalVariables(c(
 #' @importFrom ggplot2 aes geom_raster ggplot ggtitle scale_fill_continuous
 #' @importFrom terra rast res unwrap values
 spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
-
   masterRaster <- terra::unwrap(masterRaster)
   cbmPools <- as.data.table(cbmPools)
   totalCarbon <- apply(cbmPools[, Merch:BranchSnag],
                        1, "sum")
   totalCarbon <- cbind(cbmPools, totalCarbon)
   totalCarbon <- totalCarbon[simYear == years,]
-  t <- cohortGroupKeep[, .(pixelIndex, cohortGroupID)]
+  t <- unique(cohortGroupKeep[, .(pixelIndex, cohortGroupID)])
   setkey(t, cohortGroupID)
   setkey(totalCarbon, cohortGroupID)
-  temp <- merge(t, totalCarbon, allow.cartesian=TRUE)
+  temp <- merge(t, totalCarbon)
+  temp <- temp[, .(totalCarbon = sum(totalCarbon)), by = pixelIndex]
   setkey(temp, pixelIndex)
   plotM <- terra::rast(masterRaster)
   names(plotM) <- "totalCarbon"
+  terra::values(plotM) <- NA
   terra::values(plotM)[temp$pixelIndex] <- temp$totalCarbon
+  plotM <- terra::as.data.frame(plotM, xy = TRUE)
   pixSize <- prod(terra::res(masterRaster))/10000
   temp[, `:=`(pixTC, totalCarbon * pixSize)]
   overallTC <- sum(temp$pixTC)/(nrow(temp) * pixSize)
