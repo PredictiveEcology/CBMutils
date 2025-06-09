@@ -104,18 +104,20 @@ NPPplot <- function(cohortGroupKeep, NPP, masterRaster) {
   npp[, `:=`(avgNPP, mean(NPP)), by = c("cohortGroupID")]
   cols <- c("simYear", "NPP")
   avgNPP <- unique(npp[, `:=`((cols), NULL)])
-  t <- cohortGroupKeep[, .(pixelIndex, cohortGroupID)]
+  t <- unique(cohortGroupKeep[, .(pixelIndex, cohortGroupID)])
   setkey(t, cohortGroupID)
   setkey(avgNPP, cohortGroupID)
   temp <- merge(t, avgNPP, allow.cartesian=TRUE)
+  temp <- temp[, .(avgNPP = sum(avgNPP)), by = pixelIndex]
   setkey(temp, pixelIndex)
   plotMaster <- terra::rast(masterRaster)
   names(plotMaster) <- "avgNPP"
-  # plotMaster[] <- 0
+  plotMaster[] <- NA
   plotMaster[temp$pixelIndex] <- temp$avgNPP
   pixSize <- prod(res(masterRaster))/10000
   temp[, `:=`(pixNPP, avgNPP * pixSize)]
   overallAvgNpp <- sum(temp$pixNPP)/(nrow(temp) * pixSize)
+  plotMaster <- as.data.frame(plotMaster, xy = TRUE)
   Plot <- ggplot() + geom_raster(data = plotMaster, aes(x = x, y = y, fill = avgNPP)) +
     theme_no_axes() + scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") + labs(fill = "NPP (MgC)" ) +
     ggtitle(paste0("Pixel-level average NPP\n",
