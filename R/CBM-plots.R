@@ -32,10 +32,10 @@ spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
                        1, "sum")
   totalCarbon <- cbind(cbmPools, totalCarbon)
   totalCarbon <- totalCarbon[simYear == years,]
-  t <- unique(cohortGroupKeep[, .(pixelIndex, cohortGroupID)])
+  t <- unique(cohortGroupKeep[, .(pixelIndex, cohortGroupID = get(as.character(years)))])
   setkey(t, cohortGroupID)
   setkey(totalCarbon, cohortGroupID)
-  temp <- merge(t, totalCarbon)
+  temp <- merge(t, totalCarbon, allow.cartesian=TRUE)
   temp <- temp[, .(totalCarbon = sum(totalCarbon)), by = pixelIndex]
   setkey(temp, pixelIndex)
   plotM <- terra::rast(masterRaster)
@@ -100,15 +100,25 @@ carbonOutPlot <- function(emissionsProducts) {
 #' @importFrom terra rast res unwrap values
 NPPplot <- function(cohortGroupKeep, NPP, masterRaster) {
   masterRaster <- terra::unwrap(masterRaster)
-  npp <- as.data.table(copy(NPP))
-  npp[, `:=`(avgNPP, mean(NPP)), by = c("cohortGroupID")]
-  cols <- c("simYear", "NPP")
-  avgNPP <- unique(npp[, `:=`((cols), NULL)])
-  t <- unique(cohortGroupKeep[, .(pixelIndex, cohortGroupID)])
-  setkey(t, cohortGroupID)
-  setkey(avgNPP, cohortGroupID)
-  temp <- merge(t, avgNPP, allow.cartesian=TRUE)
-  temp <- temp[, .(avgNPP = sum(avgNPP)), by = pixelIndex]
+  cohortGroupKeep <- melt.data.table(
+    cohortGroupKeep,
+    id.vars = "pixelIndex",
+    measure.vars = as.character(c(min(NPP$simYear):max(NPP$simYear))),
+    variable.name = "simYear",
+    value.name = "cohortGroupID",
+    na.rm = TRUE,
+    variable.factor = FALSE
+  )
+  cohortGroupKeep[, simYear := as.integer(simYear)]
+  npp <- merge(
+    as.data.table(NPP),
+    cohortGroupKeep,
+    by = c("simYear", "cohortGroupID"),
+    allow.cartesian = TRUE
+  )
+  npp[, `:=`(totalNPP, sum(NPP)), by = c("simYear", "pixelIndex")]
+  npp <- unique(npp[,.(pixelIndex, simYear, totalNPP)])
+  temp <- npp[, .(avgNPP = mean(totalNPP)), by = pixelIndex]
   setkey(temp, pixelIndex)
   plotMaster <- terra::rast(masterRaster)
   names(plotMaster) <- "avgNPP"
