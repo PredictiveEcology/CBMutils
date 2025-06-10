@@ -11,6 +11,9 @@ utils::globalVariables(c(
   "x", "y", "avgNPP", "totalCarbon"
 ))
 
+#' `spatialPlot`
+#'
+#' @description
 #' Maps the total carbon across the landscape for a given year.
 #'
 #' @param cbmPools TODO
@@ -92,6 +95,9 @@ carbonOutPlot <- function(emissionsProducts) {
   plot_grid(Emissions, Products, ncol = 2)
 }
 
+#' `NPPplot`
+#'
+#' @description
 #' Maps the average net primary productivity (NPP) across the simulation years.
 #'
 #' @param cohortGroupKeep TODO

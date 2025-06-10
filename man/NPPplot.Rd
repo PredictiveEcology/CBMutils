@@ -17,5 +17,5 @@ NPPplot(cohortGroupKeep, NPP, masterRaster)
 TODO
 }
 \description{
-\code{NPPplot}
+Maps the average net primary productivity (NPP) across the simulation years.
 }
