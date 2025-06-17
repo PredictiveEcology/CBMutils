@@ -32,7 +32,7 @@ boudewynSubsetTables <- function(table, thisAdmin, eco) {
   ecoNotInT <- c(8, 11, 15, 16, 17, 18)
   EcoBoundaryID <- c(7, 4, 6, 5, 6, 10)
   ecoReplace <- data.table(ecoNotInT, EcoBoundaryID)
-  # these are the provinces available: AB BC NB NF NT
+  # these are the provinces available: AB BC NB NL NT
   # for the non match these would be the equivalent
   # "PE" - NB
   # "QC" - NL

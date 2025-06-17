@@ -9,7 +9,7 @@ utils::globalVariables(c(
 #' @param title Title of plots
 #'
 #' @export
-#' @importFrom data.table copy melt
+#' @importFrom data.table copy melt set
 #' @importFrom ggforce facet_wrap_paginate
 #' @importFrom ggplot2 aes element_text geom_line ggplot labs theme theme_bw
 #' @importFrom patchwork wrap_plots plot_layout plot_annotation
