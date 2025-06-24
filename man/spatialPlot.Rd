@@ -19,5 +19,5 @@ spatialPlot(cbmPools, years, masterRaster, cohortGroupKeep)
 TODO
 }
 \description{
-\code{spatialPlot}
+Maps the total carbon across the landscape for a given year.
 }
