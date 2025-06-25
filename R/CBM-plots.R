@@ -221,7 +221,7 @@ cTransfersAlluvial <- function(cTransfers, distMatrixID = NA, distName = NA, spu
   disturbanceTransfers <- cTransfers[disturbance_matrix_id == distMatrixID & spatial_unit_id == spu]
   }
   if (!is.na(distName)){
-  disturbanceTransfers <- cTransfers[name == distName & spatial_unit_id == spu]
+  disturbanceTransfers <- cTransfers[grepl(distName, name, ignore.case = TRUE) & spatial_unit_id == spu]
   }
   #create pool categories
   disturbanceTransfers[, sink_pool_category := fifelse(sink_pool %in% c("CO2", "CH4", "CO"),
