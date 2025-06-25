@@ -235,7 +235,9 @@ cTransfersAlluvial <- function(cTransfers, distMatrixID = NA, distName = NA, spu
                                                         "Fast",
                                                fifelse(sink_pool %in% c("BelowGroundVeryFastSoil", "AboveGroundVeryFastSoil"),
                                                         "Very fast",
-                                                        NA_character_)))))]
+                                               fifelse(sink_pool %in% c("Products"),
+                                                               "Products",
+                                                        NA_character_))))))]
 
   #build the plot
   plot <- ggplot(disturbanceTransfers,
@@ -284,7 +286,8 @@ cTransfersAlluvial <- function(cTransfers, distMatrixID = NA, distName = NA, spu
       "Slow" = "#d6d893",
       "Medium" = "#733958",
       "Fast" = "#5c538a",
-      "Very fast" = "#4e88b9"
+      "Very fast" = "#4e88b9",
+      "Products" = "#8A9A5B"
     ))
 
   return(alluvialDist)
