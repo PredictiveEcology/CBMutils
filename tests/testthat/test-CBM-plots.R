@@ -44,12 +44,9 @@ test_that("NPPplot", {
 
 test_that("barPlot", {
 
-}
+})
 
 test_that("cTransfersAlluvial", {
 
-}
-
-
-)
+})
 
