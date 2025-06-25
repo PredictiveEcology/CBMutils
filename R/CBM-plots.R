@@ -203,7 +203,7 @@ barPlot <- function(cbmPools) {
 #' @description
 #' Maps proportions of carbon transfers across pools during a disturbance.
 #'
-#' @param cTransfers
+#' @param cTransfers TODO
 #' @param distMatrixID disturbance_matrix_id of the disturbance to plot. The user needs to specify this and/or disturbance name.
 #' @param distName disturbance name you wish to plot. The user needs to specify this and/or disturbance matrix id.
 #' @param spatial_unit_id spatial unit of the disturbance to plot. This must be provided.
@@ -211,7 +211,7 @@ barPlot <- function(cbmPools) {
 #' @return alluvialDist Alluvial plot of a disturbance in a specific spatial unit.
 #'
 #' @export
-#' @importFrom data.table
+#' @importFrom data.table as.data.table
 #' @importFrom ggalluvial geom_alluvium geom_stratum
 #' @importFrom ggplot2 ggplot aes scale_fill_manual labs theme_minimal scale_x_discrete geom_text ggplot_build
 
