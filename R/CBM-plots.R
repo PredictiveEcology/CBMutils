@@ -26,7 +26,7 @@ utils::globalVariables(c(
 #' @export
 #' @importFrom data.table as.data.table
 #' @importFrom ggforce theme_no_axes
-#' @importFrom ggplot2 aes geom_raster ggplot ggtitle scale_fill_continuous
+#' @importFrom ggplot2 aes geom_raster ggplot ggtitle scale_fill_continuous coord_fixed
 #' @importFrom terra rast res unwrap values
 spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
   masterRaster <- terra::unwrap(masterRaster)
@@ -58,7 +58,7 @@ spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
   overallTC <- sum(temp$pixTC)/(nrow(temp) * pixSize)
   Plot <- ggplot() + geom_raster(data = plotM, aes(x = x, y = y, fill = totalCarbon)) +
     theme_no_axes() + scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") + labs(fill = "Carbon (MgC)" ) +
-    ggtitle(paste0("Total Carbon in ", years, " in MgC/ha"))
+    ggtitle(paste0("Total Carbon in ", years, " in MgC/ha")) + coord_fixed()
 }
 
 #' `carbonOutPlot`
@@ -109,7 +109,7 @@ carbonOutPlot <- function(emissionsProducts) {
 #' @export
 #' @importFrom data.table copy setkey
 #' @importFrom ggforce theme_no_axes
-#' @importFrom ggplot2 ggplot geom_raster aes scale_fill_continuous ggtitle
+#' @importFrom ggplot2 ggplot geom_raster aes scale_fill_continuous ggtitle coord_fixed
 #' @importFrom terra rast res unwrap values
 NPPplot <- function(cohortGroupKeep, NPP, masterRaster) {
   masterRaster <- terra::unwrap(masterRaster)
@@ -152,7 +152,7 @@ NPPplot <- function(cohortGroupKeep, NPP, masterRaster) {
   Plot <- ggplot() + geom_raster(data = plotMaster, aes(x = x, y = y, fill = avgNPP)) +
     theme_no_axes() + scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") + labs(fill = "NPP (MgC)" ) +
     ggtitle(paste0("Pixel-level average NPP\n",
-                   "Landscape average: ", round(overallAvgNpp, 3), "  MgC/ha/yr."))
+                   "Landscape average: ", round(overallAvgNpp, 3), "  MgC/ha/yr.")) + coord_fixed()
 }
 
 
