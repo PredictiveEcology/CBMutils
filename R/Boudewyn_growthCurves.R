@@ -273,7 +273,7 @@ convertM3biom <- function(meta, gCvalues, spsMatch, ecozones, params3, params4, 
   params6 <- params6[canfi_species == spec & ecozone == ez & juris_id == jurisID,]
   params7 <- params7[canfi_species == spec & ecozone == ez & juris_id == jurisID,]
   # table 5 is different than the others
-  if (any(!ecozones$abreviation %in% params5$juris_id)){
+  if (any(!jurisID %in% params5$juris_id)){
     abreviation <- c("PE", "QC", "ON", "MB", "SK", "YK", "NU", "NS")
     tabreviation <- c("NB", "NL", "NL", "AB", "AB", "NT", "NT", "NB")
     abreviationReplace <- data.table(abreviation, tabreviation)
