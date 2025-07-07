@@ -4,7 +4,7 @@
 \alias{getParameters}
 \title{Extract the parameters to apply to convert total biomass into pool biomass}
 \usage{
-getParameters(table6, table7, canfi_species, ecozone, juris_id)
+getParameters(table6, table7, curves)
 }
 \arguments{
 \item{table6}{\code{data.frame} corresponding to Table 3 from Boudewyn et al. (2007),

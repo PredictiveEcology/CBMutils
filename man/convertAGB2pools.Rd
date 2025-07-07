@@ -4,7 +4,7 @@
 \alias{convertAGB2pools}
 \title{Convert total above ground biomass into 3 pools (\eqn{T/ha})}
 \usage{
-convertAGB2pools(oneCurve, table6, table7)
+convertAGB2pools(AGB, params6, params7)
 }
 \arguments{
 \item{oneCurve}{\code{data.frame} with at least four following columns: \code{canfi_species},
