@@ -60,6 +60,8 @@ test_that("convertAGB2pools", {
 })
 
 test_that("cumPoolsCreateAGB", {
+
+  # Test simple example
   dt <- data.table(
     expand.grid(canfi_species = c(204, 1201), # PINU_CON, POPU_TRE
                 age = c(3,15, 35),
@@ -78,5 +80,24 @@ test_that("cumPoolsCreateAGB", {
   expect_true(all(out2[dt$age < 15, "merch"] ==  0))
   expect_equal(nrow(out2), nrow(dt))
   expect_true(all(colnames(out2) == c("speciesCode", "age", "poolsPixelGroup", "merch", "foliage", "other")))
+
+  # test with large data.table
+  N <- 10^5
+  dt <- data.table(
+    canfi_species = sample(table6AGB$canfi_spec, N, replace = T),
+    ecozone = sample(table6AGB$ecozone, N, replace = T),
+    juris_id = sample(table6AGB$juris_id, N, replace = T),
+    poolsPixelGroup = sample(c(1:10), N, replace = T),
+    age = sample(c(1:500), N, replace = T),
+    B = round(runif(N, 1, 100))
+  )
+  dt$speciesCode <- "as"
+  out <- cumPoolsCreateAGB(dt, table6 = table6AGB, table7 = table7AGB, pixGroupCol ="poolsPixelGroup")
+  expect_equal(rowSums(out[,c("merch", "foliage", "other")]), dt$B/2)
+  expect_true(all(out[dt$age < 15, "merch"] ==  0))
+  expect_equal(nrow(out), nrow(dt))
+  expect_true(all(colnames(out) == c("speciesCode", "age", "poolsPixelGroup", "merch", "foliage", "other")))
+
+
 })
 

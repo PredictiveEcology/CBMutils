@@ -98,6 +98,8 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, pixGroupCol){
 #'
 #' @export
 convertAGB2pools <- function(AGB, params6, params7){
+  params6 <- merge(AGB, params6, all.x = TRUE)
+  params7 <- merge(AGB, params7, all.x = TRUE)
 
   # get the proportions of each pool
   pVect <- biomProp(table6 = params6, table7 = params7, x = AGB$B, type = "biomass")
