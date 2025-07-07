@@ -30,47 +30,46 @@ utils::globalVariables(c(
 #' @export
 #' @importFrom data.table rbindlist setnames
 cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, pixGroupCol){
-  counter <- 0L
-  cumBiomList <- list()
 
+  # 1. Input validation
   expectedColumns <- c("canfi_species", "juris_id", "ecozone", "age", "B", pixGroupCol)
-
   if (any(!(expectedColumns %in% colnames(allInfoAGBin)))) {
     stop("The AGB table needs the following columns ", paste(expectedColumns, collapse = " "))
   }
+  AGB <- as.data.table(allInfoAGBin)
 
-  # Identify unique sp, juris_id, ecozone
-  curves <- unique(allInfoAGBin[, .(canfi_species, juris_id, ecozone)])
-  curves[,curve_id := .I]
+  # 2. Get parameters for all curves
+  # Identify all unique species/location combinations
+  curves <- unique(AGB[, .(canfi_species, juris_id, ecozone)])
 
-  AGB <- merge(allInfoAGBin, curves, by = c("canfi_species", "juris_id", "ecozone"), all.x = TRUE)
+  # Get the parameters for each curve
+  allParams <- getParameters(table6, table7, curves)
 
-  # Do one set of parameters at a time
-  for (i_curve in curves$curve_id) {
-    counter <- counter + 1L
-    oneCurve <- AGB[curve_id == i_curve, ]
+  # 3. Split biomass into pools
 
-    ## IMPORTANT BOURDEWYN PARAMETERS FOR NOT HANDLE AGE 0 ##
-    oneCurve <- oneCurve[which(age>0),]
+  ## IMPORTANT BOURDEWYN PARAMETERS FOR NOT HANDLE AGE 0 ##
+  AGB <- AGB[age > 0]
 
-    # Get AGB in each of the 3 pools
-    cumBiom <- as.matrix(convertAGB2pools(oneCurve, table6, table7))
+  # Call convertAGB2pool
+  # It returns a data.table with merch, foliage, and other biomass pools
+  biomassPools <- convertAGB2pools(AGB, allParams$params6, allParams$params7)
 
-    # going from tonnes of biomass/ha to tonnes of carbon/ha here
-    ### HARD CODED VALUE ####################
-    cumBiom <- cumBiom * 0.5
+  # 5. Convert biomass to carbon mass
+  biom2carbonConversionFactor <- 0.5
+  biomassPools[, `:=`(
+    merch = merch * biom2carbonConversionFactor,
+    foliage = foliage * biom2carbonConversionFactor,
+    other = other * biom2carbonConversionFactor
+  )]
 
-    cumBiomList[[counter]] <- oneCurve[,
-                                       .(speciesCode = speciesCode,
-                                         age = age,
-                                         pixGroupColValue = get(pixGroupCol))]
-    setnames(cumBiomList[[counter]], "pixGroupColValue", pixGroupCol)
-    cumBiomList[[counter]] <- cbind(cumBiomList[[counter]],
-                                    cumBiom)
 
-  }
-  cumPools <- rbindlist(cumBiomList)
-  return(cumPools)
+  # Combine identifier columns with the new carbon pools
+  finalPools <- cbind(
+    AGB[, .SD, .SDcols = c("speciesCode", "age", pixGroupCol)],
+    biomassPools
+  )
+
+  return(finalPools)
 }
 
 #' Convert total above ground biomass into 3 pools (\eqn{T/ha})
@@ -98,22 +97,11 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, pixGroupCol){
 #'
 #'
 #' @export
-convertAGB2pools <- function(oneCurve, table6, table7){
-
-  # get the parameters
-  EquatParams <- getParameters(
-    table6,
-    table7,
-    unique(oneCurve$canfi_species),
-    unique(oneCurve$ecozone),
-    unique(oneCurve$juris_id)
-  )
-  params6 <- EquatParams$params6
-  params7 <- EquatParams$params7
+convertAGB2pools <- function(AGB, params6, params7){
 
   # get the proportions of each pool
-  pVect <- biomProp(table6 = params6, table7 = params7, x = oneCurve$B, type = "biomass")
-  totTree <-  oneCurve$B
+  pVect <- biomProp(table6 = params6, table7 = params7, x = AGB$B, type = "biomass")
+  totTree <-  AGB$B
   totalStemWood <- totTree * pVect[, 1]
 
   ##TODO
@@ -138,7 +126,7 @@ convertAGB2pools <- function(oneCurve, table6, table7){
   b <- 0.983
 
   # if age < MinMerchAge, the propMerch is 0, otherwise use FORCS, until we find actual data.
-  propMerch <- (oneCurve$age >= minMerchAge) * a * (1-b^oneCurve$age)
+  propMerch <- (AGB$age >= minMerchAge) * a * (1-b^AGB$age)
 
   merch <- propMerch * totalStemWood
 
@@ -149,7 +137,7 @@ convertAGB2pools <- function(oneCurve, table6, table7){
   branch <- totTree * pVect[, 3]
   foliage <- totTree * pVect[, 4]
   other <- branch + bark + otherStemWood
-  biomCumulative <- as.matrix(cbind(merch, foliage, other))
+  biomCumulative <- data.table(merch = merch, foliage = foliage, other = other)
   return(biomCumulative)
 }
 
@@ -181,45 +169,70 @@ convertAGB2pools <- function(oneCurve, table6, table7){
 #' @param juris_id the 2-letter code for the province/territory
 
 #' @return a list with 2 vectors for the parameters in table6 and table7 respectively.
-getParameters <- function(table6, table7, canfi_species, ecozone, juris_id){
-  spec <- as.integer(canfi_species)
-  ez <- ecozone
-  admin <- juris_id
+getParameters <- function(table6, table7, curves){
 
-  if(!(spec %in% table6$canfi_spec) | !(spec %in% table7$canfi_spec)){
-    stop("There are no parameters available for species ", spec)
+  table6_dt <- as.data.table(table6)
+  table7_dt <- as.data.table(table7)
+
+  if (!all(curves$canfi_species %in% table6_dt$canfi_spec & curves$canfi_species %in% table7_dt$canfi_spec)) {
+    missing_spp <- unique(curves$canfi_species[!(curves$canfi_species %in% table6_dt$canfi_spec &
+                                                   curves$canfi_species %in% table7_dt$canfi_spec)])
+    stop("There are no parameters available for species: ", paste(missing_spp, collapse = ", "))
   }
 
-  params6 <- table6[canfi_spec == spec & ecozone == ez & juris_id == admin,][1]
-  params7 <- table7[canfi_spec == spec & ecozone == ez & juris_id == admin,][1]
+  # Define parameter columns for clarity
+  p6_cols <- c("a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3")
+  p7_cols <- c("biom_min", "biom_max", "p_sw_low", "p_sb_low", "p_br_low", "p_fl_low",
+               "p_sw_high", "p_sb_high", "p_br_high", "p_fl_high")
 
+  # Copy to avoid modifying the original 'curves' object
+  params6 <- copy(curves)
+  params7 <- copy(curves)
+
+  # Merge parameters using a cascading join approach (from most to least specific)
+  # Level 1: Exact match (species, ecozone, jurisdiction)
+  params6[table6_dt,
+          on = .(canfi_species = canfi_spec, ecozone, juris_id),
+          (p6_cols) := mget(paste0("i.", p6_cols))]
+  params7[table7_dt,
+          on = .(canfi_species = canfi_spec, ecozone, juris_id),
+          (p7_cols) := mget(paste0("i.", p7_cols))]
+
+  # Level 2: If no exact match, use parameters for species in same ecozone
   if(any(is.na(params6))){
-    missing_species <- LandR::sppEquivalencies_CA[CanfiCode == spec, LandR][1]
-    params6 <- table6[canfi_spec == spec & ecozone == ez,][1]
-    params7 <- table7[canfi_spec == spec & ecozone == ez,][1]
+
+    missingParameters <- which(is.na(params6[,"a1"]))
+    params6[missingParameters] <- params6[missingParameters][table6_dt,
+                                                             on = .(canfi_species = canfi_spec, ecozone),
+                                                             (p6_cols) := mget(paste0("i.", p6_cols))]
+    params7[missingParameters] <- params7[missingParameters][table7_dt,
+                                                             on = .(canfi_species = canfi_spec, ecozone),
+                                                             (p7_cols) := mget(paste0("i.", p7_cols))]
+
+    # Level 3: If still no match, use parameters for species in same jurisdiction
     if(any(is.na(params6))) {
-      params6 <- table6[canfi_spec == spec & juris_id == admin,][1]
-      params7 <- table7[canfi_spec == spec & juris_id == admin,][1]
 
+      missingParameters <- which(is.na(params6[,"a1"]))
+      params6[missingParameters] <- params6[missingParameters][table6_dt,
+                                                               on = .(canfi_species = canfi_spec, juris_id),
+                                                               (p6_cols) := mget(paste0("i.", p6_cols))]
+      params7[missingParameters] <- params7[missingParameters][table7_dt,
+                                                               on = .(canfi_species = canfi_spec, juris_id),
+                                                               (p7_cols) := mget(paste0("i.", p7_cols))]
+
+      # Level 4: If still no match, use parameters for the same species wherever
       if(any(is.na(params6))) {
-        params6 <- table6[canfi_spec == spec,][1]
-        params7 <- table7[canfi_spec == spec,][1]
-
-        message("No parameters for species ", missing_species, " in ecozone ",
-                ez, " and juridiction ", juris_id, " using parameters of species ",
-                missing_species, "in ecozone ", params6$ecozone, " and juridiction ",
-                params6$juris_id, ".")
-      } else {
-        message("No parameters for species ", missing_species, " in ecozone ",
-                ez, " using parameters of species ", missing_species, "in ecozone ",
-                params6$ecozone, " and the same juridictions.")
+        missingParameters <- which(is.na(params6[,"a1"]))
+        params6[missingParameters] <- params6[missingParameters][table6_dt,
+                                                                 on = .(canfi_species = canfi_spec),
+                                                                 (p6_cols) := mget(paste0("i.", p6_cols))]
+        params7[missingParameters] <- params7[missingParameters][table7_dt,
+                                                                 on = .(canfi_species = canfi_spec),
+                                                                 (p7_cols) := mget(paste0("i.", p7_cols))]
       }
-    } else {
-      message("No parameters for species ", missing_species, " in  juridiction ",
-              juris_id, " using parameters of species ", missing_species,
-              "the same ecozone, but in juridiction ", params6$juris_id, ".")
     }
   }
+
   return(out = list(params6 = params6,
                     params7 = params7))
 }
