@@ -13,14 +13,11 @@ available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_tabl
 \item{table7}{\code{data.frame} corresponding to Table 4 from Boudewyn et al. (2007),
 available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
 
-\item{canfi_species}{the canfi code of the species}
-
-\item{ecozone}{the code of the ecozone}
-
-\item{juris_id}{the 2-letter code for the province/territory}
+\item{curves}{A \code{data.table} with unique combinations of \code{canfi_species}, \code{ecozone}, \code{juris_id}.}
 }
 \value{
-a list with 2 vectors for the parameters in table6 and table7 respectively.
+A single \code{data.table} containing a row for each curve with all required
+parameters from both \code{table6} and \code{table7}.
 }
 \description{
 Extract the species- and location- specific parameters for equation 4-7 of
