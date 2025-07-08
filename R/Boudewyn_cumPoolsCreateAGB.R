@@ -101,7 +101,7 @@ convertAGB2pools <- function(AGB, params6, params7){
   params6 <- merge(AGB, params6, all.x = TRUE)
   params7 <- merge(AGB, params7, all.x = TRUE)
   # get the proportions of each pool
-  pVect <- biomProp(table6 = params6, table7 = params7, x = AGB$B, type = "biomass")
+  pVect <- biomPropAGB(table6 = params6, table7 = params7, x = AGB$B, type = "biomass")
   totTree <-  AGB$B
   totalStemWood <- totTree * pVect[, 1]
 
@@ -236,4 +236,107 @@ getParameters <- function(table6, table7, curves){
 
   return(out = list(params6 = params6,
                     params7 = params7))
+}
+
+#' Proportions of total tree biomass in stemwood, bark, branches, and foliage
+#'
+#' Implements equations 4-7 of Boudewyn et al. (2007), used to determine the proportions
+#' of total tree biomass in stemwood, bark, branches, and foliage
+#' (\eqn{p_{stemwood}}, \eqn{p_{bark}}, \eqn{p_{branches}}, \eqn{p_{foliage}}, respectively),
+#' using parameters \eqn{a}, \eqn{b} from Table 6 (`table6`) and volume-proportion caps
+#' from Table 7 (`table7`).
+#'
+#' TODO: will eventually add species, ecozone
+#'
+#' @references
+#' Boudewyn, P., Song, X., Magnussen, S., & Gillis, M. D. (2007). Model-based, volume-to-biomass
+#' conversion for forested and vegetated land in Canada (BC-X-411). Natural Resource Canada,
+#' Pacific Forestry Centre. <https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/27434.pdf>
+#'
+#' @param table6 `data.frame` corresponding to Table 6 from Boudewyn et al. (2007),
+#' available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv>.
+#' The alternative table 6 for equations using total biomass as independent variable
+#' is available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv>.
+#'
+#' @param table7 `data.frame` corresponding to Table 7 from Boudewyn et al. (2007),
+#' available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv>.
+#' The alternative table 7 for equations using total biomass as independent variable
+#' is available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv>.
+#'
+#' @param x `vector` gross merchantable volume per hectare (\eqn{m^3/ha}) or
+#' total biomass (\eqn{tonnes/ha})
+#'
+#' @param type `character` specifies if the `x` represents gross merchantable
+#' volume per hectare ("volume") or total biomass ("biomass").
+#'
+#' @return four-column matrix will columns corresponding to \eqn{p_{stemwood}}, \eqn{p_{bark}},
+#' \eqn{p_{branches}}, and \eqn{p_{foliage}}
+#'
+#' @export
+biomPropAGB <- function(table6, table7, x, type = "volume") {
+  if (type == "volume"){
+    if(any(!(c("vol_min", "vol_max") %in% colnames(table7)))) {
+      stop("The parameter tables do not have the correct columns for ", type, " inputs.")
+    }
+    caps <- as.numeric(table7[ ,c("vol_min", "vol_max")])
+  } else if (type == "biomass") {
+    if(any(!(c("biom_min", "biom_max") %in% colnames(table7)))) {
+      stop("The parameter tables do not have the correct columns for ", type, " inputs.")
+    }
+    caps <- table7[ ,c("biom_min", "biom_max")]
+  } else {
+    stop("The argument type in biomProp() needs to be `volume` or `biomass`")
+  }
+
+  # flag if vol in below vol_min or above vol_max (when not NA)
+  # the model was developed on
+  # DC 2025-03-07: ONLY FOR VOLUME. MUTED FOR BIOMASS BECAUSE IT HAPPENS ALL THE
+  # TIME WHEN CREATING YIELD TABLES FROM LANDR
+  if (length(is.na(unique(caps[1]))) > 0 & type == "volume") {
+    testVec <- min(x) < unique(caps[1])
+    if (any(testVec)) {
+      message("Some volumes in the growth information provided are smaller than ",
+              "the minimum volume the proportions model was developed with.")
+    }
+  }
+
+  if (length(is.na(unique(caps[2]))) > 0 & type == "volume") {
+    testVec <- max(x) > unique(caps[2])
+    if (any(testVec)) {
+      message("Some volumes in the growth information provided are larger than ",
+              "the maximum volume the proportions model was developed with.")
+    }
+  }
+
+
+  lvol <- log(x + 5)
+
+  ## denominator is the same for all 4 equations
+  denom <- (1 + exp(table6[, a1] + table6[, a2] * x + table6[, a3] * lvol) +
+              exp(table6[, b1] + table6[, b2] * x + table6[, b3] * lvol) +
+              exp(table6[, c1] + table6[, c2] * x + table6[, c3] * lvol))
+  ## for each proportion, enforce caps per table 7
+  pstem <- 1 / denom
+  pstem[which(x < caps[,1])] <- table7[which(x < caps[,1]), p_sw_low]
+  pstem[which(x > caps[,2])] <- table7[which(x > caps[,2]), p_sw_high]
+
+  pbark <- exp(table6[, a1] + table6[, a2] * x + table6[, a3] * lvol) / denom
+  pbark[which(x < caps[,1])] <- table7[which(x < caps[,1]), p_sb_low]
+  pbark[which(x > caps[,2])] <- table7[which(x > caps[,2]), p_sb_high]
+
+  pbranches <- exp(table6[, b1] + table6[, b2] * x + table6[, b3] * lvol) / denom
+  pbranches[which(x < caps[,1])] <- table7[which(x < caps[,1]), p_br_low]
+  pbranches[which(x > caps[,2])] <- table7[which(x > caps[,2]), p_br_high]
+
+  pfol <- exp(table6[, c1] + table6[, c2] * x + table6[, c3] * lvol) / denom
+  pfol[which(x < caps[,1])] <- table7[which(x < caps[,1]), p_fl_low]
+  pfol[which(x > caps[,2])] <- table7[which(x > caps[,2]), p_fl_high]
+
+  propVect <- cbind(pstem = pstem, pbark = pbark, pbranches = pbranches, pfol = pfol)
+
+  if(any(abs(rowSums(propVect) - 1) > 0.001)) {
+    stop("The sums of biomass proportions do not sum to 1...")
+  }
+
+  return(propVect)
 }
