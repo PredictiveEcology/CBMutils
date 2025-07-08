@@ -41,19 +41,27 @@ test_that("getParameters", {
 test_that("convertAGB2pools", {
   dt <- data.table(
     expand.grid(canfi_species = c(204), # PINU_CON
-                age = c(3,15, 35),
+                age = c(3, 15, 35),
                 ecozone = 4,
                 juris_id = "AB"
     )
   )
-  dt$B <- round(runif(nrow(dt), 1, 100))
+  dt$B <- c(50, 100, 200)
   params <- getParameters(table6AGB, table7AGB, data.table(canfi_species = 204, ecozone = 4, juris_id = "AB"))
+
   out <- convertAGB2pools(dt, params)
 
   # Sum of the pools equal total AGB
   expect_equal(rowSums(out), dt$B)
-  # Merchantable is 0 for age under 15
-  expect_true(out[dt$age < 15, "merch"] ==  0)
+
+  # First line is under minimum age (merch should be 0), and under the biomass cap
+  expected_result = data.table(merch = 0,
+                               foliage = params$p_fl_low * dt$B[1],
+                               other = dt$B[1] * (1-params$p_fl_low))
+  expect_equal(out[1, ], expected_result)
+  # Over the maximum cap
+  expect_equal(out$foliage[3], dt$B[3] * params$p_fl_high)
+
   # Check output structure
   expect_true(all(colnames(out) == c("merch", "foliage", "other")))
   expect_true(all(!is.na(out)))
