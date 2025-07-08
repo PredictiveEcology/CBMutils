@@ -14,7 +14,7 @@ utils::globalVariables(c(
 #' Pacific Forestry Centre. <https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/27434.pdf>
 #'
 #' @param allInfoAGBin `data.frame` with at least four following columns: `canfi_species`,
-#' `ecozone`, `juris_id`, `age`, `B` and a column for pixel group identifier.
+#' `speciesCode`, `ecozone`, `juris_id`, `age`, `B` and a column for pixel group identifier.
 #'
 #' @param table6 `data.frame` corresponding to Table 3 from Boudewyn et al. (2007),
 #' available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv>.
@@ -86,11 +86,8 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, pixGroupCol){
 #' @param oneCurve `data.frame` with at least four following columns: `canfi_species`,
 #' `ecozone`, `juris_id`, and `B`.
 #'
-#' @param table6 `data.frame` corresponding to Table 3 from Boudewyn et al. (2007),
-#' available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv>.
-#'
-#' @param table7 `data.frame` corresponding to Table 4 from Boudewyn et al. (2007),
-#' available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv>.
+#' @param allParams `data.frame` containing a row for each curve with all required
+#' parameters from both `table6` and `table7`. from Boudewyn et al. (2007).
 
 #' @return three-column matrix with columns corresponding to biomass (\eqn{T/ha}) for
 #' total merchantable, foliage, and other wood.
@@ -98,7 +95,7 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, pixGroupCol){
 #'
 #' @export
 convertAGB2pools <- function(AGB, allParams){
-  AGBwithParams <- merge(AGB, allParams, by = c("canfi_species", "juris_id", "ecozone"), all.x = TRUE)
+  AGBwithParams <- merge(AGB, allParams, by = c("canfi_species", "juris_id", "ecozone"), all.x = TRUE, sort = FALSE)
 
   # get the proportions of each pool
   pVect <- biomPropAGB(AGBwithParams, type = "biomass")
@@ -250,60 +247,14 @@ getParameters <- function(table6, table7, curves){
 #' conversion for forested and vegetated land in Canada (BC-X-411). Natural Resource Canada,
 #' Pacific Forestry Centre. <https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/27434.pdf>
 #'
-#' @param table6 `data.frame` corresponding to Table 6 from Boudewyn et al. (2007),
-#' available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv>.
-#' The alternative table 6 for equations using total biomass as independent variable
-#' is available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv>.
-#'
-#' @param table7 `data.frame` corresponding to Table 7 from Boudewyn et al. (2007),
-#' available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv>.
-#' The alternative table 7 for equations using total biomass as independent variable
-#' is available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv>.
-#'
-#' @param x `vector` gross merchantable volume per hectare (\eqn{m^3/ha}) or
-#' total biomass (\eqn{tonnes/ha})
-#'
-#' @param type `character` specifies if the `x` represents gross merchantable
-#' volume per hectare ("volume") or total biomass ("biomass").
+#' @param AGBwithParams `data.frame` TODO.
 #'
 #' @return four-column matrix will columns corresponding to \eqn{p_{stemwood}}, \eqn{p_{bark}},
 #' \eqn{p_{branches}}, and \eqn{p_{foliage}}
 #'
 #' @export
-biomPropAGB <- function(AGBwithParams, type = "volume") {
-  # if (type == "volume"){
-  #   if(any(!(c("vol_min", "vol_max") %in% colnames(table7)))) {
-  #     stop("The parameter tables do not have the correct columns for ", type, " inputs.")
-  #   }
-  #   caps <- as.numeric(table7[ ,c("vol_min", "vol_max")])
-  # } else if (type == "biomass") {
-  #   if(any(!(c("biom_min", "biom_max") %in% colnames(table7)))) {
-  #     stop("The parameter tables do not have the correct columns for ", type, " inputs.")
-  #   }
-  #   caps <- table7[ ,c("biom_min", "biom_max")]
-  # } else {
-  #   stop("The argument type in biomProp() needs to be `volume` or `biomass`")
-  # }
-  #
-  # # flag if vol in below vol_min or above vol_max (when not NA)
-  # # the model was developed on
-  # # DC 2025-03-07: ONLY FOR VOLUME. MUTED FOR BIOMASS BECAUSE IT HAPPENS ALL THE
-  # # TIME WHEN CREATING YIELD TABLES FROM LANDR
-  # if (length(is.na(unique(caps[1]))) > 0 & type == "volume") {
-  #   testVec <- min(x) < unique(caps[1])
-  #   if (any(testVec)) {
-  #     message("Some volumes in the growth information provided are smaller than ",
-  #             "the minimum volume the proportions model was developed with.")
-  #   }
-  # }
-  #
-  # if (length(is.na(unique(caps[2]))) > 0 & type == "volume") {
-  #   testVec <- max(x) > unique(caps[2])
-  #   if (any(testVec)) {
-  #     message("Some volumes in the growth information provided are larger than ",
-  #             "the maximum volume the proportions model was developed with.")
-  #   }
-  # }
+biomPropAGB <- function(AGBwithParams) {
+
   propVect <- with(AGBwithParams, {
 
     lB <- log(B + 5)
