@@ -105,7 +105,7 @@ convertAGB2pools <- function(AGB, allParams){
   AGBwithParams <- merge(AGB, allParams, by = c("canfi_species", "juris_id", "ecozone"), all.x = TRUE, sort = FALSE)
 
   # get the proportions of each pool
-  pVect <- biomPropAGB(AGBwithParams, type = "biomass")
+  pVect <- biomPropAGB(AGBwithParams)
   totTree <-  AGB$B
   totalStemWood <- totTree * pVect[, "pstem"]
 
