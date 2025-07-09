@@ -27,7 +27,7 @@
 #' @importFrom knitr kable
 .matchSelect <- function(inputs, choices, allowNA = FALSE,
                          identical = TRUE, nearMatches = list(),
-                         funSimplify = function(x) trimws(tolower(x)),
+                         funSimplify = function(x) trimws(tolower(unname(as.character(x)))),
                          ask = !identical & interactive(),
                          inputTable = NULL, choiceTable = NULL, choiceTableExtra = NULL){
 
@@ -36,15 +36,17 @@
   if (length(inputs) == 0) return(integer(0))
   if (any(is.na(inputs))) stop("input contains NAs")
 
+  if (is.null(funSimplify)) funSimplify <- function(x) x
+
   # Set matching choices
-  chMatch <- unname(as.character(choices))
-  if (!is.null(funSimplify)) chMatch <- funSimplify(chMatch)
+  chMatch <- funSimplify(choices)
+  names(nearMatches) <- funSimplify(names(nearMatches))
 
   # Select matches
   matchIdx <- lapply(inputs, function(input){
 
-    input <- as.character(c(input, nearMatches[[input]]))
-    if (!is.null(funSimplify)) input <- funSimplify(input)
+    input <- funSimplify(input)
+    input <- c(input, funSimplify(nearMatches[[input]]))
 
     unique(unlist(
       list(
