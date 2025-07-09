@@ -4,24 +4,10 @@
 \alias{biomPropAGB}
 \title{Proportions of total tree biomass in stemwood, bark, branches, and foliage}
 \usage{
-biomPropAGB(AGBwithParams, type = "volume")
+biomPropAGB(AGBwithParams)
 }
 \arguments{
-\item{type}{\code{character} specifies if the \code{x} represents gross merchantable
-volume per hectare ("volume") or total biomass ("biomass").}
-
-\item{table6}{\code{data.frame} corresponding to Table 6 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv}.
-The alternative table 6 for equations using total biomass as independent variable
-is available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv}.}
-
-\item{table7}{\code{data.frame} corresponding to Table 7 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv}.
-The alternative table 7 for equations using total biomass as independent variable
-is available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
-
-\item{x}{\code{vector} gross merchantable volume per hectare (\eqn{m^3/ha}) or
-total biomass (\eqn{tonnes/ha})}
+\item{AGBwithParams}{\code{data.frame} TODO.}
 }
 \value{
 four-column matrix will columns corresponding to \eqn{p_{stemwood}}, \eqn{p_{bark}},

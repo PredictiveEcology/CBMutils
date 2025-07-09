@@ -1,5 +1,12 @@
 utils::globalVariables(c(
-  "juris_id", "curve_id", ".I", "speciesCode", "canfi_spec", "CanfiCode", "LandR"
+  ".I", "a1", "a2", "a3", "age", "b1", "b2", "b3", "B", "biom_max",
+  "biom_min", "c1", "c2", "c3", "canfi_spec", "CanfiCode", "canfi_species",
+  "curve_id", "ecozone", "foliage", "i.a1", "i.a2", "i.a3", "i.b1", "i.b2",
+  "i.b3", "i.biom_max", "i.biom_min", "i.p_br_high", "i.p_br_low", "i.c1", "i.c2",
+  "i.c3", "i.p_fl_high", "i.p_fl_low", "i.p_sb_high", "i.p_sb_low", "i.p_sw_high",
+  "i.p_sw_low", "juris_id", "LandR", "merch", "other", "p_br_high", "p_br_low",
+  "p_fl_high", "p_fl_low", "p_sb_high", "p_sb_low", "p_sw_high", "p_sw_low",
+  "speciesCode"
 ))
 
 #' Convert total above ground biomass into 3 pools (\eqn{T/ha})
