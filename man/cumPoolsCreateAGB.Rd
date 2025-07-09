@@ -7,8 +7,8 @@
 cumPoolsCreateAGB(allInfoAGBin, table6, table7, pixGroupCol)
 }
 \arguments{
-\item{allInfoAGBin}{\code{data.frame} with at least four following columns: \code{canfi_species},
-\code{ecozone}, \code{juris_id}, \code{age}, \code{B} and a column for pixel group identifier.}
+\item{allInfoAGBin}{\code{data.frame} with at least six following columns: \code{canfi_species},
+\code{speciesCode}, \code{ecozone}, \code{juris_id}, \code{age}, \code{B} and a column for pixel group identifier.}
 
 \item{table6}{\code{data.frame} corresponding to Table 3 from Boudewyn et al. (2007),
 available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv}.}
