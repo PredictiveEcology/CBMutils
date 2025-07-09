@@ -2,26 +2,22 @@
 % Please edit documentation in R/Boudewyn_cumPoolsCreateAGB.R
 \name{biomPropAGB}
 \alias{biomPropAGB}
-\title{Proportions of total tree biomass in stemwood, bark, branches, and foliage}
+\title{Calculates proportions of total tree biomass in stemwood, bark, branches, and foliage}
 \usage{
 biomPropAGB(AGBwithParams)
 }
 \arguments{
-\item{AGBwithParams}{\code{data.frame} TODO.}
+\item{AGBwithParams}{\code{data.frame} with both the total aboveground biomass \code{B}
+to split and the parameters extracted from tables 6 and 7.}
 }
 \value{
 four-column matrix will columns corresponding to \eqn{p_{stemwood}}, \eqn{p_{bark}},
 \eqn{p_{branches}}, and \eqn{p_{foliage}}
 }
 \description{
-Implements equations 4-7 of Boudewyn et al. (2007), used to determine the proportions
-of total tree biomass in stemwood, bark, branches, and foliage
-(\eqn{p_{stemwood}}, \eqn{p_{bark}}, \eqn{p_{branches}}, \eqn{p_{foliage}}, respectively),
-using parameters \eqn{a}, \eqn{b} from Table 6 (\code{table6}) and volume-proportion caps
-from Table 7 (\code{table7}).
-}
-\details{
-TODO: will eventually add species, ecozone
+Implements equations 4-7 of Boudewyn et al. (2007) adapted for biomass input
+using parameters \eqn{a}, \eqn{b}, and \eqn{c }from Table 6 (\code{table6}) and
+biomass-proportion caps from Table 7 (\code{table7}).
 }
 \references{
 Boudewyn, P., Song, X., Magnussen, S., & Gillis, M. D. (2007). Model-based, volume-to-biomass

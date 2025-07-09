@@ -20,7 +20,7 @@ utils::globalVariables(c(
 #' conversion for forested and vegetated land in Canada (BC-X-411). Natural Resource Canada,
 #' Pacific Forestry Centre. <https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/27434.pdf>
 #'
-#' @param allInfoAGBin `data.frame` with at least four following columns: `canfi_species`,
+#' @param allInfoAGBin `data.frame` with at least six following columns: `canfi_species`,
 #' `speciesCode`, `ecozone`, `juris_id`, `age`, `B` and a column for pixel group identifier.
 #'
 #' @param table6 `data.frame` corresponding to Table 3 from Boudewyn et al. (2007),
@@ -39,7 +39,7 @@ utils::globalVariables(c(
 cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, pixGroupCol){
 
   # 1. Input validation
-  expectedColumns <- c("canfi_species", "juris_id", "ecozone", "age", "B", pixGroupCol)
+  expectedColumns <- c("canfi_species", "juris_id", "ecozone", "age", "B", "speciesCode", pixGroupCol)
   if (any(!(expectedColumns %in% colnames(allInfoAGBin)))) {
     stop("The AGB table needs the following columns ", paste(expectedColumns, collapse = " "))
   }
@@ -57,7 +57,7 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, pixGroupCol){
   ## IMPORTANT BOURDEWYN PARAMETERS FOR NOT HANDLE AGE 0 ##
   AGB <- AGB[age > 0]
 
-  # Call convertAGB2pool
+  # Call convertAGB2pools
   # It returns a data.table with merch, foliage, and other biomass pools
   biomassPools <- convertAGB2pools(AGB, allParams)
 
@@ -90,11 +90,11 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, pixGroupCol){
 #' conversion for forested and vegetated land in Canada (BC-X-411). Natural Resource Canada,
 #' Pacific Forestry Centre. <https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/27434.pdf>
 #'
-#' @param oneCurve `data.frame` with at least four following columns: `canfi_species`,
+#' @param AGB `data.frame` with at least four following columns: `canfi_species`,
 #' `ecozone`, `juris_id`, and `B`.
 #'
 #' @param allParams `data.frame` containing a row for each curve with all required
-#' parameters from both `table6` and `table7`. from Boudewyn et al. (2007).
+#' parameters of both `table6` and `table7`. from Boudewyn et al. (2007).
 
 #' @return three-column matrix with columns corresponding to biomass (\eqn{T/ha}) for
 #' total merchantable, foliage, and other wood.
@@ -239,22 +239,19 @@ getParameters <- function(table6, table7, curves){
   return(allParams)
 }
 
-#' Proportions of total tree biomass in stemwood, bark, branches, and foliage
+#' Calculates proportions of total tree biomass in stemwood, bark, branches, and foliage
 #'
-#' Implements equations 4-7 of Boudewyn et al. (2007), used to determine the proportions
-#' of total tree biomass in stemwood, bark, branches, and foliage
-#' (\eqn{p_{stemwood}}, \eqn{p_{bark}}, \eqn{p_{branches}}, \eqn{p_{foliage}}, respectively),
-#' using parameters \eqn{a}, \eqn{b} from Table 6 (`table6`) and volume-proportion caps
-#' from Table 7 (`table7`).
-#'
-#' TODO: will eventually add species, ecozone
+#' Implements equations 4-7 of Boudewyn et al. (2007) adapted for biomass input
+#' using parameters \eqn{a}, \eqn{b}, and \eqn{c }from Table 6 (`table6`) and
+#' biomass-proportion caps from Table 7 (`table7`).
 #'
 #' @references
 #' Boudewyn, P., Song, X., Magnussen, S., & Gillis, M. D. (2007). Model-based, volume-to-biomass
 #' conversion for forested and vegetated land in Canada (BC-X-411). Natural Resource Canada,
 #' Pacific Forestry Centre. <https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/27434.pdf>
 #'
-#' @param AGBwithParams `data.frame` TODO.
+#' @param AGBwithParams `data.frame` with both the total aboveground biomass `B`
+#' to split and the parameters extracted from tables 6 and 7.
 #'
 #' @return four-column matrix will columns corresponding to \eqn{p_{stemwood}}, \eqn{p_{bark}},
 #' \eqn{p_{branches}}, and \eqn{p_{foliage}}

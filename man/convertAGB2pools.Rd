@@ -7,11 +7,11 @@
 convertAGB2pools(AGB, allParams)
 }
 \arguments{
-\item{allParams}{\code{data.frame} containing a row for each curve with all required
-parameters from both \code{table6} and \code{table7}. from Boudewyn et al. (2007).}
-
-\item{oneCurve}{\code{data.frame} with at least four following columns: \code{canfi_species},
+\item{AGB}{\code{data.frame} with at least four following columns: \code{canfi_species},
 \code{ecozone}, \code{juris_id}, and \code{B}.}
+
+\item{allParams}{\code{data.frame} containing a row for each curve with all required
+parameters of both \code{table6} and \code{table7}. from Boudewyn et al. (2007).}
 }
 \value{
 three-column matrix with columns corresponding to biomass (\eqn{T/ha}) for
