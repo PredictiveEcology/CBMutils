@@ -1,4 +1,8 @@
 
+utils::globalVariables(c(
+  "..aboveGroundColumns"
+))
+
 #' `calcRootC`
 #'
 #' `calcRootC` calculates the mass of carbon in roots pools from above ground pools

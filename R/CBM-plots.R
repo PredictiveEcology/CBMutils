@@ -8,7 +8,7 @@ utils::globalVariables(c(
   "locale_id", "MediumSoil", "Merch", "N", "Other","pixelIndex", "pixNPP", "pixTC",
   "pool", "products", "Products",
   "res", "simYear", "snags", "SoftwoodBranchSnag", "SoftwoodStemSnag", "soil", "StemSnag", "weight",
-  "x", "y", "avgNPP", "totalCarbon"
+  "x", "y", "totalCarbon", "avgNPP", "totalNPP"
 ))
 
 #' `spatialPlot`
