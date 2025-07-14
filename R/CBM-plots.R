@@ -215,14 +215,28 @@ barPlot <- function(cbmPools) {
 #' @importFrom ggalluvial geom_alluvium geom_stratum
 #' @importFrom ggplot2 ggplot aes scale_fill_manual labs theme_minimal scale_x_discrete geom_text ggplot_build
 
-cTransfersAlluvial <- function(cTransfers, distMatrixID = NA, distName = NA, spu) {
+cTransfersAlluvial <- function(cTransfers, distMatrixID = NA, distName = NA, spu = NA) {
   #subset transfer table to only included needed disturbance
   if (!is.na(distMatrixID)){
-  disturbanceTransfers <- cTransfers[disturbance_matrix_id == distMatrixID & spatial_unit_id == spu]
+  disturbanceTransfers <- cTransfers[disturbance_matrix_id == distMatrixID]
   }
+
   if (!is.na(distName)){
-  disturbanceTransfers <- cTransfers[grepl(distName, name, ignore.case = TRUE) & spatial_unit_id == spu]
+    disturbanceTransfers <- .matchSelect(
+      inputs      = c("distName", "spu"),
+      choices     = cTransfers$name,
+      choiceTable = cTransfers[, .(name)],
+      choiceTableExtra = cTransfers[, .(description)],
+      identical   = identical,
+      nearMatches = nearMatches,
+      ask         = ask,
+      ...
+    )
+    if (length(disturbanceTransfers$INSERT) > 1) {
+      stop("This disturbance name needs to be more specific as it currently returns more than one disturbance")
+    }
   }
+
   #create pool categories
   disturbanceTransfers[, sink_pool_category := fifelse(sink_pool %in% c("CO2", "CH4", "CO"),
                                                        "Emission",
