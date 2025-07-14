@@ -85,7 +85,7 @@ carbonOutPlot <- function(emissionsProducts) {
     labs(x = "Year", y = "Carbon in MgC") + theme_classic() + ggtitle("Yearly Emissions") +
     guides(fill = guide_legend(title.position= "top", title ="Emission") ) +
     scale_y_continuous(expand = c(0,0)) +
-    scale_fill_manual(values = c("#733958", "#4e88b9", "#c3a44c"), labels = c('CO2', "CH4", "CO"))
+    scale_fill_manual(values = c("#733958", "#5c538a", "#c3a44c"), labels = c('CO2', "CH4", "CO"))
 
   Products <- ggplot(data = totalOutByYr, aes(x = simYear, y = Products)) +
     geom_bar(stat = "identity", fill = "#4e88b9") +
