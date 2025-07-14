@@ -10,7 +10,7 @@
   allowNA = FALSE,
   identical = TRUE,
   nearMatches = list(),
-  funSimplify = function(x) trimws(tolower(x)),
+  funSimplify = function(x) trimws(tolower(unname(as.character(x)))),
   ask = !identical & interactive(),
   inputTable = NULL,
   choiceTable = NULL,
