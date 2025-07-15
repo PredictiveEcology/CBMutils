@@ -4,16 +4,16 @@
 \alias{cTransfersAlluvial}
 \title{\code{cTransfersAlluvial}}
 \usage{
-cTransfersAlluvial(cTransfers, distMatrixID = NA, distName = NA, spu)
+cTransfersAlluvial(cTransfers, distMatrixID = NA, distName = NA, spu = NA)
 }
 \arguments{
 \item{cTransfers}{TODO}
 
-\item{distMatrixID}{disturbance_matrix_id of the disturbance to plot. The user needs to specify this and/or disturbance name.}
+\item{distMatrixID}{disturbance_matrix_id of the disturbance to plot. The user needs to specify this or \code{distName}.}
 
-\item{distName}{disturbance name you wish to plot. The user needs to specify this and/or disturbance matrix id.}
+\item{distName}{disturbance name you wish to plot. The user needs to specify this or \code{distMatrixID}.}
 
-\item{spatial_unit_id}{spatial unit of the disturbance to plot. This must be provided.}
+\item{spu}{spatial unit ID of the disturbance to plot. Required only if \code{distName} is used.}
 }
 \value{
 alluvialDist Alluvial plot of a disturbance in a specific spatial unit.

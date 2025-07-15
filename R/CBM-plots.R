@@ -10,6 +10,9 @@ utils::globalVariables(c(
   "res", "simYear", "snags", "SoftwoodBranchSnag", "SoftwoodStemSnag", "soil", "StemSnag", "weight",
   "x", "y", "totalCarbon", "avgNPP", "totalNPP"
 ))
+utils::globalVariables(c(
+  "labelX", "labelY", "proportion", "sink_pool", "sink_pool_category", "source_pool", "stratum"
+))
 
 #' `spatialPlot`
 #'
@@ -204,16 +207,16 @@ barPlot <- function(cbmPools) {
 #' Maps proportions of carbon transfers across pools during a disturbance.
 #'
 #' @param cTransfers TODO
-#' @param distMatrixID disturbance_matrix_id of the disturbance to plot. The user needs to specify this and/or disturbance name.
-#' @param distName disturbance name you wish to plot. The user needs to specify this and/or disturbance matrix id.
-#' @param spatial_unit_id spatial unit of the disturbance to plot. This must be provided.
+#' @param distMatrixID disturbance_matrix_id of the disturbance to plot. The user needs to specify this or `distName`.
+#' @param distName disturbance name you wish to plot. The user needs to specify this or `distMatrixID`.
+#' @param spu spatial unit ID of the disturbance to plot. Required only if `distName` is used.
 #'
 #' @return alluvialDist Alluvial plot of a disturbance in a specific spatial unit.
 #'
 #' @export
-#' @importFrom data.table as.data.table
+#' @importFrom data.table as.data.table fifelse
 #' @importFrom ggalluvial geom_alluvium geom_stratum
-#' @importFrom ggplot2 ggplot aes scale_fill_manual labs theme_minimal scale_x_discrete geom_text ggplot_build
+#' @importFrom ggplot2 ggplot aes element_blank scale_fill_manual labs theme_minimal scale_x_discrete geom_text ggplot_build
 
 cTransfersAlluvial <- function(cTransfers, distMatrixID = NA, distName = NA, spu = NA) {
   #subset transfer table to only included needed disturbance
@@ -227,10 +230,10 @@ cTransfersAlluvial <- function(cTransfers, distMatrixID = NA, distName = NA, spu
       choices     = cTransfers$name,
       choiceTable = cTransfers[, .(name)],
       choiceTableExtra = cTransfers[, .(description)],
-      identical   = identical,
-      nearMatches = nearMatches,
-      ask         = ask,
-      ...
+      # identical   = identical,
+      # nearMatches = nearMatches,
+      # ask         = ask,
+      # ...
     )
     if (length(disturbanceTransfers$INSERT) > 1) {
       stop("This disturbance name needs to be more specific as it currently returns more than one disturbance")
