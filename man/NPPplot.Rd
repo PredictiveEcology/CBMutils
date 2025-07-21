@@ -4,14 +4,16 @@
 \alias{NPPplot}
 \title{\code{NPPplot}}
 \usage{
-NPPplot(cohortGroupKeep, NPP, masterRaster)
+NPPplot(NPP, year, masterRaster, cohortGroupKeep)
 }
 \arguments{
-\item{cohortGroupKeep}{TODO}
+\item{NPP}{NPP per cohort for the simulation.}
 
-\item{NPP}{TODO}
+\item{year}{simulation year to plot}
 
 \item{masterRaster}{A \code{SpatRaster} object to use as the template}
+
+\item{cohortGroupKeep}{cohort to pixel information}
 }
 \value{
 TODO

@@ -31,16 +31,16 @@ utils::globalVariables(c(
 #' @importFrom ggforce theme_no_axes
 #' @importFrom ggplot2 aes geom_raster ggplot ggtitle scale_fill_continuous coord_fixed
 #' @importFrom terra rast res unwrap values
-spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
+spatialPlot <- function(cbmPools, year, masterRaster, cohortGroupKeep) {
   masterRaster <- terra::unwrap(masterRaster)
   # filter cbmPools to keep the year to plot
-  cbmPools <- as.data.table(cbmPools)[simYear == years, ]
+  cbmPools <- as.data.table(cbmPools)[simYear == year, ]
   # Calculate the total carbon per cohort group
   totalCarbon <- apply(cbmPools[, Merch:BranchSnag],
                        1, "sum")
   totalCarbon <- cbind(cbmPools, totalCarbon)
   # Get the pixel index for each cohort group for the year to plot
-  t <- unique(cohortGroupKeep[, .(pixelIndex, cohortGroupID = get(as.character(years)))])
+  t <- unique(cohortGroupKeep[, .(pixelIndex, cohortGroupID = get(as.character(year)))])
   setkey(t, cohortGroupID)
   setkey(totalCarbon, cohortGroupID)
   # Match pixel index and carbon data.
@@ -61,7 +61,7 @@ spatialPlot <- function(cbmPools, years, masterRaster, cohortGroupKeep) {
   overallTC <- sum(temp$pixTC)/(nrow(temp) * pixSize)
   Plot <- ggplot() + geom_raster(data = plotM, aes(x = x, y = y, fill = totalCarbon)) +
     theme_no_axes() + scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") + labs(fill = "Carbon (MgC)" ) +
-    ggtitle(paste0("Total Carbon in ", years, " in MgC/ha")) + coord_fixed()
+    ggtitle(paste0("Total Carbon in ", year, " in MgC/ha")) + coord_fixed()
 }
 
 #' `carbonOutPlot`
@@ -103,8 +103,9 @@ carbonOutPlot <- function(emissionsProducts) {
 #' @description
 #' Maps the average net primary productivity (NPP) across the simulation years.
 #'
-#' @param cohortGroupKeep TODO
-#' @param NPP TODO
+#' @param cohortGroupKeep cohort to pixel information
+#' @param NPP NPP per cohort for the simulation.
+#' @param year simulation year to plot
 #' @template masterRaster
 #'
 #' @return TODO
@@ -114,45 +115,32 @@ carbonOutPlot <- function(emissionsProducts) {
 #' @importFrom ggforce theme_no_axes
 #' @importFrom ggplot2 ggplot geom_raster aes scale_fill_continuous ggtitle coord_fixed
 #' @importFrom terra rast res unwrap values
-NPPplot <- function(cohortGroupKeep, NPP, masterRaster) {
+NPPplot <- function(NPP, year, masterRaster, cohortGroupKeep) {
   masterRaster <- terra::unwrap(masterRaster)
-  # Get a data.table with the pixel index of each cohort group at each time step
-  cohortGroupKeep <- melt.data.table(
-    cohortGroupKeep,
-    id.vars = "pixelIndex",
-    measure.vars = as.character(unique(NPP$simYear)),
-    variable.name = "simYear",
-    value.name = "cohortGroupID",
-    na.rm = TRUE,
-    variable.factor = FALSE
-  )
-  cohortGroupKeep[, simYear := as.integer(simYear)]
-  # Match npp to pixel index with the combination of simYear and cohortGroup
-  # allow.cartesian: multiple cohort group per pixel and vice-versa.
-  npp <- merge(
-    as.data.table(NPP),
-    cohortGroupKeep,
-    by = c("simYear", "cohortGroupID"),
-    allow.cartesian = TRUE
-  )
-  # Calculate total NPP per pixel x year
-  npp[, `:=`(totalNPP, sum(NPP)), by = c("simYear", "pixelIndex")]
-  npp <- unique(npp[,.(pixelIndex, simYear, totalNPP)])
-  # Calculate average NPP across year per pixel
-  temp <- npp[, .(avgNPP = mean(totalNPP)), by = pixelIndex]
+  # filter NPP to keep the year to plot
+  NPP <- as.data.table(NPP)[simYear == year, ]
+  # Get the pixel index for each cohort group for the year to plot
+  t <- unique(cohortGroupKeep[, .(pixelIndex, cohortGroupID = get(as.character(year)))])
+  setkey(t, cohortGroupID)
+  setkey(NPP, cohortGroupID)
+  # Match pixel index and NPP data.
+  # allow.cartesian: there might be >1 cohort groups per pixel, and >1 pixels per cohort group
+  temp <- merge(t, NPP, allow.cartesian = TRUE)
+  # Calculate total NPP per pixel
+  temp <- temp[, .(NPP = sum(NPP)), by = pixelIndex]
   setkey(temp, pixelIndex)
   # Create raster to plot
   plotMaster <- terra::rast(masterRaster)
-  names(plotMaster) <- "avgNPP"
+  names(plotMaster) <- "NPP"
   plotMaster[] <- NA
-  plotMaster[temp$pixelIndex] <- temp$avgNPP
+  plotMaster[temp$pixelIndex] <- temp$NPP
   # Calculate the landscape-level avg NPP (for the plot title)
   pixSize <- prod(res(masterRaster))/10000
-  temp[, `:=`(pixNPP, avgNPP * pixSize)]
+  temp[, `:=`(pixNPP, NPP * pixSize)]
   overallAvgNpp <- sum(temp$pixNPP)/(nrow(temp) * pixSize)
   # Convert to data.frame to use with geom_raster.
   plotMaster <- as.data.frame(plotMaster, xy = TRUE)
-  Plot <- ggplot() + geom_raster(data = plotMaster, aes(x = x, y = y, fill = avgNPP)) +
+  Plot <- ggplot() + geom_raster(data = plotMaster, aes(x = x, y = y, fill = NPP)) +
     theme_no_axes() + scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") + labs(fill = "NPP (MgC)" ) +
     ggtitle(paste0("Pixel-level average NPP\n",
                    "Landscape average: ", round(overallAvgNpp, 3), "  MgC/ha/yr.")) + coord_fixed()
