@@ -5,7 +5,6 @@
 #' Resampling is done using "mode" resampling to preserve categorical values.
 #'
 #' @param input terra SpatRaster, one or more raster files, or sf polygons.
-#' If a vector data source, the .
 #' @param templateRast SpatRaster. Raster template.
 #' @param field numeric or character. Vector field to extract.
 #'

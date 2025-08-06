@@ -7,8 +7,7 @@
 extractToRast(input, templateRast, field = 1)
 }
 \arguments{
-\item{input}{terra SpatRaster, one or more raster files, or sf polygons.
-If a vector data source, the .}
+\item{input}{terra SpatRaster, one or more raster files, or sf polygons.}
 
 \item{templateRast}{SpatRaster. Raster template.}
 
