@@ -20,7 +20,7 @@ utils::globalVariables(c(
 #' Maps the total carbon across the landscape for a given year.
 #'
 #' @param cbmPools TODO
-#' @param years TODO
+#' @param year TODO
 #' @template masterRaster
 #' @param cohortGroupKeep TODO
 #'

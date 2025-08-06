@@ -9,11 +9,11 @@ spatialPlot(cbmPools, year, masterRaster, cohortGroupKeep)
 \arguments{
 \item{cbmPools}{TODO}
 
+\item{year}{TODO}
+
 \item{masterRaster}{A \code{SpatRaster} object to use as the template}
 
 \item{cohortGroupKeep}{TODO}
-
-\item{years}{TODO}
 }
 \value{
 TODO
