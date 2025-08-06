@@ -55,6 +55,9 @@ extractToRast_rast <- function(input, templateRast){
 
   # Reclassify if contains NAs
   valUq <- terra::unique(input, na.rm = FALSE)
+  if (length(valUq[,1]) == 1){
+    return(rep(valUq[1,1], terra::ncell(templateRast)))
+  }
   if (any(c(NA, NaN) %in% valUq[,1])){
     valUq$temp <- 1:nrow(valUq)
     input <- terra::classify(input, valUq)
