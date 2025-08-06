@@ -13,7 +13,7 @@ test_that("Function: writeRasterWithValues", {
   outPath <- file.path(tempDir, "writeRasterWithValues-numeric.tif")
   writeRasterWithValues(
     masterRaster, values = c(rep(1, 50), rep(2, 50)),
-    outPath = outPath, overwrite = TRUE)
+    filename = outPath, overwrite = TRUE)
 
   rVals <- terra::rast(outPath)
   expect_true(terra::compareGeom(rVals, masterRaster, stopOnError = FALSE))
@@ -23,7 +23,7 @@ test_that("Function: writeRasterWithValues", {
   outPath <- file.path(tempDir, "writeRasterWithValues-text.tif")
   writeRasterWithValues(
     masterRaster, values = c(rep("Hello 1", 50), rep("Goodbye 2", 50)),
-    outPath = outPath, overwrite = TRUE)
+    filename = outPath, overwrite = TRUE)
 
   rVals <- terra::rast(outPath)
   expect_true(terra::compareGeom(rVals, masterRaster, stopOnError = FALSE))
@@ -45,7 +45,7 @@ test_that("Function: extractToRast: raster upsampling", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, outPath = tempfile(
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
     "rast-upsample_", fileext = ".tif", tmpdir = tempDir))
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
@@ -67,7 +67,7 @@ test_that("Function: extractToRast: raster downsampling", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, outPath = tempfile(
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
     "rast-downsample_", fileext = ".tif", tmpdir = tempDir))
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
@@ -91,7 +91,7 @@ test_that("Function: extractToRast: raster reprojecting", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, outPath = tempfile(
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
     "rast-reproject_", fileext = ".tif", tmpdir = tempDir))
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
@@ -113,7 +113,7 @@ test_that("Function: extractToRast: TIF file", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, outPath = tempfile(
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
     "rast-TIF_", fileext = ".tif", tmpdir = tempDir))
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
@@ -135,7 +135,7 @@ test_that("Function: extractToRast: TIF tiles", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, outPath = tempfile(
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
     "rast-TIF-tiles_", fileext = ".tif", tmpdir = tempDir))
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
@@ -162,7 +162,7 @@ test_that("Function: extractToRast: sf polygons with numeric field", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, outPath = tempfile(
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
     "sf-numeric_", fileext = ".tif", tmpdir = tempDir))
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
@@ -190,7 +190,7 @@ test_that("Function: extractToRast: sf polygons with numeric field: reproject", 
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, outPath = tempfile(
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
     "sf-numeric-reproject_", fileext = ".tif", tmpdir = tempDir))
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
@@ -216,7 +216,7 @@ test_that("Function: extractToRast: sf polygons with text field: reproject", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, outPath = tempfile(
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
     "sf-text-reproject_", fileext = ".tif", tmpdir = tempDir))
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
