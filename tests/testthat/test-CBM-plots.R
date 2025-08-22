@@ -33,6 +33,10 @@ test_that("spatialPlot", {
 
 test_that("carbonOutPlot", {
 
+  emissionsProducts <- qs::qread(file.path(testDirs$testdata, "CBM_core_outputs/SK/emissionsProducts.qs"))
+
+  out <- carbonOutPlot(emissionsProducts)
+  expect_is(out, "ggplot")
 })
 
 test_that("NPPplot", {

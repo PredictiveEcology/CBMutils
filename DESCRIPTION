@@ -39,6 +39,7 @@ Suggests:
     covr,
     devtools,
     exactextractr,
+    qs,
     reproducible,
     rmarkdown,
     testthat
