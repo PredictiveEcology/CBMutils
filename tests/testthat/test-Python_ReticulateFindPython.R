@@ -3,6 +3,10 @@ if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
 test_that("ReticulateFindPython", {
 
+  testthat::skip_on_cran()
+  testthat::skip_on_covr()
+  testthat::skip_if_not(testthat:::on_ci())
+
   pyenvRoot <- file.path(testDirs$temp$outputs, "ReticulateFindPython")
   dir.create(pyenvRoot)
 
