@@ -54,7 +54,3 @@ test_that("barPlot", {
 
 })
 
-test_that("cTransfersAlluvial", {
-
-})
-
