@@ -11,7 +11,7 @@ spatialPlot(cbmPools, year, masterRaster, cohortGroupKeep)
 
 \item{year}{TODO}
 
-\item{masterRaster}{A \code{SpatRaster} object to use as the template}
+\item{masterRaster}{\code{\link[terra]{SpatRaster}} template defining the study area.}
 
 \item{cohortGroupKeep}{TODO}
 }

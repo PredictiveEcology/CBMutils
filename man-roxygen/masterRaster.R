@@ -1,1 +1,2 @@
-#' @param masterRaster A `SpatRaster` object to use as the template
+#' @param masterRaster \code{\link[terra]{SpatRaster}} template defining the study area.
+NULL

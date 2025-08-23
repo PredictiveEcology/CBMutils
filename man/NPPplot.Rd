@@ -11,7 +11,7 @@ NPPplot(NPP, year, masterRaster, cohortGroupKeep)
 
 \item{year}{simulation year to plot}
 
-\item{masterRaster}{A \code{SpatRaster} object to use as the template}
+\item{masterRaster}{\code{\link[terra]{SpatRaster}} template defining the study area.}
 
 \item{cohortGroupKeep}{cohort to pixel information}
 }

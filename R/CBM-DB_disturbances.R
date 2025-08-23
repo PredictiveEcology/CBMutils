@@ -286,22 +286,23 @@ seeDist <- function(EXN = TRUE, matrixIDs = NULL,
 #' in this specific disturbance, the pools into which carbon goes, and the
 #' proportion in which the carbon-transfers are completed.
 #'
-#' @param sim A `SpaDES` CBM simulation (`simList`) object.
+#' @template simCBM
 #'
 #' @return List of `data.frame` for each disturbance matrix id in the study area, named by disturbance name
 #'
 #' @export
-simDist <- function(sim) {
+simDist <- function(simCBM) {
+
   # Getting the disturbances in study area
-  DMID <- unique(sim@.envir$disturbanceMeta[, 6])
+  DMID <- unique(simCBM@.envir$disturbanceMeta[, 6])
 
   # Getting all disturbance tables from seeDist
-  allDist <- seeDist(EXN = FALSE, dbPath = sim@.envir$dbPath)
+  allDist <- seeDist(EXN = FALSE, dbPath = simCBM@.envir$dbPath)
   # Subsetting table list to only those relevant to study area
   subsetDist <- allDist[names(allDist) %in% DMID$disturbance_matrix_id]
 
   # each data.frame gets a descriptive name
-  names(subsetDist) <- unique(sim@.envir$disturbanceMatrix[DMID, on = "disturbance_matrix_id", .(disturbance_matrix_id, name)])$name
+  names(subsetDist) <- unique(simCBM@.envir$disturbanceMatrix[DMID, on = "disturbance_matrix_id", .(disturbance_matrix_id, name)])$name
   # description
   # "Salvage uprooting and burn for Boreal Plains"
   return(subsetDist)

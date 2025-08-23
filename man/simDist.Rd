@@ -4,10 +4,10 @@
 \alias{simDist}
 \title{See disturbances in simList}
 \usage{
-simDist(sim)
+simDist(simCBM)
 }
 \arguments{
-\item{sim}{A \code{SpaDES} CBM simulation (\code{simList}) object.}
+\item{simCBM}{SpaDES.core \code{\link[SpaDES.core]{simList}} for a CBM simulation including the \strong{CBM_core} module.}
 }
 \value{
 List of \code{data.frame} for each disturbance matrix id in the study area, named by disturbance name
