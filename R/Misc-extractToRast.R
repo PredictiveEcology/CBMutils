@@ -90,9 +90,8 @@ extractToRast_vect <- function(input, templateRast, field = 1){
     crs = TRUE, warncrs = FALSE, stopOnError = FALSE, messages = FALSE,
     lyrs = FALSE, ext = FALSE, rowcol = FALSE, res = FALSE)
 
-  cropBBOX <- sf::st_buffer(
-    sf::st_as_sfc(sf::st_bbox(templateRast)), terra::res(templateRast)[[1]],
-    joinStyle = "MITRE", mitreLimit = 2)
+  cropBBOX <- sf::st_as_sfc(sf::st_bbox(templateRast)) |>
+    sf::st_buffer(terra::res(templateRast)[[1]], joinStyle = "MITRE", mitreLimit = 2)
 
   .muffleWarningAgr <- function(w){
     agrWarning <- "attribute variables are assumed to be spatially constant throughout all geometries"
@@ -100,6 +99,10 @@ extractToRast_vect <- function(input, templateRast, field = 1){
   }
 
   if (reproject){
+
+    cropBBOX <- cropBBOX |>
+      sf::st_segmentize(10000) |>
+      sf::st_transform(sf::st_crs(input))
 
     input <- withCallingHandlers(
       sf::st_intersection(input, sf::st_transform(cropBBOX, sf::st_crs(input))),
