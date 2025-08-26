@@ -1,56 +1,103 @@
 
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-masterRaster <- terra::rast(matrix(rep(1,4), nrow = 2, ncol = 2))
+emissionsProducts <- qs::qread(file.path(testDirs$testdata, "CBM_core_outputs/SK/emissionsProducts.qs"))
 
-cohortGroupKeep <- data.table::data.table(
-  pixelIndex = c(1:4),
-  cohortGroupID = c(1:4),
-  `1` = c(4:1),
-  `2` = c(1:4)
-)
-cbmPoolsTest <- data.table::data.table(
-  simYear = c(rep(1,4), rep(2,4)),
-  cohortGroupID = rep(c(1:4),2),
-  N = 1L,
-  Merch = 1:8,
-  BranchSnag = 101:108
-)
-NPPTest <- data.table::data.table(
-  simYear = rep(c(1:2), each = 4),
-  cohortGroupID = rep(c(1:4), 2),
-  NPP = c(c(1:4), c(4:1))
-)
+spadesCBMdb <- file.path(testDirs$temp$inputs, "CBM_core_outputs_SK", "CBM_core_db")
+if (!file.exists(spadesCBMdb)){
+  dir.create(dirname(spadesCBMdb))
+  file.copy(file.path(testDirs$testdata, "CBM_core_outputs/SK/CBM_core_db"), dirname(spadesCBMdb), recursive = TRUE)
+}
 
-test_that("spatialPlot", {
-  out <- spatialPlot(cbmPoolsTest, 1, masterRaster, cohortGroupKeep)
-  expect_is(out, "ggplot")
-  expect_equal(out$plot_env$plotM$totalCarbon, c(108, 106, 104, 102))
-  out2 <- spatialPlot(cbmPoolsTest, 2, masterRaster, cohortGroupKeep)
-  expect_is(out2, "ggplot")
-  expect_equal(out2$plot_env$plotM$totalCarbon, c(110, 112, 114, 116))
-})
+masterRaster <- terra::rast(
+  vals = 1, crs = "local",
+  xmin = 0, ymin = 0,
+  ncols = 1950, xmax = 1950 * 30,
+  nrows = 1900, ymax = 1900 * 30)
 
-test_that("carbonOutPlot", {
+simCBM <- list(spadesCBMdb = spadesCBMdb, masterRaster = masterRaster, emissionsProducts = emissionsProducts)
 
-  emissionsProducts <- qs::qread(file.path(testDirs$testdata, "CBM_core_outputs/SK/emissionsProducts.qs"))
 
-  out <- carbonOutPlot(emissionsProducts)
+test_that("plotEmissionsProducts", {
+
+  out <- plotEmissionsProducts(emissionsProducts)
   expect_is(out, "ggplot")
 })
 
-test_that("NPPplot", {
-  out <- NPPplot(
-    NPP = NPPTest, year = 1,
-    cohortGroupKeep = cohortGroupKeep,
-    masterRaster = masterRaster
+test_that("simPlotEmissionsProducts", {
+
+  out <- simPlotEmissionsProducts(simCBM)
+  expect_is(out, "ggplot")
+})
+
+test_that("plotPoolProportions", {
+
+  pools <- rbind(
+    cbind(year = 1985, merge(
+      qs::qread(file.path(spadesCBMdb, "data", "1985_key.qs")),
+      qs::qread(file.path(spadesCBMdb, "data", "1985_pools.qs")),
+      by = "row_idx")),
+    cbind(year = 2011, merge(
+      qs::qread(file.path(spadesCBMdb, "data", "2011_key.qs")),
+      qs::qread(file.path(spadesCBMdb, "data", "2011_pools.qs")),
+      by = "row_idx"))
   )
+
+  out <- plotPoolProportions(pools)
+
   expect_is(out, "ggplot")
-  expect_equal(out$plot_env$overallAvgNpp, 2.5)
-  expect_equal(out$plot_env$plotMaster$NPP, c(4, 3, 2, 1))
 })
 
-test_that("barPlot", {
+test_that("simPlotPoolProportions", {
 
+  out <- simPlotPoolProportions(
+    simCBM = simCBM, years = c(1985, 2011)
+  )
+
+  expect_is(out, "ggplot")
 })
+
+test_that("mapCarbon", {
+
+  pools1985 <- merge(
+    qs::qread(file.path(spadesCBMdb, "data", "1985_key.qs")),
+    qs::qread(file.path(spadesCBMdb, "data", "1985_pools.qs")),
+    by = "row_idx")
+
+  out <- mapCarbon(pools = pools1985, masterRaster = masterRaster, year = 1985)
+  expect_is(out, "ggplot")
+  expect_match(out$labels$title, "Total Carbon in 1985", fixed = TRUE)
+  expect_equal(mean(out$layers[[1]]$data$totalCarbon), 313.4188, tolerance = 0.0001, scale = 1)
+})
+
+test_that("simMapCarbon", {
+
+  out <- simMapCarbon(simCBM, year = 1985, useCache = FALSE)
+  expect_is(out, "ggplot")
+  expect_match(out$labels$title, "Total Carbon in 1985", fixed = TRUE)
+  expect_equal(mean(out$layers[[1]]$data$totalCarbon), 313.4188, tolerance = 0.0001, scale = 1)
+})
+
+test_that("mapNPP", {
+
+  flux1985 <- merge(
+    qs::qread(file.path(spadesCBMdb, "data", "1985_key.qs")),
+    qs::qread(file.path(spadesCBMdb, "data", "1985_flux.qs")),
+    by = "row_idx")
+
+  out <- mapNPP(flux = flux1985, masterRaster = masterRaster, year = 1985)
+  expect_is(out, "ggplot")
+  expect_match(out$labels$title, "Net Primary Productivity (NPP) in 1985", fixed = TRUE)
+  expect_equal(mean(out$layers[[1]]$data$NPP), 5.804276, tolerance = 0.0001, scale = 1)
+})
+
+test_that("simMapNPP", {
+
+  out <- simMapNPP(simCBM, year = 1985, useCache = FALSE)
+  expect_is(out, "ggplot")
+  expect_match(out$labels$title, "Net Primary Productivity (NPP) in 1985", fixed = TRUE)
+  expect_equal(mean(out$layers[[1]]$data$NPP), 5.804276, tolerance = 0.0001, scale = 1)
+})
+
+
 
