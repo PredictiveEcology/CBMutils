@@ -49,7 +49,7 @@ mapNPP <- function(flux, masterRaster, year = NULL) {
     theme_no_axes() + coord_fixed() +
     scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") +
     labs(fill = "Carbon (MgC/ha)" ) +
-    ggtitle(paste(plotTitle, "\n", "Landscape average:", round(mean(flux$NPP), 3), "MgC/ha."))
+    ggtitle(paste0(plotTitle, "\n", "Landscape average: ", round(mean(flux$NPP), 3), " MgC/ha."))
 }
 
 
