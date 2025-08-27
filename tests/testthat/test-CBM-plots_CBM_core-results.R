@@ -57,22 +57,22 @@ test_that("simPlotPoolProportions", {
   expect_is(out, "ggplot")
 })
 
-test_that("mapCarbon", {
+test_that("mapTotalCarbon", {
 
   pools1985 <- merge(
     qs::qread(file.path(spadesCBMdb, "data", "1985_key.qs")),
     qs::qread(file.path(spadesCBMdb, "data", "1985_pools.qs")),
     by = "row_idx")
 
-  out <- mapCarbon(pools = pools1985, masterRaster = masterRaster, year = 1985)
+  out <- mapTotalCarbon(pools = pools1985, masterRaster = masterRaster, year = 1985)
   expect_is(out, "ggplot")
   expect_match(out$labels$title, "Total Carbon in 1985", fixed = TRUE)
   expect_equal(mean(out$layers[[1]]$data$totalCarbon), 313.4188, tolerance = 0.0001, scale = 1)
 })
 
-test_that("simMapCarbon", {
+test_that("simMapTotalCarbon", {
 
-  out <- simMapCarbon(simCBM, year = 1985, useCache = FALSE)
+  out <- simMapTotalCarbon(simCBM, year = 1985, useCache = FALSE)
   expect_is(out, "ggplot")
   expect_match(out$labels$title, "Total Carbon in 1985", fixed = TRUE)
   expect_equal(mean(out$layers[[1]]$data$totalCarbon), 313.4188, tolerance = 0.0001, scale = 1)

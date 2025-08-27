@@ -6,7 +6,7 @@ utils::globalVariables(c(
   "totalCarbon", "x", "y"
 ))
 
-#' `mapCarbon`
+#' `mapTotalCarbon`
 #'
 #' Map total carbon across a study area.
 #'
@@ -23,7 +23,7 @@ utils::globalVariables(c(
 #' @importFrom ggforce theme_no_axes
 #' @importFrom ggplot2 aes geom_raster ggplot ggtitle scale_fill_continuous coord_fixed
 #' @importFrom terra rast unwrap xyFromCell
-mapCarbon <- function(pools, masterRaster, year = NULL){
+mapTotalCarbon <- function(pools, masterRaster, year = NULL){
 
   if (!"pixelIndex" %in% names(pools)) stop("pools requires column 'pixelIndex'")
   if (is.null(masterRaster)) stop("masterRaster not found")
@@ -55,18 +55,18 @@ mapCarbon <- function(pools, masterRaster, year = NULL){
 }
 
 
-#' `simMapCarbon`
+#' `simMapTotalCarbon`
 #'
 #' @inheritParams simCBMdbReadSummary
-#' @inherit mapCarbon description return
+#' @inherit mapTotalCarbon description return
 #' @export
-simMapCarbon <- function(simCBM, year, useCache = TRUE){
+simMapTotalCarbon <- function(simCBM, year, useCache = TRUE){
 
   if (missing(year)){
     year <- SpaDES.core::convertTimeunit(SpaDES.core::times(simCBM)$current, "year")
   }
 
-  mapCarbon(
+  mapTotalCarbon(
     simCBMdbReadSummary(
       simCBM, "totalCarbon", by = "pixelIndex",
       year = year, useCache = useCache),
