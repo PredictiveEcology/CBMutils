@@ -17,23 +17,23 @@ cumPoolsCreate(
 )
 }
 \arguments{
-\item{fullSpecies}{DESCRIPTION NEEDED}
+\item{fullSpecies}{Species names found in study area.}
 
-\item{gcMeta}{DESCRIPTION NEEDED}
+\item{gcMeta}{Growth curve metadata table that links species with additional attributes.}
 
-\item{userGcM3}{DESCRIPTION NEEDED}
+\item{userGcM3}{Growth curve metadata table that links species with additional attributes.}
 
-\item{stable3}{DESCRIPTION NEEDED}
+\item{stable3}{Boudewyn table 3 subset to study area attributes.}
 
-\item{stable4}{DESCRIPTION NEEDED}
+\item{stable4}{Boudewyn table 3 subset to study area attributes.}
 
-\item{stable5}{DESCRIPTION NEEDED}
+\item{stable5}{Boudewyn table 3 subset to study area attributes.}
 
-\item{stable6}{DESCRIPTION NEEDED}
+\item{stable6}{Boudewyn table 3 subset to study area attributes.}
 
-\item{stable7}{DESCRIPTION NEEDED}
+\item{stable7}{Boudewyn table 3 subset to study area attributes.}
 
-\item{thisAdmin}{DESCRIPTION NEEDED}
+\item{thisAdmin}{Study area metadata}
 }
 \value{
 \code{cumPools} data.table
