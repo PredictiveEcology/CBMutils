@@ -1,5 +1,8 @@
 #' Create gcLocator raster layer
 #'
+#' Builds the gcLocator raster from site productivity, spatial unit, and leading species matched to
+#' a growth curve lookup table
+#'
 #' @param siteProductivity Productivity class raster layer
 #' @param spuRaster spatial unit ID raster layer
 #' @param leadSpecies leading species raster layer
