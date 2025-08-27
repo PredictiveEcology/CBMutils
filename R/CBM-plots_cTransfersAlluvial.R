@@ -1,5 +1,6 @@
 utils::globalVariables(c(
-  "description", "labelX", "labelY", "proportion", "sink_pool", "sink_pool_category", "source_pool", "stratum"
+  "labelX", "labelY", "proportion", "sink_pool", "sink_pool_category", "source_pool", "stratum",
+  "disturbance_type_id", "disturbance_matrix_id", "spatial_unit_id", "sw_hw", "name", "description"
 ))
 
 #' `cTransfersAlluvial`
@@ -8,9 +9,13 @@ utils::globalVariables(c(
 #' Maps proportions of carbon transfers across pools during a disturbance.
 #'
 #' @param cTransfers TODO
-#' @param distMatrixID disturbance_matrix_id of the disturbance to plot. The user needs to specify this or `distName`.
-#' @param distName disturbance name you wish to plot. The user needs to specify this or `distMatrixID`.
-#' @param spu spatial unit ID of the disturbance to plot. Required only if `distName` is used.
+#' @param distMatrixID disturbance_matrix_id of the disturbance to plot.
+#' @param distName disturbance name you wish to plot. Required only if `distMatrixID` is not provided.
+#' @param spuID CBM-CFS3 spatial unit ID of the disturbance to plot. Required only if `distMatrixID` is not provided.
+#' @param sw logical. Softwood (TRUE) or hardwood (FALSE). Required only if `distMatrixID` is not provided.
+#' @inheritParams .matchSelect
+#' @param nearMatches logical. Allow for near matches; e.g. "clearcut" can match "clear-cut".
+#' @param ... additional arguments to \code{\link{.matchSelect}}
 #'
 #' @return alluvialDist Alluvial plot of a disturbance in a specific spatial unit.
 #'
@@ -18,27 +23,43 @@ utils::globalVariables(c(
 #' @importFrom data.table as.data.table fifelse
 #' @importFrom ggalluvial geom_alluvium geom_stratum
 #' @importFrom ggplot2 ggplot aes element_blank scale_fill_manual labs theme_minimal scale_x_discrete geom_text ggplot_build
-cTransfersAlluvial <- function(cTransfers, distMatrixID = NA, distName = NA, spu = NA) {
-  #subset transfer table to only included needed disturbance
-  if (!is.na(distMatrixID)){
-    disturbanceTransfers <- cTransfers[disturbance_matrix_id == distMatrixID]
+cTransfersAlluvial <- function(cTransfers, distMatrixID = NULL,
+                               distName = NULL, spuID = NULL, sw = NULL,
+                               nearMatches = TRUE, identical = !ask, ask = interactive(), ...) {
+
+  if (is.null(distMatrixID)){
+
+    if (is.null(distName) | is.null(spuID) | is.null(sw)) stop(
+      "distName, spuID, and sw arguments required if distMatrixID is not provided")
+
+    cTransfersSelect <- unique(
+      subset(cTransfers, spatial_unit_id %in% spuID & (sw_hw == "sw") %in% sw)[
+        , .(disturbance_matrix_id, disturbance_type_id, name, description)]
+    )
+    if (nrow(cTransfersSelect) == 0) stop("cTransfers not found for spatial_unit_id = ", spuID, " and sw = ", sw)
+
+    # Set near matches
+    if (nearMatches) nearMatches <- list(
+      `clearcut` = c("clear cut", "clear-cut"),
+      `wildfire` = c("wild fire", "wild-fire")
+    )
+
+    distMatrixID <- cTransfersSelect$disturbance_matrix_id[
+      .matchSelect(
+        inputs      = distName,
+        choices     = cTransfersSelect$name,
+        choiceTable = cTransfersSelect[, .(disturbance_matrix_id, name)],
+        choiceTableExtra = cTransfersSelect[, .(disturbance_type_id, description)],
+        identical   = identical,
+        nearMatches = nearMatches,
+        ask         = ask,
+        ...
+      )]
   }
 
-  if (!is.na(distName)){
-    disturbanceTransfers <- .matchSelect(
-      inputs      = c("distName", "spu"),
-      choices     = cTransfers$name,
-      choiceTable = cTransfers[, .(name)],
-      choiceTableExtra = cTransfers[, .(description)],
-      # identical   = identical,
-      # nearMatches = nearMatches,
-      # ask         = ask,
-      # ...
-    )
-    if (length(disturbanceTransfers$INSERT) > 1) {
-      stop("This disturbance name needs to be more specific as it currently returns more than one disturbance")
-    }
-  }
+  #subset transfer table to only included needed disturbance
+  disturbanceTransfers <- cTransfers[disturbance_matrix_id == distMatrixID]
+  if (nrow(disturbanceTransfers) == 0) stop("cTransfers not found for disturbance_matrix_id = ", distMatrixID)
 
   #create pool categories
   disturbanceTransfers[, sink_pool_category := fifelse(
