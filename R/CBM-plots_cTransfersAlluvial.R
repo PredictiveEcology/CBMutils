@@ -21,7 +21,7 @@ utils::globalVariables(c(
 cTransfersAlluvial <- function(cTransfers, distMatrixID = NA, distName = NA, spu = NA) {
   #subset transfer table to only included needed disturbance
   if (!is.na(distMatrixID)){
-  disturbanceTransfers <- cTransfers[disturbance_matrix_id == distMatrixID]
+    disturbanceTransfers <- cTransfers[disturbance_matrix_id == distMatrixID]
   }
 
   if (!is.na(distName)){
@@ -41,24 +41,24 @@ cTransfersAlluvial <- function(cTransfers, distMatrixID = NA, distName = NA, spu
   }
 
   #create pool categories
-  disturbanceTransfers[, sink_pool_category := fifelse(sink_pool %in% c("CO2", "CH4", "CO"),
-                                                       "Emission",
-                                               fifelse(sink_pool %in% c("BranchSnag", "StemSnag",
-                                                                       "BelowGroundSlowSoil", "AboveGroundSlowSoil"),
-                                                        "Slow",
-                                               fifelse(sink_pool == "MediumSoil",
-                                                        "Medium",
-                                               fifelse(sink_pool %in% c("BelowGroundFastSoil", "AboveGroundFastSoil"),
-                                                        "Fast",
-                                               fifelse(sink_pool %in% c("BelowGroundVeryFastSoil", "AboveGroundVeryFastSoil"),
-                                                        "Very fast",
-                                               fifelse(sink_pool %in% c("Products"),
-                                                               "Products",
-                                                        NA_character_))))))]
+  disturbanceTransfers[, sink_pool_category := fifelse(
+    sink_pool %in% c("CO2", "CH4", "CO"),
+    "Emission",
+    fifelse(sink_pool %in% c("BranchSnag", "StemSnag", "BelowGroundSlowSoil", "AboveGroundSlowSoil"),
+            "Slow",
+            fifelse(sink_pool == "MediumSoil",
+                    "Medium",
+                    fifelse(sink_pool %in% c("BelowGroundFastSoil", "AboveGroundFastSoil"),
+                            "Fast",
+                            fifelse(sink_pool %in% c("BelowGroundVeryFastSoil", "AboveGroundVeryFastSoil"),
+                                    "Very fast",
+                                    fifelse(sink_pool %in% c("Products"),
+                                            "Products",
+                                            NA_character_))))))]
 
   #build the plot
   plot <- ggplot(disturbanceTransfers,
-            aes(axis1 = source_pool, axis2 = sink_pool, y = proportion)) +
+                 aes(axis1 = source_pool, axis2 = sink_pool, y = proportion)) +
     geom_alluvium(aes(fill = sink_pool_category), width = 0.02) +
     geom_stratum(width = 0.02)
 

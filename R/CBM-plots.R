@@ -14,9 +14,6 @@ utils::globalVariables(c(
   "res", "simYear", "snags", "SoftwoodBranchSnag", "SoftwoodStemSnag", "soil", "StemSnag", "weight",
   "x", "y", "totalCarbon", "avgNPP", "totalNPP"
 ))
-utils::globalVariables(c(
-  "labelX", "labelY", "proportion", "sink_pool", "sink_pool_category", "source_pool", "stratum"
-))
 
 #' `spatialPlot`
 #'

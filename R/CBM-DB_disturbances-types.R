@@ -5,16 +5,13 @@
 #'
 #' @param distNames character.
 #' Disturbance names to match with CBM-CFS3 database disturbance type names.
-#' @param nearMatches logical. Allow for near matches; e.g. "clearcut" can match "clear-cut".
-#' @param identical logical. Require identical matches.
-#' @param ask logical.
-#' If TRUE, prompt the user to choose the correct matches.
-#' If FALSE, the function will look for a single match to each input.
+#' @inheritParams distList
 #' @param listDist data.table. Optional. Result of a call to \code{\link{distList}}.
 #' Table of disturbance types with columns
 #' 'disturbance_type_id', 'name', 'description'.
 #' @param dbPath Path to CBM-CFS3 SQLite database file. Required if `listDist` is NULL.
-#' @param localeID CBM-CFS3 locale_id
+#' @inheritParams .matchSelect
+#' @param nearMatches logical. Allow for near matches; e.g. "clearcut" can match "clear-cut".
 #' @param ... additional arguments to \code{\link{.matchSelect}}
 #'
 #' @return \code{data.table} with columns 'disturbance_type_id', 'name', 'description'
