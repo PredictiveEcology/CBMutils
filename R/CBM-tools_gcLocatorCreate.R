@@ -15,6 +15,11 @@
 #' @importFrom data.table data.table
 gcLocatorCreate <- function(siteProductivity, spuRaster, leadSpecies, gcidLookup) {
 
+  #check if all rasters share the same CRS
+  if (!length(unique(lapply(list(siteProductivity, spuRaster, leadSpecies), crs))) == 1){
+    stop("Rasters do not all share the same CRS.")
+  }
+
   #build gcTable from the raster layers
   combine <- c(leadSpecies, spuRaster, siteProductivity)
   gcTable <- as.data.table(combine, na.rm = FALSE)
