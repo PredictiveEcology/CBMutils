@@ -28,7 +28,7 @@ gcLocatorCreate <- function(siteProductivity, spuRaster, leadSpecies, gcidLookup
   setnames(gcTable, c("cell", "growthcurveid"))
 
   #build the gcLocator raster layer
-  gcLocator <- rast(leadSP_resampled)
+  gcLocator <- rast(leadSpecies)
   values(gcLocator) <- NA
   values(gcLocator)[gcTable$cell] <- gcTable$growthcurveid
 
