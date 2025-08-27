@@ -9,7 +9,7 @@ test_that("cTransfersAlluvial", {
 
   expect_s3_class(cTransfersPlot, "ggplot")
 
-  cTransfersPlot <- cTransfersAlluvial(cTransfers, distName = "wildfire", spuID = 28, sw =  TRUE)
+  cTransfersPlot <- cTransfersAlluvial(cTransfers, distName = "wildfire", spuID = 28, sw =  TRUE, ask = FALSE)
 
   expect_s3_class(cTransfersPlot, "ggplot")
   expect_equal(unique(cTransfersPlot$data$disturbance_matrix_id), 371)
