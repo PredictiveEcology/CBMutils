@@ -1,14 +1,14 @@
 #' Create `cumPools` data.table
 #'
-#' @param fullSpecies DESCRIPTION NEEDED
-#' @param gcMeta DESCRIPTION NEEDED
-#' @param userGcM3 DESCRIPTION NEEDED
-#' @param stable3 DESCRIPTION NEEDED
-#' @param stable4 DESCRIPTION NEEDED
-#' @param stable5 DESCRIPTION NEEDED
-#' @param stable6 DESCRIPTION NEEDED
-#' @param stable7 DESCRIPTION NEEDED
-#' @param thisAdmin DESCRIPTION NEEDED
+#' @param fullSpecies Species names found in study area.
+#' @param gcMeta Growth curve metadata table that links species with additional attributes.
+#' @param userGcM3 Growth curve metadata table that links species with additional attributes.
+#' @param stable3 Boudewyn table 3 subset to study area attributes.
+#' @param stable4 Boudewyn table 3 subset to study area attributes.
+#' @param stable5 Boudewyn table 3 subset to study area attributes.
+#' @param stable6 Boudewyn table 3 subset to study area attributes.
+#' @param stable7 Boudewyn table 3 subset to study area attributes.
+#' @param thisAdmin Study area metadata
 #'
 #' @return `cumPools` data.table
 #'
