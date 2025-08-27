@@ -4,16 +4,38 @@
 \alias{cTransfersAlluvial}
 \title{\code{cTransfersAlluvial}}
 \usage{
-cTransfersAlluvial(cTransfers, distMatrixID = NA, distName = NA, spu = NA)
+cTransfersAlluvial(
+  cTransfers,
+  distMatrixID = NULL,
+  distName = NULL,
+  spuID = NULL,
+  sw = NULL,
+  nearMatches = TRUE,
+  identical = !ask,
+  ask = interactive(),
+  ...
+)
 }
 \arguments{
 \item{cTransfers}{TODO}
 
-\item{distMatrixID}{disturbance_matrix_id of the disturbance to plot. The user needs to specify this or \code{distName}.}
+\item{distMatrixID}{disturbance_matrix_id of the disturbance to plot.}
 
-\item{distName}{disturbance name you wish to plot. The user needs to specify this or \code{distMatrixID}.}
+\item{distName}{disturbance name you wish to plot. Required only if \code{distMatrixID} is not provided.}
 
-\item{spu}{spatial unit ID of the disturbance to plot. Required only if \code{distName} is used.}
+\item{spuID}{CBM-CFS3 spatial unit ID of the disturbance to plot. Required only if \code{distMatrixID} is not provided.}
+
+\item{sw}{logical. Softwood (TRUE) or hardwood (FALSE). Required only if \code{distMatrixID} is not provided.}
+
+\item{nearMatches}{logical. Allow for near matches; e.g. "clearcut" can match "clear-cut".}
+
+\item{identical}{logical. Require identical matches.}
+
+\item{ask}{logical.
+If TRUE, prompt the user to choose the correct matches.
+If FALSE, the function will look for a single match to each input.}
+
+\item{...}{additional arguments to \code{\link{.matchSelect}}}
 }
 \value{
 alluvialDist Alluvial plot of a disturbance in a specific spatial unit.
