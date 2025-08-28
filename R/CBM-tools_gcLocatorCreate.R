@@ -12,7 +12,8 @@
 #' @return `gcLocator` SpatRaster
 #'
 #' @export
-#' @importFrom data.table data.table
+#' @importFrom data.table data.table as.data.table
+#' @importFrom terra rast
 gcLocatorCreate <- function(siteProductivity, spuRaster, leadSpecies, gcidLookup) {
 
   #check if all rasters share the same CRS
