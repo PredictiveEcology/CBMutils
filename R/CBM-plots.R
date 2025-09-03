@@ -1,3 +1,7 @@
+
+## These functions have been superseded by other plotting functions.
+## Theis file can be removed once all use of these has been replaced in CBM module main branches.
+
 utils::globalVariables(c(
   "AboveGroundFastSoil", "AboveGroundSlowSoil", "AboveGroundVeryFastSoil", "AGB", "AGlive",
   "BelowGroundFastSoil", "BelowGroundSlowSoil", "BelowGroundVeryFastSoil", "BGB", "BGlive",
@@ -184,6 +188,4 @@ barPlot <- function(cbmPools) {
     guides(fill = guide_legend(title.position= "top", title ="Carbon compartment") ) +
     scale_fill_brewer(palette = "Set1", labels = c("Soil", "AGlive", "BGlive", 'snags'))
 }
-
-
 
