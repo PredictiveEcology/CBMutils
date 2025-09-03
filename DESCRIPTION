@@ -26,6 +26,7 @@ Imports:
     ggplot2,
     knitr,
     LandR,
+    lwgeom,
     methods,
     patchwork,
     reticulate,
