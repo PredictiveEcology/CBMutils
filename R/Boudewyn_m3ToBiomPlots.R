@@ -14,9 +14,11 @@ utils::globalVariables(c(
 #' @importFrom ggplot2 aes element_text geom_line ggplot labs theme theme_bw
 #' @importFrom patchwork wrap_plots plot_layout plot_annotation
 m3ToBiomPlots <- function(inc, id_col = "gcids", title) {
+
   gInc <- copy(inc)
-  colsToRemove <- c("id", "ecozone")
-  gInc[, (colsToRemove) := NULL]
+  if ("id"      %in% names(gInc)) gInc[, id      := NULL]
+  if ("ecozone" %in% names(gInc)) gInc[, ecozone := NULL]
+
   gc <- data.table::melt(gInc, id.vars = c(id_col, "age"))
 
   gc[is.na(value), "value"] <- 0
