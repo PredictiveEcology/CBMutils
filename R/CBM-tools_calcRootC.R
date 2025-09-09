@@ -8,7 +8,7 @@ utils::globalVariables(c(
 #' `calcRootC` calculates the mass of carbon in roots pools from above ground pools
 #'
 #' @param aboveGroundC data.table with mass of carbon (tonnes/ha) in the Merch, Foliage and Other pools
-#' @param sw_hw a boolean vector indicating if the cohort is softwood (1) or hardwood (0)
+#' @param sw_hw a boolean vector indicating if the cohort is softwood (0) or hardwood (1)
 #' @param a_sw DESCRIPTION NEEDED
 #' @param b_sw DESCRIPTION NEEDED
 #' @param a_hw DESCRIPTION NEEDED
@@ -48,12 +48,12 @@ calcRootC <- function(aboveGroundC, sw_hw,
     stop("sw_hw needs to be a boolean vector")
   }
 
-  rootTotBiom <- ifelse(sw_hw == 1,
+  rootTotBiom <- ifelse(sw_hw == 0,
                         a_sw * totAGB^b_sw,
                         a_hw * totAGB^b_hw)
 
   # Calculate the proportion of fine roots
-  fineRootProp <- a_frp + b_frp * exp(-0.060 * rootTotBiom)
+  fineRootProp <- a_frp + b_frp * exp(-0.060212 * rootTotBiom)
 
 
   # Calculate the proportion of fine roots
