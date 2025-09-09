@@ -53,7 +53,7 @@ calcRootC <- function(aboveGroundC, sw_hw,
                         a_hw * totAGB^b_hw)
 
   # Calculate the proportion of fine roots
-  fineRootProp <- a_frp + b_frp * exp(-0.060 * rootTotBiom)
+  fineRootProp <- a_frp + b_frp * exp(-0.060212 * rootTotBiom)
 
 
   # Calculate the proportion of fine roots

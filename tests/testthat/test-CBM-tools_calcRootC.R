@@ -11,8 +11,8 @@ test_that("calcRootC", {
   # Works correctly
   expect_identical(
     round(rootC,3),
-    data.table(coarseRoots = c(0.541, 1.569),
-               fineRoots = c(0.347, 0.802))
+    data.table(coarseRoots = c(0.542, 1.570),
+               fineRoots = c(0.346, 0.802))
   )
   expect_named(rootC, c("coarseRoots", "fineRoots"))
 
