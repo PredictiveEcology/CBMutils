@@ -41,8 +41,6 @@ test_that("Function: extractToRast: raster upsampling", {
     res = 5, vals = 1, crs = "EPSG:3979",
     ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
 
-  inAlign <- extractToRast(input, masterRaster)
-
   alignVals <- extractToRast(input, masterRaster)
 
   if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
@@ -55,6 +53,13 @@ test_that("Function: extractToRast: raster upsampling", {
       val = c(2, 3, 5, NA),
       N   = c(27859, 3091, 12723, 316327)
     ), tolerance = 10, scale = 1)
+
+  # Check temporary directories
+  expect_equal(length(list.files(file.path(tempdir(), "CBMutils"))), 0)
+  expect_true(basename(dirname(terra::terraOptions(print = FALSE)[["tempdir"]])) != "CBMutils")
+  expect_true(
+    is.null(getOption("rasterTmpDir")) || basename(dirname(getOption("rasterTmpDir"))) != "CBMutils"
+  )
 })
 
 test_that("Function: extractToRast: raster downsampling", {

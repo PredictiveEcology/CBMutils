@@ -13,6 +13,23 @@
 #' Data type matches input data type.
 extractToRast <- function(input, templateRast, field = 1){
 
+  if (length(find.package("exactextractr", quiet = TRUE)) == 0) stop(
+    "exactextractr package required. Install with `install.packages(\"exactextractr\")`")
+  if (length(find.package("withr", quiet = TRUE)) == 0) stop(
+    "withr package required. Install with `install.packages(\"withr\")`")
+
+  # Set temporary directories for intermediate data; unlink and reset on close
+  tmpdir <- file.path(getOption("spades.scratchPath", default = tempdir()), "CBMutils")
+
+  terraDirInit <- evalq(terra::terraOptions(print = FALSE)[["tempdir"]])
+  withr::defer(terra::terraOptions(tempdir = terraDirInit, print = FALSE))
+  terra::terraOptions(tempdir = withr::local_tempdir("terra_", tmpdir = tmpdir), print = FALSE)
+
+  withr::local_options(list(rasterTmpDir = withr::local_tempdir("raster_", tmpdir = tmpdir)))
+
+  if (basename(dirname(terra::terraOptions(print = FALSE)[["tempdir"]])) != "CBMutils") stop()
+  if (is.null(getOption("rasterTmpDir")) || basename(dirname(getOption("rasterTmpDir"))) != "CBMutils") stop()
+
   if (inherits(input, "sf")){
     extractToRast_vect(input, templateRast, field = field)
 
@@ -23,9 +40,6 @@ extractToRast <- function(input, templateRast, field = 1){
 
 # Extract values from spatial data source: raster
 extractToRast_rast <- function(input, templateRast){
-
-  if (length(find.package("exactextractr", quiet = TRUE)) == 0) stop(
-    "exactextractr package required. Install with `install.packages(\"exactextractr\")`")
 
   # Read as SpatRaster; mosaic tiles if need be
   if (!inherits(input, "SpatRaster")){
@@ -80,9 +94,6 @@ extractToRast_rast <- function(input, templateRast){
 
 # Extract values from spatial data source: vector
 extractToRast_vect <- function(input, templateRast, field = 1){
-
-  if (length(find.package("exactextractr", quiet = TRUE)) == 0) stop(
-    "exactextractr package required. Install with `install.packages(\"exactextractr\")`")
 
   # Crop and reproject
   reproject <- !terra::compareGeom(
