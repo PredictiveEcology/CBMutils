@@ -46,6 +46,14 @@ test_that("plotPoolProportions", {
   out <- plotPoolProportions(pools)
 
   expect_is(out, "ggplot")
+  expect_equal(subset(out$data, pool == "soil"  )[order(year)]$proportion, c(0.7658, 0.7667),
+               tolerance = 0.0001, scale = 1)
+  expect_equal(subset(out$data, pool == "BGlive")[order(year)]$proportion, c(0.0426, 0.0426),
+               tolerance = 0.0001, scale = 1)
+  expect_equal(subset(out$data, pool == "AGlive")[order(year)]$proportion, c(0.1687, 0.1702),
+               tolerance = 0.0001, scale = 1)
+  expect_equal(subset(out$data, pool == "snags" )[order(year)]$proportion, c(0.0229, 0.0205),
+               tolerance = 0.0001, scale = 1)
 })
 
 test_that("simPlotPoolProportions", {
@@ -55,6 +63,14 @@ test_that("simPlotPoolProportions", {
   )
 
   expect_is(out, "ggplot")
+  expect_equal(subset(out$data, pool == "soil"  )[order(year)]$proportion, c(0.7658, 0.7667),
+               tolerance = 0.0001, scale = 1)
+  expect_equal(subset(out$data, pool == "BGlive")[order(year)]$proportion, c(0.0426, 0.0426),
+               tolerance = 0.0001, scale = 1)
+  expect_equal(subset(out$data, pool == "AGlive")[order(year)]$proportion, c(0.1687, 0.1702),
+               tolerance = 0.0001, scale = 1)
+  expect_equal(subset(out$data, pool == "snags" )[order(year)]$proportion, c(0.0229, 0.0205),
+               tolerance = 0.0001, scale = 1)
 })
 
 test_that("mapTotalCarbon", {
