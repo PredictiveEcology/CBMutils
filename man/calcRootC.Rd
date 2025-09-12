@@ -18,7 +18,7 @@ calcRootC(
 \arguments{
 \item{aboveGroundC}{data.table with mass of carbon (tonnes/ha) in the Merch, Foliage and Other pools}
 
-\item{sw_hw}{a boolean vector indicating if the cohort is softwood (1) or hardwood (0)}
+\item{sw_hw}{a boolean vector indicating if the cohort is softwood (0) or hardwood (1)}
 
 \item{a_sw}{DESCRIPTION NEEDED}
 
