@@ -35,6 +35,7 @@ Imports:
     scales,
     sf,
     terra,
+    tidyterra,
     withr
 Suggests:
     covr,

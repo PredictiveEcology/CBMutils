@@ -20,8 +20,9 @@ utils::globalVariables(c(
 #' @export
 #' @importFrom data.table as.data.table is.data.table
 #' @importFrom ggforce theme_no_axes
-#' @importFrom ggplot2 ggplot geom_raster aes scale_fill_continuous ggtitle coord_fixed
-#' @importFrom terra rast res unwrap values
+#' @importFrom ggplot2 coord_sf ggplot ggtitle labs scale_fill_continuous scale_x_continuous scale_y_continuous
+#' @importFrom tidyterra geom_spatraster
+#' @importFrom terra rast unwrap
 mapNPP <- function(flux, masterRaster, year = NULL) {
 
   if (!"pixelIndex" %in% names(flux)) stop("flux requires column 'pixelIndex'")
@@ -43,12 +44,28 @@ mapNPP <- function(flux, masterRaster, year = NULL) {
   plotTitle <- "Net Primary Productivity (NPP)"
   if (!is.null(year)) plotTitle <- paste(plotTitle, "in", year)
 
-  flux <- cbind(flux, terra::xyFromCell(terra::unwrap(terra::rast(masterRaster)), flux$pixelIndex))
+  masterRaster <- terra::unwrap(terra::rast(masterRaster))
 
-  ggplot() + geom_raster(data = flux, aes(x = x, y = y, fill = NPP)) +
-    theme_no_axes() + coord_fixed() +
+  withr::local_envvar(tidyterra.quiet = TRUE)
+
+  ggplot() +
+    tidyterra::geom_spatraster(
+      data = terra::rast(
+        res  = 1,
+        xmin = 0, xmax = terra::ncol(masterRaster),
+        ymin = 0, ymax = terra::nrow(masterRaster),
+        vals = {
+          x <- rep(NA_real_, terra::ncell(masterRaster))
+          x[flux$pixelIndex] <- flux$NPP
+          x
+        })
+    ) +
+    coord_sf() +
+    theme_no_axes() +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
     scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") +
-    labs(fill = "Carbon (MgC/ha)" ) +
+    labs(fill = "Carbon\n(MgC/ha)" ) +
     ggtitle(paste0(plotTitle, "\n", "Landscape average: ", round(mean(flux$NPP), 3), " MgC/ha."))
 }
 
