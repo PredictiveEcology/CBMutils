@@ -89,7 +89,9 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year =
   cacheOrNot <- if (useCache) reproducible::Cache else eval
 
   CBMdbReadCohortGroupCount <- function(spadesCBMdb, year){
-    .spadesCBMdbReadRaw(spadesCBMdb, year, "key")[, .N, by = row_idx]
+    groupCount <- .spadesCBMdbReadRaw(spadesCBMdb, year, "key")[, .N, by = row_idx]
+    data.table::setkey(groupCount, row_idx)
+    groupCount
   }
   CBMdbGetTable <- function(table){
 
