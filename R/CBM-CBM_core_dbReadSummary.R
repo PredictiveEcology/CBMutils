@@ -88,78 +88,85 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year =
   if (useCache) withr::local_options(c(reproducible.cachePath = file.path(spadesCBMdb, "cache")))
   cacheOrNot <- if (useCache) reproducible::Cache else eval
 
-  CBMdbReadCohortGroupCount <- function(spadesCBMdb, year){
-    groupCount <- .spadesCBMdbReadRaw(spadesCBMdb, year, "key")[, .N, by = row_idx]
-    data.table::setkey(groupCount, row_idx)
-    groupCount
-  }
-  CBMdbGetTable <- function(table){
-
-    if (by == "year"){
-
-      groupCount <- CBMdbReadCohortGroupCount(spadesCBMdb, year) |> cacheOrNot()
-
-      tbl <- .spadesCBMdbReadRaw(spadesCBMdb, year, table)
-      tbl <- (tbl * groupCount$N)[, lapply(.SD, sum), .SDcols = !c("row_idx")]
-      tbl <- cbind(year = year, tbl)
-      data.table::setkey(tbl, year)
-
-    }else{
-
-      tbl <- .spadesCBMdbReadTable(spadesCBMdb, year, table) |> cacheOrNot()
-    }
-
-    # R CMD check note bypass
-    for (colName in setdiff(names(tbl), ls())) assign(colName, NULL)
-
-    tbl
-  }
-
+  # Get cohort group data
   if (summary %in% c("flux", "pools")){
 
-    dbTable <- CBMdbGetTable(summary)
-
-    if (by == "pixelIndex"){
-      dbTable <- dbTable[, lapply(.SD, sum), by = pixelIndex, .SDcols = !c("cohortID", "row_idx")]
-    }
+    dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, summary)
   }
 
   if (summary == "NPP"){
 
-    dbTable <- CBMdbGetTable("flux")[, .(
-      NPP = sum(
-        DeltaBiomass_AG, DeltaBiomass_BG,
-        TurnoverMerchLitterInput, TurnoverFolLitterInput,
-        TurnoverOthLitterInput, TurnoverCoarseLitterInput, TurnoverFineLitterInput)
-    ), by = by]
+    dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "flux")
+
+    # R CMD check note bypass
+    for (colName in setdiff(names(dbTable), ls())) assign(colName, NULL)
+
+    dbTable <- dbTable[, .(row_idx, NPP = rowSums(dbTable[, .(
+      DeltaBiomass_AG, DeltaBiomass_BG,
+      TurnoverMerchLitterInput, TurnoverFolLitterInput,
+      TurnoverOthLitterInput, TurnoverCoarseLitterInput, TurnoverFineLitterInput
+    )]))]
   }
 
   if (summary == "poolTypes"){
 
-    dbTable <- CBMdbGetTable("pools")[, .(
+    dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "pools")
+
+    # R CMD check note bypass
+    for (colName in setdiff(names(dbTable), ls())) assign(colName, NULL)
+
+    dbTable <- dbTable[, .(
       soil   = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
                    AboveGroundFastSoil, BelowGroundFastSoil,
                    AboveGroundSlowSoil, BelowGroundSlowSoil, MediumSoil),
       AGlive = sum(Merch, Foliage, Other),
       BGlive = sum(CoarseRoots, FineRoots),
       snags  = sum(StemSnag, BranchSnag)
-    ), by = by]
+    ), by = row_idx]
   }
 
   if (summary == "totalCarbon"){
 
-    dbTable <- CBMdbGetTable("pools")[, .(
-      totalCarbon = sum(
-        Merch, Foliage, Other, CoarseRoots, FineRoots,
-        AboveGroundVeryFastSoil, BelowGroundVeryFastSoil, AboveGroundFastSoil,
-        BelowGroundFastSoil, MediumSoil, AboveGroundSlowSoil, BelowGroundSlowSoil,
-        StemSnag, BranchSnag)
-    ), by = by]
+    dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "pools")
+
+    # R CMD check note bypass
+    for (colName in setdiff(names(dbTable), ls())) assign(colName, NULL)
+
+    dbTable <- dbTable[, .(row_idx, totalCarbon = rowSums(dbTable[, .(
+      Merch, Foliage, Other, CoarseRoots, FineRoots,
+      AboveGroundVeryFastSoil, BelowGroundVeryFastSoil, AboveGroundFastSoil,
+      BelowGroundFastSoil, MediumSoil, AboveGroundSlowSoil, BelowGroundSlowSoil,
+      StemSnag, BranchSnag
+    )]))]
   }
 
   if (missing(dbTable)) stop(
     "invalid summary selection: ", summary,
     "Choose one of: 'flux', 'pools', 'NPP', 'poolTypes', 'totalCarbon'")
+
+  # Summarize
+  if (by == "year"){
+
+    CBMdbReadCohortGroupCount <- function(spadesCBMdb, year){
+      groupCount <- .spadesCBMdbReadRaw(spadesCBMdb, year, "key")[, .N, by = row_idx]
+      data.table::setkey(groupCount, row_idx)
+      groupCount
+    }
+    groupCount <- CBMdbReadCohortGroupCount(spadesCBMdb, year) |> cacheOrNot()
+
+    dbTable <- (dbTable * groupCount$N)[, lapply(.SD, sum), .SDcols = !c("row_idx")]
+    dbTable <- cbind(year = year, dbTable)
+
+  }else{
+
+    dbTable <- data.table::merge.data.table(
+      .spadesCBMdbReadRaw(spadesCBMdb, year, "key")[
+        , .SD, .SDcols = unique(c(by, "pixelIndex", "row_idx"))],
+      dbTable, by = "row_idx")
+    dbTable[, row_idx := NULL]
+
+    if (by == "pixelIndex") dbTable <- dbTable[, lapply(.SD, sum), by = "pixelIndex"]
+  }
 
   data.table::setkeyv(dbTable, by)
   return(dbTable)

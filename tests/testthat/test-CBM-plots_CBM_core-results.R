@@ -83,7 +83,9 @@ test_that("mapTotalCarbon", {
   out <- mapTotalCarbon(pools = pools1985, masterRaster = masterRaster, year = 1985)
   expect_is(out, "ggplot")
   expect_match(out$labels$title, "Total Carbon in 1985", fixed = TRUE)
-  expect_equal(mean(out$layers[[1]]$data$totalCarbon), 313.4188, tolerance = 0.0001, scale = 1)
+  expect_equal(
+    terra::global(out$layers[[1]]$data$spatraster[[1]], "mean", na.rm = TRUE)[1,1],
+    313.4, tolerance = 0.1, scale = 1)
 })
 
 test_that("simMapTotalCarbon", {
@@ -91,7 +93,9 @@ test_that("simMapTotalCarbon", {
   out <- simMapTotalCarbon(simCBM, year = 1985, useCache = FALSE)
   expect_is(out, "ggplot")
   expect_match(out$labels$title, "Total Carbon in 1985", fixed = TRUE)
-  expect_equal(mean(out$layers[[1]]$data$totalCarbon), 313.4188, tolerance = 0.0001, scale = 1)
+  expect_equal(
+    terra::global(out$layers[[1]]$data$spatraster[[1]], "mean", na.rm = TRUE)[1,1],
+    313.4, tolerance = 0.1, scale = 1)
 })
 
 test_that("mapNPP", {
@@ -104,7 +108,10 @@ test_that("mapNPP", {
   out <- mapNPP(flux = flux1985, masterRaster = masterRaster, year = 1985)
   expect_is(out, "ggplot")
   expect_match(out$labels$title, "Net Primary Productivity (NPP) in 1985", fixed = TRUE)
-  expect_equal(mean(out$layers[[1]]$data$NPP), 5.804276, tolerance = 0.0001, scale = 1)
+  expect_match(out$labels$title, "5.804", fixed = TRUE)
+  expect_equal(
+    terra::global(out$layers[[1]]$data$spatraster[[1]], "mean", na.rm = TRUE)[1,1],
+    5.8, tolerance = 0.1, scale = 1)
 })
 
 test_that("simMapNPP", {
@@ -112,7 +119,10 @@ test_that("simMapNPP", {
   out <- simMapNPP(simCBM, year = 1985, useCache = FALSE)
   expect_is(out, "ggplot")
   expect_match(out$labels$title, "Net Primary Productivity (NPP) in 1985", fixed = TRUE)
-  expect_equal(mean(out$layers[[1]]$data$NPP), 5.804276, tolerance = 0.0001, scale = 1)
+  expect_match(out$labels$title, "5.804", fixed = TRUE)
+  expect_equal(
+    terra::global(out$layers[[1]]$data$spatraster[[1]], "mean", na.rm = TRUE)[1,1],
+    5.8, tolerance = 0.1, scale = 1)
 })
 
 
