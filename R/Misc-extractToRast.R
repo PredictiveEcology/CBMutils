@@ -6,12 +6,12 @@
 #'
 #' @param input terra SpatRaster, one or more raster files, or sf polygons.
 #' @param templateRast SpatRaster. Raster template.
-#' @param field numeric or character. Vector field to extract.
+#' @param index numeric or character. Raster layer or vector field to extract.
 #'
 #' @export
 #' @return vector with a value for each cell of `templateRast`.
 #' Data type matches input data type.
-extractToRast <- function(input, templateRast, field = 1){
+extractToRast <- function(input, templateRast, index = 1){
 
   if (length(find.package("exactextractr", quiet = TRUE)) == 0) stop(
     "exactextractr package required. Install with `install.packages(\"exactextractr\")`")
@@ -31,15 +31,15 @@ extractToRast <- function(input, templateRast, field = 1){
   if (is.null(getOption("rasterTmpDir")) || basename(dirname(getOption("rasterTmpDir"))) != "CBMutils") stop()
 
   if (inherits(input, "sf")){
-    extractToRast_vect(input, templateRast, field = field)
+    extractToRast_vect(input, templateRast, field = index)
 
   }else{
-    extractToRast_rast(input, templateRast)
+    extractToRast_rast(input, templateRast, layer = index)
   }
 }
 
 # Extract values from spatial data source: raster
-extractToRast_rast <- function(input, templateRast){
+extractToRast_rast <- function(input, templateRast, layer = 1){
 
   # Read as SpatRaster; mosaic tiles if need be
   if (!inherits(input, "SpatRaster")){
@@ -53,24 +53,24 @@ extractToRast_rast <- function(input, templateRast){
     }
   }
 
-  # Keep only the first band
-  if (terra::nlyr(input) > 1) input <- input[[1]]
+  # Select raster layer
+  input <- terra::subset(input, layer)
 
+  # Get raster categories
+  cats <- terra::cats(input)[[1]]
+
+  # Crop and reproject
   reproject <- !terra::compareGeom(
     input, templateRast,
     crs = TRUE, warncrs = FALSE, stopOnError = FALSE, messages = FALSE,
     lyrs = FALSE, ext = FALSE, rowcol = FALSE, res = FALSE)
 
-  # Crop input
   input <- terra::crop(
     input,
     terra::project(terra::as.polygons(templateRast, extent = TRUE), terra::crs(input)),
     snap = "out")
 
-  # Get raster categories
-  cats <- terra::cats(input)[[1]]
-
-  # Reclassify if contains NAs
+  ## Reclassify if contains NAs
   valUq <- terra::unique(input, na.rm = FALSE)
   if (length(valUq[,1]) == 1){
     return(rep(valUq[1,1], terra::ncell(templateRast)))
