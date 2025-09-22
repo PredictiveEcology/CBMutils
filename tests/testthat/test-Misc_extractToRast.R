@@ -2,7 +2,7 @@
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
 tempDir <- file.path(testDirs$temp$outputs, "extractToRast")
-if (interactive()){
+if (!testthat::is_testing()){
   file.copy(file.path(testDirs$testdata, "extractToRast"), testDirs$temp$outputs, recursive = TRUE, overwrite = TRUE)
 }else dir.create(tempDir, recursive = TRUE, showWarnings = FALSE)
 
@@ -45,7 +45,7 @@ test_that("Function: extractToRast: raster upsampling", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-upsample.tif"), overwrite = TRUE)
+  if (!testthat::is_testing()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-upsample.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -75,7 +75,7 @@ test_that("Function: extractToRast: raster upsampling with categories", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-upsample-cats.tif"), overwrite = TRUE)
+  if (!testthat::is_testing()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-upsample-cats.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -96,7 +96,7 @@ test_that("Function: extractToRast: raster downsampling", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-downsample.tif"), overwrite = TRUE)
+  if (!testthat::is_testing()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-downsample.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -119,7 +119,7 @@ test_that("Function: extractToRast: raster reprojecting", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-reproject.tif"), overwrite = TRUE)
+  if (!testthat::is_testing()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-reproject.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -140,7 +140,7 @@ test_that("Function: extractToRast: TIF file", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-TIF.tif"), overwrite = TRUE)
+  if (!testthat::is_testing()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-TIF.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -161,7 +161,7 @@ test_that("Function: extractToRast: TIF tiles", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-TIF-tiles.tif"), overwrite = TRUE)
+  if (!testthat::is_testing()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-TIF-tiles.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -187,7 +187,7 @@ test_that("Function: extractToRast: sf polygons with numeric field", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-numeric.tif"), overwrite = TRUE)
+  if (!testthat::is_testing()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-numeric.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_is(alignVals, "numeric")
@@ -214,7 +214,7 @@ test_that("Function: extractToRast: sf polygons with numeric field: reproject", 
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-numeric-reproject.tif"), overwrite = TRUE)
+  if (!testthat::is_testing()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-numeric-reproject.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_is(alignVals, "numeric")
@@ -239,7 +239,7 @@ test_that("Function: extractToRast: sf polygons with text field: reproject", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-text-reproject.tif"), overwrite = TRUE)
+  if (!testthat::is_testing()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-text-reproject.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
 
@@ -253,6 +253,6 @@ test_that("Function: extractToRast: sf polygons with text field: reproject", {
     ), tolerance = 10, scale = 1)
 })
 
-if (interactive()) shell.exec(file.path(tempDir, "extractToRast.qgz"))
+if (!testthat::is_testing()) shell.exec(file.path(tempDir, "extractToRast.qgz"))
 
 
