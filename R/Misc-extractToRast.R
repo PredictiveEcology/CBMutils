@@ -76,8 +76,8 @@ extractToRast_rast <- function(input, templateRast){
     return(rep(valUq[1,1], terra::ncell(templateRast)))
   }
   if (any(c(NA, NaN) %in% valUq[,1])){
-    valUq$temp <- 1:nrow(valUq)
-    if (!is.null(cats)) valUq[[1]] <- match(valUq[[1]], cats[[2]])
+    valUq <- data.table(inp = rev(valUq[,1]), temp = 1:nrow(valUq))
+    if (!is.null(cats)) valUq$inp <- match(valUq$inp, cats[[2]])
     input <- terra::classify(input, valUq)
   }else valUq <- NULL
 
@@ -91,7 +91,7 @@ extractToRast_rast <- function(input, templateRast){
 
   # Extract and return raster values
   alignVals <- terra::values(input, mat = FALSE)
-  if (!is.null(valUq)) alignVals <- valUq[[1]][alignVals]
+  if (!is.null(valUq)) alignVals <- valUq$inp[alignVals]
   if (!is.null(cats))  alignVals <- cats[match(alignVals, cats[[1]]), -1]
   alignVals
 
