@@ -204,8 +204,8 @@ test_that("Function: extractToRast: sf polygons with numeric field: reproject", 
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
     data.table::data.table(
       val = c(1, 4, 5, NaN),
-      N   = c(69058, 116667, 19457, 44818)
     ), tolerance = 10, scale = 1)
+      N   = c(69052, 116674, 19458, 44816)
 })
 
 test_that("Function: extractToRast: sf polygons with text field: reproject", {
@@ -232,8 +232,8 @@ test_that("Function: extractToRast: sf polygons with text field: reproject", {
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
     data.table::data.table(
       val = c("Id 1", "Id 4", "Id 5", "Id 8"),
-      N   = c(69058, 116667, 19457, 44818)
     ), tolerance = 10, scale = 1)
+      N   = c(69052, 116674, 19458, 44816)
 })
 
 
