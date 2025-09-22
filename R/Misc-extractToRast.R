@@ -67,6 +67,9 @@ extractToRast_rast <- function(input, templateRast){
     terra::project(terra::as.polygons(templateRast, extent = TRUE), terra::crs(input)),
     snap = "out")
 
+  # Get raster categories
+  cats <- terra::cats(input)[[1]]
+
   # Reclassify if contains NAs
   valUq <- terra::unique(input, na.rm = FALSE)
   if (length(valUq[,1]) == 1){
@@ -74,6 +77,7 @@ extractToRast_rast <- function(input, templateRast){
   }
   if (any(c(NA, NaN) %in% valUq[,1])){
     valUq$temp <- 1:nrow(valUq)
+    if (!is.null(cats)) valUq[[1]] <- match(valUq[[1]], cats[[2]])
     input <- terra::classify(input, valUq)
   }else valUq <- NULL
 
@@ -88,6 +92,7 @@ extractToRast_rast <- function(input, templateRast){
   # Extract and return raster values
   alignVals <- terra::values(input, mat = FALSE)
   if (!is.null(valUq)) alignVals <- valUq[[1]][alignVals]
+  if (!is.null(cats))  alignVals <- cats[match(alignVals, cats[[1]]), -1]
   alignVals
 
 }

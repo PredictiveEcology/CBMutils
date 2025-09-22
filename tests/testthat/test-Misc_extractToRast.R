@@ -2,7 +2,9 @@
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
 tempDir <- file.path(testDirs$temp$outputs, "extractToRast")
-dir.create(tempDir, recursive = TRUE, showWarnings = FALSE)
+if (interactive()){
+  file.copy(file.path(testDirs$testdata, "extractToRast"), testDirs$temp$outputs, recursive = TRUE, overwrite = TRUE)
+}else dir.create(tempDir, recursive = TRUE, showWarnings = FALSE)
 
 test_that("Function: writeRasterWithValues", {
 
@@ -43,8 +45,7 @@ test_that("Function: extractToRast: raster upsampling", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
-    "rast-upsample_", fileext = ".tif", tmpdir = tempDir))
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-upsample.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -62,6 +63,29 @@ test_that("Function: extractToRast: raster upsampling", {
   )
 })
 
+test_that("Function: extractToRast: raster upsampling with categories", {
+
+  input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
+
+  masterRaster <- terra::rast(
+    res = 5, vals = 1, crs = "EPSG:3979",
+    ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
+
+  levels(input) <- data.frame(id = 1:5, cat = LETTERS[1:5])
+
+  alignVals <- extractToRast(input, masterRaster)
+
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-upsample-cats.tif"), overwrite = TRUE)
+
+  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(
+    data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
+    data.table::data.table(
+      val = c("B", "C", "E", NA),
+      N   = c(27859, 3091, 12723, 316327)
+    ), tolerance = 10, scale = 1)
+})
+
 test_that("Function: extractToRast: raster downsampling", {
 
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
@@ -72,8 +96,7 @@ test_that("Function: extractToRast: raster downsampling", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
-    "rast-downsample_", fileext = ".tif", tmpdir = tempDir))
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-downsample.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -96,8 +119,7 @@ test_that("Function: extractToRast: raster reprojecting", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
-    "rast-reproject_", fileext = ".tif", tmpdir = tempDir))
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-reproject.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -118,8 +140,7 @@ test_that("Function: extractToRast: TIF file", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
-    "rast-TIF_", fileext = ".tif", tmpdir = tempDir))
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-TIF.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -140,8 +161,7 @@ test_that("Function: extractToRast: TIF tiles", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
-    "rast-TIF-tiles_", fileext = ".tif", tmpdir = tempDir))
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-TIF-tiles.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
@@ -167,8 +187,7 @@ test_that("Function: extractToRast: sf polygons with numeric field", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
-    "sf-numeric_", fileext = ".tif", tmpdir = tempDir))
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-numeric.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_is(alignVals, "numeric")
@@ -195,8 +214,7 @@ test_that("Function: extractToRast: sf polygons with numeric field: reproject", 
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
-    "sf-numeric-reproject_", fileext = ".tif", tmpdir = tempDir))
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-numeric-reproject.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_is(alignVals, "numeric")
@@ -204,8 +222,8 @@ test_that("Function: extractToRast: sf polygons with numeric field: reproject", 
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
     data.table::data.table(
       val = c(1, 4, 5, NaN),
-    ), tolerance = 10, scale = 1)
       N   = c(69052, 116674, 19458, 44816)
+    ), tolerance = 10, scale = 1)
 })
 
 test_that("Function: extractToRast: sf polygons with text field: reproject", {
@@ -221,8 +239,7 @@ test_that("Function: extractToRast: sf polygons with text field: reproject", {
 
   alignVals <- extractToRast(input, masterRaster)
 
-  if (interactive()) writeRasterWithValues(masterRaster, alignVals, filename = tempfile(
-    "sf-text-reproject_", fileext = ".tif", tmpdir = tempDir))
+  if (interactive()) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-text-reproject.tif"), overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
 
@@ -232,8 +249,10 @@ test_that("Function: extractToRast: sf polygons with text field: reproject", {
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
     data.table::data.table(
       val = c("Id 1", "Id 4", "Id 5", "Id 8"),
-    ), tolerance = 10, scale = 1)
       N   = c(69052, 116674, 19458, 44816)
+    ), tolerance = 10, scale = 1)
 })
+
+if (interactive()) shell.exec(file.path(tempDir, "extractToRast.qgz"))
 
 
