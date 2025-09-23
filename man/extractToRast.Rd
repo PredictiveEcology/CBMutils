@@ -4,14 +4,14 @@
 \alias{extractToRast}
 \title{Extract to raster}
 \usage{
-extractToRast(input, templateRast, field = 1)
+extractToRast(input, templateRast, index = 1)
 }
 \arguments{
 \item{input}{terra SpatRaster, one or more raster files, or sf polygons.}
 
 \item{templateRast}{SpatRaster. Raster template.}
 
-\item{field}{numeric or character. Vector field to extract.}
+\item{index}{numeric or character. Raster layer or vector field to extract.}
 }
 \value{
 vector with a value for each cell of \code{templateRast}.
