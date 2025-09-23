@@ -100,7 +100,7 @@ extractToRast_rast <- function(input, templateRast, layer = 1){
 # Extract values from spatial data source: vector
 extractToRast_vect <- function(input, templateRast, field = 1){
 
-  # Crop and reproject
+  # Crop
   reproject <- !terra::compareGeom(
     terra::rast(crs = terra::crs(input)), templateRast,
     crs = TRUE, warncrs = FALSE, stopOnError = FALSE, messages = FALSE,
@@ -108,30 +108,22 @@ extractToRast_vect <- function(input, templateRast, field = 1){
 
   cropBBOX <- sf::st_as_sfc(sf::st_bbox(templateRast)) |>
     sf::st_buffer(terra::res(templateRast)[[1]], joinStyle = "MITRE", mitreLimit = 2)
-
-  .muffleWarningAgr <- function(w){
-    agrWarning <- "attribute variables are assumed to be spatially constant throughout all geometries"
-    if (w$message == agrWarning) invokeRestart("muffleWarning")
-  }
-
   if (reproject){
-
     cropBBOX <- cropBBOX |>
       sf::st_segmentize(10000) |>
-      sf::st_transform(sf::st_crs(input))
+      sf::st_transform(sf::st_crs(input)) |>
+      sf::st_bbox() |>
+      sf::st_as_sfc()
+  }
+  suppressWarnings(sf::st_crs(cropBBOX) <- sf::st_crs(input))
 
-    input <- withCallingHandlers(
-      sf::st_intersection(input, sf::st_transform(cropBBOX, sf::st_crs(input))),
-      warning = .muffleWarningAgr)
+  int <- sapply(sf::st_intersects(input, cropBBOX), length) == 1
+  if (any(!int)) input <- input[int,]
+  rm(int)
+
+  # Reproject
+  if (reproject){
     sf::st_geometry(input) <- sf::st_transform(sf::st_geometry(input), sf::st_crs(templateRast))
-
-  }else{
-
-    suppressWarnings(sf::st_crs(cropBBOX) <- sf::st_crs(input))
-
-    input <- withCallingHandlers(
-      sf::st_crop(input, cropBBOX),
-      warning = .muffleWarningAgr)
   }
 
   # Dissolve polygons
