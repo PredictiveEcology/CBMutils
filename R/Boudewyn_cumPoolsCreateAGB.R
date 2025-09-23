@@ -181,7 +181,7 @@ getParameters <- function(table6, table7, tableMerchantability, curves){
   p6_cols <- c("a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3")
   p7_cols <- c("biom_min", "biom_max", "p_sw_low", "p_sb_low", "p_br_low", "p_fl_low",
                "p_sw_high", "p_sb_high", "p_br_high", "p_fl_high")
-  pMerch_col <- c("a", "b", "k", "cap")
+  pMerch_col <- c("a", "b", "k", "cap", "minAge")
 
   # Copy to avoid modifying the original 'curves' object
   params6 <- copy(curves)
@@ -197,7 +197,7 @@ getParameters <- function(table6, table7, tableMerchantability, curves){
           on = .(canfi_species = canfi_spec, ecozone, juris_id),
           (p7_cols) := mget(paste0("i.", p7_cols))]
   paramsMerch[tableMerchantability_dt,
-              on = .(canfi_species = canfi_species, ecozone, juris_id),
+              on = .(canfi_species, ecozone, juris_id),
               (pMerch_col) := mget(paste0("i.", pMerch_col))]
 
   # Level 2: If no exact match, use parameters for species in same ecozone
@@ -211,7 +211,7 @@ getParameters <- function(table6, table7, tableMerchantability, curves){
                                                              on = .(canfi_species = canfi_spec, ecozone),
                                                              (p7_cols) := mget(paste0("i.", p7_cols))]
     paramsMerch[missingParameters] <- paramsMerch[missingParameters][tableMerchantability_dt,
-                                                                     on = .(canfi_species = canfi_species, ecozone),
+                                                                     on = .(canfi_species, ecozone),
                                                                      (pMerch_col) := mget(paste0("i.", pMerch_col))]
 
     # Level 3: If still no match, use parameters for species in same jurisdiction
@@ -225,7 +225,7 @@ getParameters <- function(table6, table7, tableMerchantability, curves){
                                                                on = .(canfi_species = canfi_spec, juris_id),
                                                                (p7_cols) := mget(paste0("i.", p7_cols))]
       paramsMerch[missingParameters] <- paramsMerch[missingParameters][tableMerchantability_dt,
-                                                                       on = .(canfi_species = canfi_species, juris_id),
+                                                                       on = .(canfi_species, juris_id),
                                                                        (pMerch_col) := mget(paste0("i.", pMerch_col))]
 
       # Level 4: If still no match, use parameters for the same species wherever
@@ -238,7 +238,7 @@ getParameters <- function(table6, table7, tableMerchantability, curves){
                                                                  on = .(canfi_species = canfi_spec),
                                                                  (p7_cols) := mget(paste0("i.", p7_cols))]
         paramsMerch[missingParameters] <- paramsMerch[missingParameters][tableMerchantability_dt,
-                                                                         on = .(canfi_species = canfi_species),
+                                                                         on = .(canfi_species),
                                                                          (pMerch_col) := mget(paste0("i.", pMerch_col))]
 
       }
