@@ -199,6 +199,38 @@ test_that("Function: extractToRast: sf polygons with numeric field", {
     ), tolerance = 10, scale = 1)
 })
 
+test_that("Function: extractToRast: sf polygons with non-unique values", {
+
+  ## Check that the value assigned matches the value covering the greatest total area,
+  ## not the value from individual polygon covering the greatest area.
+
+  masterRaster <- terra::rast(
+    res = 10, vals = 1, crs = "local",
+    xmin = 0, ymin = 0, xmax = 10, ymax = 10)
+
+  input <- rbind(
+    sf::st_sf(
+      value = 1,
+      geometry = sf::st_sfc(
+        sf::st_polygon(list(matrix(c(c(0, 0), c(0, 3), c(3, 3), c(3, 0), c(0, 0)), ncol = 2, byrow = TRUE))),
+        crs = "local")),
+    sf::st_sf(
+      value = 1,
+      geometry = sf::st_sfc(
+        sf::st_polygon(list(matrix(c(c(0, 6), c(0, 10), c(8, 10), c(8, 6), c(0, 6)), ncol = 2, byrow = TRUE))),
+        crs = "local")),
+    sf::st_sf(
+      value = 2,
+      geometry = sf::st_sfc(
+        sf::st_polygon(list(matrix(c(c(4, 0), c(4, 6), c(10, 6), c(10, 0), c(4, 0)), ncol = 2, byrow = TRUE))),
+        crs = "local"))
+  )
+
+  alignVals <- extractToRast(input, masterRaster)
+
+  expect_equal(alignVals, 1)
+})
+
 test_that("Function: extractToRast: sf polygons with numeric field: reproject", {
 
   input <- sf::st_read(

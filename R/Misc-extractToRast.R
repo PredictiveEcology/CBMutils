@@ -134,6 +134,11 @@ extractToRast_vect <- function(input, templateRast, field = 1){
       warning = .muffleWarningAgr)
   }
 
+  # Dissolve polygons
+  if (any(duplicated(input[[field]]))){
+    input <- dplyr::summarise(input, geometry = sf::st_union(geometry), .by = field)
+  }
+
   # Rasterize
   cellIdxRast <- exactextractr::rasterize_polygons(
     input, templateRast, min_coverage = 0.5)
