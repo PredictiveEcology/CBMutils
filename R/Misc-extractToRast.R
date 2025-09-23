@@ -127,7 +127,7 @@ extractToRast_vect <- function(input, templateRast, field = 1){
 
   }else{
 
-    sf::st_crs(cropBBOX) <- sf::st_crs(input)
+    suppressWarnings(sf::st_crs(cropBBOX) <- sf::st_crs(input))
 
     input <- withCallingHandlers(
       sf::st_crop(input, cropBBOX),
