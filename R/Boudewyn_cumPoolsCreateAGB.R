@@ -115,7 +115,7 @@ convertAGB2pools <- function(AGB, allParams){
   totTree <-  AGB$B
   totalStemWood <- totTree * pVect[, "pstem"]
 
-  merch <- propMerch(totalStemWood, AGBwithParams) * totalStemWood
+  merch <- propMerch(totalStemWood, AGB$age, AGBwithParams) * totalStemWood
 
   # otherStemWood is everything that is not totMerch
   otherStemWood <- totalStemWood - merch
@@ -163,14 +163,23 @@ getParameters <- function(table6, table7, tableMerchantability, curves){
   table7_dt <- as.data.table(table7)
   tableMerchantability_dt <- as.data.table(tableMerchantability)
 
+
+  # Some tables have canfi_spec instead of canfi_species as columns names
+  if ("canfi_spec" %in% colnames(table6_dt)){
+    setnames(table6_dt, old = "canfi_spec", new = "canfi_species")
+  }
+  if ("canfi_spec" %in% colnames(table7_dt)){
+    setnames(table7_dt, old = "canfi_spec", new = "canfi_species")
+  }
+
   if (!all(
-    curves$canfi_species %in% table6_dt$canfi_spec &
-    curves$canfi_species %in% table7_dt$canfi_spec &
+    curves$canfi_species %in% table6_dt$canfi_species &
+    curves$canfi_species %in% table7_dt$canfi_species &
     curves$canfi_species %in% tableMerchantability_dt$canfi_species
   )) {
     missing_spp <- unique(curves$canfi_species[!(
-      curves$canfi_species %in% table6_dt$canfi_spec &
-        curves$canfi_species %in% table7_dt$canfi_spec &
+      curves$canfi_species %in% table6_dt$canfi_species &
+        curves$canfi_species %in% table7_dt$canfi_species &
         curves$canfi_species %in% tableMerchantability_dt$canfi_species
     )])
     stop("There are no parameters available for species: ",
@@ -191,63 +200,75 @@ getParameters <- function(table6, table7, tableMerchantability, curves){
   # Merge parameters using a cascading join approach (from most to least specific)
   # Level 1: Exact match (species, ecozone, jurisdiction)
   params6[table6_dt,
-          on = .(canfi_species = canfi_spec, ecozone, juris_id),
+          on = .(canfi_species, ecozone, juris_id),
           (p6_cols) := mget(paste0("i.", p6_cols))]
   params7[table7_dt,
-          on = .(canfi_species = canfi_spec, ecozone, juris_id),
+          on = .(canfi_species, ecozone, juris_id),
           (p7_cols) := mget(paste0("i.", p7_cols))]
   paramsMerch[tableMerchantability_dt,
               on = .(canfi_species, ecozone, juris_id),
               (pMerch_col) := mget(paste0("i.", pMerch_col))]
 
-  # Level 2: If no exact match, use parameters for species in same ecozone
+  # Find alternative set of parameters for combination without exact match
   if(any(is.na(params6))){
+    params6 <- alternativeParams(params6, table6_dt, p6_cols)
+  }
 
-    missingParameters <- which(is.na(params6[,"a1"]))
-    params6[missingParameters] <- params6[missingParameters][table6_dt,
-                                                             on = .(canfi_species = canfi_spec, ecozone),
-                                                             (p6_cols) := mget(paste0("i.", p6_cols))]
-    params7[missingParameters] <- params7[missingParameters][table7_dt,
-                                                             on = .(canfi_species = canfi_spec, ecozone),
-                                                             (p7_cols) := mget(paste0("i.", p7_cols))]
-    paramsMerch[missingParameters] <- paramsMerch[missingParameters][tableMerchantability_dt,
-                                                                     on = .(canfi_species, ecozone),
-                                                                     (pMerch_col) := mget(paste0("i.", pMerch_col))]
+  if(any(is.na(params7))){
+    params7 <- alternativeParams(params7, table7_dt, p7_cols)
+  }
 
-    # Level 3: If still no match, use parameters for species in same jurisdiction
-    if(any(is.na(params6))) {
-
-      missingParameters <- which(is.na(params6[,"a1"]))
-      params6[missingParameters] <- params6[missingParameters][table6_dt,
-                                                               on = .(canfi_species = canfi_spec, juris_id),
-                                                               (p6_cols) := mget(paste0("i.", p6_cols))]
-      params7[missingParameters] <- params7[missingParameters][table7_dt,
-                                                               on = .(canfi_species = canfi_spec, juris_id),
-                                                               (p7_cols) := mget(paste0("i.", p7_cols))]
-      paramsMerch[missingParameters] <- paramsMerch[missingParameters][tableMerchantability_dt,
-                                                                       on = .(canfi_species, juris_id),
-                                                                       (pMerch_col) := mget(paste0("i.", pMerch_col))]
-
-      # Level 4: If still no match, use parameters for the same species wherever
-      if(any(is.na(params6))) {
-        missingParameters <- which(is.na(params6[,"a1"]))
-        params6[missingParameters] <- params6[missingParameters][table6_dt,
-                                                                 on = .(canfi_species = canfi_spec),
-                                                                 (p6_cols) := mget(paste0("i.", p6_cols))]
-        params7[missingParameters] <- params7[missingParameters][table7_dt,
-                                                                 on = .(canfi_species = canfi_spec),
-                                                                 (p7_cols) := mget(paste0("i.", p7_cols))]
-        paramsMerch[missingParameters] <- paramsMerch[missingParameters][tableMerchantability_dt,
-                                                                         on = .(canfi_species),
-                                                                         (pMerch_col) := mget(paste0("i.", pMerch_col))]
-
-      }
-    }
+  if(any(is.na(paramsMerch))){
+    paramsMerch <- alternativeParams(paramsMerch, tableMerchantability_dt, pMerch_col)
   }
 
   allParams <- merge(params6, params7, by = c("canfi_species", "ecozone", "juris_id"), sort = FALSE)
   allParams <- merge(allParams, paramsMerch, by = c("canfi_species", "ecozone", "juris_id"), sort = FALSE)
   return(allParams)
+}
+
+#' Title
+#'
+#' @param params
+#' @param table
+#' @param cols
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+alternativeParams <- function(params, table, cols){
+  # If merchantability, cap is the only parameters absolutely
+  if("cap" %in% cols){
+    colToCheck <- "cap"
+  } else {
+    colToCheck <- cols[1]
+  }
+
+  # Level 2: If no exact match, use parameters for species in same ecozone
+  missingParameters <- which(is.na(params[,..colToCheck]))
+  params[missingParameters] <- params[missingParameters][table,
+                                                           on = .(canfi_species, ecozone),
+                                                           (cols) := mget(paste0("i.", cols))]
+
+  # Level 3: If still no match, use parameters for species in same jurisdiction
+  if(any(is.na(params))) {
+
+    missingParameters <- which(is.na(params[,..colToCheck]))
+    params[missingParameters] <- params[missingParameters][table,
+                                                             on = .(canfi_species, juris_id),
+                                                             (cols) := mget(paste0("i.", cols))]
+
+    # Level 4: If still no match, use parameters for the same species wherever
+    if(any(is.na(params))) {
+      missingParameters <- which(is.na(params[,..colToCheck]))
+      params[missingParameters] <- params[missingParameters][table,
+                                                               on = .(canfi_species),
+                                                               (cols) := mget(paste0("i.", cols))]
+    }
+  }
+
+  return(params)
 }
 
 #' Calculates proportions of total tree biomass in stemwood, bark, branches, and foliage
@@ -308,16 +329,19 @@ biomPropAGB <- function(AGBwithParams) {
 #' Title
 #'
 #' @param totalStemWood
+#' @param age
 #' @param params
 #'
 #' @returns
 #' @export
 #'
-propMerch <- function(totalStemWood, params){
-  pMerch <- with(params,
-                 ifelse(age > minAge,
-                        k - exp(-a*(totalStemWood - b)),
-                        0)
-                 )
+propMerch <- function(totalStemWood, age, params){
+  pMerch <- with(params, {
+    pMerch <- k - exp(-a*(totalStemWood - b))
+    pMerch[is.na(pMerch)] <- cap[is.na(pMerch)]
+    pMerch[pMerch < cap] <- cap[pMerch < cap]
+    pMerch[age < minAge] <- 0
+    pMerch
+  })
   return(pMerch)
 }

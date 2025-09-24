@@ -28,7 +28,6 @@ test_that("getParameters", {
   expected_c2 <- c(0.0012709, 0.0027023, 0.0009288, -0.0038565)
   expected_p_sw_high <- c(0.757342072, 0.789843375, 0.817886188, 0.735608972)
   expected_cap <- c(0.11380327191837, 0.422873035, 0.266752439, 0.236493358)
-
   expect_is(out, "data.table")
   expect_named(out, c("canfi_species", "ecozone", "juris_id",
                       "a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3",
@@ -78,7 +77,6 @@ test_that("convertAGB2pools", {
 })
 
 test_that("cumPoolsCreateAGB", {
-  browser()
   # Test simple example
   dt <- data.table(
     expand.grid(canfi_species = c(204, 1201), # PINU_CON, POPU_TRE
