@@ -9,10 +9,7 @@ table7AGB <- reproducible::prepInputs(url = "https://nfi.nfis.org/resources/biom
                                       fun = "data.table::fread",
                                       destinationPath = testDirs$temp$inputs,
                                       filename2 = "appendix2_table7_tb.csv")
-tableMerchAGB <- reproducible::prepInputs(url = "https://drive.google.com/file/d/1wa2QMd7Eo-bPpfigchdpPPPxo7NVpPiC/view?usp=drive_link",
-                                          fun = "data.table::fread",
-                                          destinationPath = testDirs$temp$inputs,
-                                          filename2 = "appendix2_table7_tb.csv")
+tableMerchAGB <- data.table::fread(file.path(testDirs$testdata, "merchantabilityParams_subset.csv"))
 tableMerchAGB <- cbind(tableMerchAGB, minAge = 15)
 
 test_that("getParameters", {
@@ -27,7 +24,7 @@ test_that("getParameters", {
   out <- getParameters(table6AGB, table7AGB, tableMerchAGB, x)
   expected_c2 <- c(0.0012709, 0.0027023, 0.0009288, -0.0038565)
   expected_p_sw_high <- c(0.757342072, 0.789843375, 0.817886188, 0.735608972)
-  expected_cap <- c(0.11380327191837, 0.422873035, 0.266752439, 0.236493358)
+  expected_cap <- c(0.11380327191837, 0.129567845, 0.179620977, 0.358827379)
   expect_is(out, "data.table")
   expect_named(out, c("canfi_species", "ecozone", "juris_id",
                       "a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3",
@@ -100,7 +97,7 @@ test_that("cumPoolsCreateAGB", {
   # test with large data.table
   N <- 10^5
   dt <- data.table(
-    canfi_species = sample(table6AGB$canfi_spec, N, replace = T),
+    canfi_species = sample(tableMerchAGB$canfi_species, N, replace = T),
     ecozone = sample(table6AGB$ecozone, N, replace = T),
     juris_id = sample(table6AGB$juris_id, N, replace = T),
     poolsPixelGroup = sample(c(1:10), N, replace = T),
