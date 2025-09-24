@@ -2,9 +2,9 @@
 % Please edit documentation in R/Boudewyn_cumPoolsCreateAGB.R
 \name{getParameters}
 \alias{getParameters}
-\title{Extract the parameters to apply to convert total biomass into pool biomass}
+\title{Extract the parameters to apply to convert total biomass into pool biomass.}
 \usage{
-getParameters(table6, table7, curves)
+getParameters(table6, table7, tableMerchantability, curves)
 }
 \arguments{
 \item{table6}{\code{data.frame} corresponding to Table 3 from Boudewyn et al. (2007),
@@ -13,11 +13,15 @@ available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_tabl
 \item{table7}{\code{data.frame} corresponding to Table 4 from Boudewyn et al. (2007),
 available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
 
+\item{tableMerchantability}{\code{data.frame} Parameters to estimate the proportion
+of stemwood that is merchantable, approximates the relationship between stemwood
+biomass and nonmerchfactor predicted by equation 2 of Boudewyn et al., 2007.}
+
 \item{curves}{A \code{data.table} with unique combinations of \code{canfi_species}, \code{ecozone}, \code{juris_id}.}
 }
 \value{
 A single \code{data.table} containing a row for each curve with all required
-parameters from both \code{table6} and \code{table7}.
+parameters from both \code{table6}, \code{table7}, and \code{tableMerchantability}.
 }
 \description{
 Extract the species- and location- specific parameters for equation 4-7 of

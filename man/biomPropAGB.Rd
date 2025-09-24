@@ -2,7 +2,7 @@
 % Please edit documentation in R/Boudewyn_cumPoolsCreateAGB.R
 \name{biomPropAGB}
 \alias{biomPropAGB}
-\title{Calculates proportions of total tree biomass in stemwood, bark, branches, and foliage}
+\title{Calculates proportions of total tree biomass in stemwood, bark, branches, and foliage.}
 \usage{
 biomPropAGB(AGBwithParams)
 }

@@ -117,3 +117,49 @@ test_that("cumPoolsCreateAGB", {
 
 })
 
+test_that("propMerch", {
+  # Test simple example
+  # 4 instances: below minAge, only cap, below cap, over minAge and cap
+  totalStemwood <- rep(100, 4)
+  age <- c(10, 14, 20, 100)
+  parameters <- data.table(
+    a = c(NA, NA, 0.01, 0.05),
+    b = c(NA, NA, 50, 30),
+    k = c(NA, 0.1, 1, 0.9),
+    cap = rep(0.5, 4),
+    minAge = rep(12, 4)
+  )
+  expected_out <- c(0, 0.5, 0.5, 0.9 - exp(-0.05*(100 - 30)))
+  out <- propMerch(totalStemwood, age, parameters)
+
+  expect_is(out, "numeric")
+  expect_equal(out, expected_out)
+
+  # Test errors
+  parameters <- data.table(
+    a = 1,
+    b = 30,
+    k = 1.5,
+    cap = 0.5,
+    minAge = 12
+  )
+  expect_error(propMerch(100, 15, parameters))
+  parameters <- data.table(
+    a = -0.001,
+    b = 30,
+    k = 1,
+    cap = -0.5,
+    minAge = 12
+  )
+  expect_error(propMerch(100, 15, parameters))
+
+  parameters <- data.table(
+    a = 0.05,
+    b = 30,
+    k = 0.9,
+    cap = NA,
+    minAge = 12
+  )
+  expect_error(propMerch(100, 15, parameters))
+
+})

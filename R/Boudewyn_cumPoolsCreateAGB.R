@@ -1,16 +1,13 @@
 utils::globalVariables(
-  c(".I", "a1", "a2", "a3", "age", "b1", "b2", "b3", "B", "biom_max", "biom_min",
-    "c1", "c2", "c3", "a", "b", "k", "cap", "minAge", "canfi_spec", "CanfiCode",
-    "canfi_species", "curve_id", "ecozone", "foliage", "i.a1", "i.a2", "i.a3",
-    "i.b1", "i.b2", "i.b3", "i.biom_max", "i.biom_min", "i.p_br_high", "i.p_br_low",
-    "i.c1", "i.c2", "i.c3", "i.p_fl_high", "i.p_fl_low", "i.p_sb_high", "i.p_sb_low",
-    "i.p_sw_high", "i.p_sw_low", "i.a", "i.b", "i.k", "i.cap", "i.minAge",
-    "juris_id", "LandR", "merch", "other", "p_br_high", "p_br_low", "p_fl_high",
-    "p_fl_low", "p_sb_high", "p_sb_low", "p_sw_high", "p_sw_low", "speciesCode"
-  )
+  c("canfi_species", "juris_id", "ecozone", "age", "B", "speciesCode", "pixGroupCol",
+    "merch", "foliage", "other",
+    "a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3", "biom_min", "biom_max",
+    "p_sw_low", "p_sb_low", "p_br_low", "p_fl_low", "p_sw_high", "p_sb_high",
+    "p_br_high", "p_fl_high", "a", "b", "k", "cap", "minAge",
+    "lB")
 )
 
-#' Convert total above ground biomass into 3 pools (\eqn{T/ha})
+#' Convert total above ground biomass into 3 pools (\eqn{T/ha}).
 #'
 #' Implements the flowchart from figure 3 of Boudewyn et al. (2007) using an alternative
 #' set of parameter to divide total above ground biomass (\eqn{T/ha}) into total merchantable
@@ -84,7 +81,7 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, tableMerchantability
   return(finalPools)
 }
 
-#' Convert total above ground biomass into 3 pools (\eqn{T/ha})
+#' Convert total above ground biomass into 3 pools (\eqn{T/ha}).
 #'
 #' Implements the flowchart from figure 3 of Boudewyn et al. (2007) using an alternative
 #' set of parameter to divide total above ground biomass (\eqn{T/ha}) into total merchantable
@@ -128,7 +125,7 @@ convertAGB2pools <- function(AGB, allParams){
   return(biomCumulative)
 }
 
-#' Extract the parameters to apply to convert total biomass into pool biomass
+#' Extract the parameters to apply to convert total biomass into pool biomass.
 #'
 #' Extract the species- and location- specific parameters for equation 4-7 of
 #' Boudewyn et al. (2007). If there is no match for the given ecozone, the parameters
@@ -156,7 +153,7 @@ convertAGB2pools <- function(AGB, allParams){
 #' @param curves A `data.table` with unique combinations of `canfi_species`, `ecozone`, `juris_id`.
 #'
 #' @return A single `data.table` containing a row for each curve with all required
-#'   parameters from both `table6` and `table7`.
+#' parameters from both `table6`, `table7`, and `tableMerchantability`.
 getParameters <- function(table6, table7, tableMerchantability, curves){
 
   table6_dt <- as.data.table(table6)
@@ -227,16 +224,21 @@ getParameters <- function(table6, table7, tableMerchantability, curves){
   return(allParams)
 }
 
-#' Title
+#' Extract alternative set of parameters to apply to convert total biomass into pool biomass.
 #'
-#' @param params
-#' @param table
-#' @param cols
+#' When there is no match for the given ecozone, the parameters for a different
+#' ecozone in the same province/territory is returned. If there is no match for
+#' a given province/territory, the parameters for a different province/territory
+#' in the same ecozone is returned. If there is no match for the given ecozone
+#' and province/territory, the parameters for a different location is returned.
 #'
-#' @returns
-#' @export
+#' @param params `data.table` containing a row for each curve with all required
+#' parameters.
+#' @param table `data.table` of the parameters.
+#' @param cols `vector` of parameter column names.
 #'
-#' @examples
+#' @returns A single `data.table` containing a row for each curve with all required
+#' parameters from both `table6`, `table7`, and `tableMerchantability`.
 alternativeParams <- function(params, table, cols){
   # If merchantability, cap is the only parameters absolutely
   if("cap" %in% cols){
@@ -271,7 +273,7 @@ alternativeParams <- function(params, table, cols){
   return(params)
 }
 
-#' Calculates proportions of total tree biomass in stemwood, bark, branches, and foliage
+#' Calculates proportions of total tree biomass in stemwood, bark, branches, and foliage.
 #'
 #' Implements equations 4-7 of Boudewyn et al. (2007) adapted for biomass input
 #' using parameters \eqn{a}, \eqn{b}, and \eqn{c }from Table 6 (`table6`) and
@@ -326,22 +328,29 @@ biomPropAGB <- function(AGBwithParams) {
 
 
 
-#' Title
+#' Calculates the proportion of total stemwood considered merchantable.
 #'
-#' @param totalStemWood
-#' @param age
-#' @param params
+#' @param totalStemWood `numeric` Total Stemwood vector.
+#' @param age `numeric` Age of the cohort.
+#' @param params `data.table` Parameters to calculate propotion of merchantable stemwood.
 #'
-#' @returns
-#' @export
-#'
+#' @returns `numeric` Vector of the proportion of stemwood that is merchantable.
 propMerch <- function(totalStemWood, age, params){
+
   pMerch <- with(params, {
+    if (any(is.na(cap))){
+      stop("Missing some parameters to calculate merchantable propotions.")
+    }
     pMerch <- k - exp(-a*(totalStemWood - b))
     pMerch[is.na(pMerch)] <- cap[is.na(pMerch)]
     pMerch[pMerch < cap] <- cap[pMerch < cap]
     pMerch[age < minAge] <- 0
     pMerch
   })
+
+  if (any(pMerch < 0 | pMerch > 1)){
+    stop("Merchantable proportion is unrealistic, check merchantability parameters.")
+  }
+
   return(pMerch)
 }
