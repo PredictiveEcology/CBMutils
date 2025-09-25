@@ -128,6 +128,7 @@ extractToRast_vect <- function(input, templateRast, field = 1){
 
   # Dissolve polygons
   if (any(duplicated(input[[field]]))){
+    geometry <- NULL # global variable binding
     input <- dplyr::summarise(input, geometry = sf::st_union(geometry), .by = dplyr::all_of(field))
   }
 
