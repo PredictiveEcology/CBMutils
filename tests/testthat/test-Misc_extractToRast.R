@@ -173,6 +173,78 @@ test_that("Function: extractToRast: TIF tiles", {
     ), tolerance = 10, scale = 1)
 })
 
+test_that("Function: extractToRast: coverage with NAs", {
+
+  # Test: without reprojection
+  inputTemplate <- terra::rast(
+    res = 5, vals = 1,
+    crs = "local", xmin = 0, ymin = 0, xmax = 10, ymax = 10)
+  masterRaster <- terra::rast(
+    res = 10, vals = 1,
+    crs = "local", xmin = 0, ymin = 0, xmax = 10, ymax = 10)
+
+  ## 25% coverage NA
+  input <- inputTemplate
+  terra::values(input) <- c(1, 1, 1, NA)
+  expect_equal(extractToRast(input, masterRaster), 1)
+
+  ## 50% coverage NA
+  input <- inputTemplate
+  terra::values(input) <- c(1, 1, NA, NA)
+  expect_equal(extractToRast(input, masterRaster), 1)
+
+  ## 75% coverage NA
+  input <- inputTemplate
+  terra::values(input) <- c(1, NA, NA, NA)
+  expect_in(extractToRast(input, masterRaster), c(NaN, NA_real_))
+
+  ## > 50% coverage NA in 1 pixel
+  input <- terra::rast(
+    res = 8, vals = c(NA, NA, 1, NA),
+    crs = "local", xmin = 0, ymin = 0, xmax = 16, ymax = 16)
+  expect_equal(extractToRast(input, masterRaster), 1)
+
+  # Test: with reprojection
+  inputTemplate <- terra::rast(
+    crs = "EPSG:3979",
+    res = 100, vals = 1,
+    xmin = -663200,
+    xmax = -663000,
+    ymin =  729200,
+    ymax =  729400
+  )
+  masterRaster <- terra::rast(
+    crs = "EPSG:102001",
+    res = 100, vals = 1,
+    xmin = -607300,
+    xmax = -607200,
+    ymin = 1712100,
+    ymax = 1712200
+  )
+
+  ## < 50% coverage NA
+  input <- inputTemplate
+  terra::values(input) <- c(NA, NA, 1, 1)
+  expect_in(extractToRast(input, masterRaster), c(NaN, NA_real_))
+
+  ## > 50% coverage NA
+  input <- inputTemplate
+  terra::values(input) <- c(1, 1, NA, NA)
+  expect_equal(extractToRast(input, masterRaster), 1)
+
+  ## > 50% coverage NA in 1 large area
+  input <- terra::rast(
+    crs = "EPSG:3979",
+    res = 100, vals = c(1, NA, NA, NA),
+    xmin = -663200 + 50,
+    xmax = -663000 + 50,
+    ymin =  729200,
+    ymax =  729400
+  )
+  expect_equal(extractToRast(input, masterRaster), 1)
+
+})
+
 test_that("Function: extractToRast: sf polygons with numeric field", {
 
   input <- sf::st_read(
