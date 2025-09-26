@@ -178,10 +178,10 @@ test_that("Function: extractToRast: coverage with NAs", {
   # Test: without reprojection
   inputTemplate <- terra::rast(
     res = 5, vals = 1,
-    crs = "local", xmin = 0, ymin = 0, xmax = 10, ymax = 10)
+    crs = "EPSG:3979", xmin = 0, ymin = 0, xmax = 10, ymax = 10)
   masterRaster <- terra::rast(
     res = 10, vals = 1,
-    crs = "local", xmin = 0, ymin = 0, xmax = 10, ymax = 10)
+    crs = "EPSG:3979", xmin = 0, ymin = 0, xmax = 10, ymax = 10)
 
   ## 25% coverage NA
   input <- inputTemplate
@@ -201,7 +201,7 @@ test_that("Function: extractToRast: coverage with NAs", {
   ## > 50% coverage NA in 1 pixel
   input <- terra::rast(
     res = 8, vals = c(NA, NA, 1, NA),
-    crs = "local", xmin = 0, ymin = 0, xmax = 16, ymax = 16)
+    crs = "EPSG:3979", xmin = 0, ymin = 0, xmax = 16, ymax = 16)
   expect_equal(extractToRast(input, masterRaster), 1)
 
   # Test: with reprojection
