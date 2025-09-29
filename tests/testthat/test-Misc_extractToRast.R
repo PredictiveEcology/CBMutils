@@ -214,7 +214,16 @@ test_that("Function: extractToRast: coverage with NAs", {
     ymax =  729400
   )
   masterRaster <- terra::rast(
-    crs = "ESRI:102001",
+    #crs = "EPSG:102001"
+    crs = paste(c(
+      "PROJCS[\"Canada_Albers_Equal_Area_Conic\"",
+      "GEOGCS[\"NAD83\"", "DATUM[\"North_American_Datum_1983\"", "SPHEROID[\"GRS 1980\",6378137,298.257222101", "AUTHORITY[\"EPSG\",\"7019\"]]", "AUTHORITY[\"EPSG\",\"6269\"]]",
+      "PRIMEM[\"Greenwich\",0", "AUTHORITY[\"EPSG\",\"8901\"]]", "UNIT[\"degree\",0.0174532925199433", "AUTHORITY[\"EPSG\",\"9122\"]]", "AUTHORITY[\"EPSG\",\"4269\"]]",
+      "PROJECTION[\"Albers_Conic_Equal_Area\"]",
+      "PARAMETER[\"latitude_of_center\",40]", "PARAMETER[\"longitude_of_center\",-96]", "PARAMETER[\"standard_parallel_1\",50]",
+      "PARAMETER[\"standard_parallel_2\",70]", "PARAMETER[\"false_easting\",0]", "PARAMETER[\"false_northing\",0]",
+      "UNIT[\"metre\",1", "AUTHORITY[\"EPSG\",\"9001\"]]", "AXIS[\"Easting\",EAST]", "AXIS[\"Northing\",NORTH]", "AUTHORITY[\"ESRI\",\"102001\"]]"
+    ), collapse = ","),
     res = 100, vals = 1,
     xmin = -607300,
     xmax = -607200,
