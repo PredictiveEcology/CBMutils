@@ -2,9 +2,15 @@
 % Please edit documentation in R/Boudewyn_cumPoolsCreateAGB.R
 \name{cumPoolsCreateAGB}
 \alias{cumPoolsCreateAGB}
-\title{Convert total above ground biomass into 3 pools (\eqn{T/ha})}
+\title{Convert total above ground biomass into 3 pools (\eqn{T/ha}).}
 \usage{
-cumPoolsCreateAGB(allInfoAGBin, table6, table7, pixGroupCol)
+cumPoolsCreateAGB(
+  allInfoAGBin,
+  table6,
+  table7,
+  tableMerchantability,
+  pixGroupCol
+)
 }
 \arguments{
 \item{allInfoAGBin}{\code{data.frame} with at least six following columns: \code{canfi_species},
@@ -15,6 +21,10 @@ available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_tabl
 
 \item{table7}{\code{data.frame} corresponding to Table 4 from Boudewyn et al. (2007),
 available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
+
+\item{tableMerchantability}{\code{data.frame} Parameters to estimate the proportion
+of stemwood that is merchantable, approximates the relationship between stemwood
+biomass and nonmerchfactor predicted by equation 2 of Boudewyn et al., 2007.}
 
 \item{pixGroupCol}{the name of the column in \code{allInfoAGBin} serving as the pixel group
 identifier.}

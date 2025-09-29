@@ -2,7 +2,7 @@
 % Please edit documentation in R/Boudewyn_cumPoolsCreateAGB.R
 \name{convertAGB2pools}
 \alias{convertAGB2pools}
-\title{Convert total above ground biomass into 3 pools (\eqn{T/ha})}
+\title{Convert total above ground biomass into 3 pools (\eqn{T/ha}).}
 \usage{
 convertAGB2pools(AGB, allParams)
 }
@@ -11,7 +11,8 @@ convertAGB2pools(AGB, allParams)
 \code{ecozone}, \code{juris_id}, and \code{B}.}
 
 \item{allParams}{\code{data.frame} containing a row for each curve with all required
-parameters of both \code{table6} and \code{table7}. from Boudewyn et al. (2007).}
+parameters of both \code{table6} and \code{table7} from Boudewyn et al. (2007) and parameters
+on merchantability of stemwood.}
 }
 \value{
 three-column matrix with columns corresponding to biomass (\eqn{T/ha}) for
