@@ -4,7 +4,7 @@
 \alias{extractToRast}
 \title{Extract to raster}
 \usage{
-extractToRast(input, templateRast, index = 1)
+extractToRast(input, templateRast, index = 1, crop = TRUE)
 }
 \arguments{
 \item{input}{terra SpatRaster, one or more raster files, or sf polygons.}
@@ -12,6 +12,8 @@ extractToRast(input, templateRast, index = 1)
 \item{templateRast}{SpatRaster. Raster template.}
 
 \item{index}{numeric or character. Raster layer or vector field to extract.}
+
+\item{crop}{logical. Crop input before alignment to template raster.}
 }
 \value{
 vector with a value for each cell of \code{templateRast}.

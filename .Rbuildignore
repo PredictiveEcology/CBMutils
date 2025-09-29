@@ -4,4 +4,5 @@
 ^codecov\.yml$
 ^man-roxygen$
 ^README\.md$
+^data-raw$
 wip/
