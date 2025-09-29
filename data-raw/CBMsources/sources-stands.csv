@@ -1,0 +1,3 @@
+provider,attr,type,field,targetFile,url,notes
+CanSIS,ecozone,vector,ECOZONE,Ecozones/ecozones.shp,http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip,
+StatCan,admin,vector,PRENAME,lpr_000a21a_e/lpr_000a21a_e.shp,https://www12.statcan.gc.ca/census-recensement/2021/geo/sip-pis/boundary-limites/files-fichiers/lpr_000a21a_e.zip,
