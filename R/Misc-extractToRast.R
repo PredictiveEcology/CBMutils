@@ -7,11 +7,12 @@
 #' @param input terra SpatRaster, one or more raster files, or sf polygons.
 #' @param templateRast SpatRaster. Raster template.
 #' @param index numeric or character. Raster layer or vector field to extract.
+#' @param crop logical. Crop input before alignment to template raster.
 #'
 #' @export
 #' @return vector with a value for each cell of `templateRast`.
 #' Data type matches input data type.
-extractToRast <- function(input, templateRast, index = 1){
+extractToRast <- function(input, templateRast, index = 1, crop = TRUE){
 
   if (length(find.package("exactextractr", quiet = TRUE)) == 0) stop(
     "exactextractr package required. Install with `install.packages(\"exactextractr\")`")
@@ -31,15 +32,15 @@ extractToRast <- function(input, templateRast, index = 1){
   if (is.null(getOption("rasterTmpDir")) || basename(dirname(getOption("rasterTmpDir"))) != "CBMutils") stop()
 
   if (inherits(input, "sf")){
-    extractToRast_vect(input, templateRast, field = index)
+    extractToRast_vect(input, templateRast, field = index, crop = TRUE)
 
   }else{
-    extractToRast_rast(input, templateRast, layer = index)
+    extractToRast_rast(input, templateRast, layer = index, crop = TRUE)
   }
 }
 
 # Extract values from spatial data source: raster
-extractToRast_rast <- function(input, templateRast, layer = 1){
+extractToRast_rast <- function(input, templateRast, layer = 1, crop = TRUE){
 
   # Read as SpatRaster; mosaic tiles if need be
   if (!inherits(input, "SpatRaster")){
@@ -65,10 +66,12 @@ extractToRast_rast <- function(input, templateRast, layer = 1){
     crs = TRUE, warncrs = FALSE, stopOnError = FALSE, messages = FALSE,
     lyrs = FALSE, ext = FALSE, rowcol = FALSE, res = FALSE)
 
-  input <- terra::crop(
-    input,
-    terra::project(terra::as.polygons(templateRast, extent = TRUE), terra::crs(input)),
-    snap = "out")
+  if (crop){
+    input <- terra::crop(
+      input,
+      terra::project(terra::as.polygons(templateRast, extent = TRUE), terra::crs(input)),
+      snap = "out")
+  }
 
   ## Reclassify if contains NAs
   valUq <- terra::unique(input, na.rm = FALSE)
@@ -98,31 +101,34 @@ extractToRast_rast <- function(input, templateRast, layer = 1){
 }
 
 # Extract values from spatial data source: vector
-extractToRast_vect <- function(input, templateRast, field = 1){
+extractToRast_vect <- function(input, templateRast, field = 1, crop = TRUE){
 
-  # Crop
   reproject <- !terra::compareGeom(
     terra::rast(crs = terra::crs(input)), templateRast,
     crs = TRUE, warncrs = FALSE, stopOnError = FALSE, messages = FALSE,
     lyrs = FALSE, ext = FALSE, rowcol = FALSE, res = FALSE)
 
-  cropBBOX <- sf::st_as_sfc(sf::st_bbox(templateRast)) |>
-    sf::st_buffer(terra::res(templateRast)[[1]], joinStyle = "MITRE", mitreLimit = 2)
-  if (reproject){
-    cropBBOX <- cropBBOX |>
-      sf::st_segmentize(10000) |>
-      sf::st_transform(sf::st_crs(input)) |>
-      sf::st_bbox() |>
-      sf::st_as_sfc()
-  }
-  suppressWarnings(sf::st_crs(cropBBOX) <- sf::st_crs(input))
+  # Crop
+  if (crop){
+    cropBBOX <- sf::st_as_sfc(sf::st_bbox(templateRast)) |>
+      sf::st_buffer(terra::res(templateRast)[[1]], joinStyle = "MITRE", mitreLimit = 2)
+    if (reproject){
+      cropBBOX <- cropBBOX |>
+        sf::st_segmentize(10000) |>
+        sf::st_transform(sf::st_crs(input)) |>
+        sf::st_bbox() |>
+        sf::st_as_sfc()
+    }
+    suppressWarnings(sf::st_crs(cropBBOX) <- sf::st_crs(input))
 
-  int <- sapply(sf::st_intersects(input, cropBBOX), length) == 1
-  if (any(!int)) input <- input[int,]
-  rm(int)
+    int <- sapply(sf::st_intersects(input, cropBBOX), length) == 1
+    if (any(!int)) input <- input[int,]
+    rm(int)
+  }
 
   # Reproject
   if (reproject){
+    geometry <- NULL # global variable binding
     sf::st_geometry(input) <- sf::st_transform(sf::st_geometry(input), sf::st_crs(templateRast))
   }
 
