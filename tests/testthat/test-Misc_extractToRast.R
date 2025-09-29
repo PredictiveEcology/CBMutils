@@ -214,7 +214,7 @@ test_that("Function: extractToRast: coverage with NAs", {
     ymax =  729400
   )
   masterRaster <- terra::rast(
-    crs = "EPSG:102001",
+    crs = "ESRI:102001",
     res = 100, vals = 1,
     xmin = -607300,
     xmax = -607200,
