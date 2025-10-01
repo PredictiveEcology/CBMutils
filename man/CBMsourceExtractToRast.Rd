@@ -4,12 +4,14 @@
 \alias{CBMsourceExtractToRast}
 \title{CBM source: Extract to raster}
 \usage{
-CBMsourceExtractToRast(sourceID, templateRast, ...)
+CBMsourceExtractToRast(sourceID, templateRast, returnSource = FALSE, ...)
 }
 \arguments{
 \item{sourceID}{Source identifier.}
 
 \item{templateRast}{SpatRaster. Raster template.}
+
+\item{returnSource}{logical. Return the source spatial data object.}
 
 \item{...}{additional arguments to \code{link[reproducible]{prepInputs}}}
 }

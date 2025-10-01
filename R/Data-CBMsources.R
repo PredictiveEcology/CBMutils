@@ -127,10 +127,11 @@ CBMsourcePrepInputs <- function(sourceID,
 #'
 #' @param sourceID Source identifier.
 #' @param templateRast SpatRaster. Raster template.
+#' @param returnSource logical. Return the source spatial data object.
 #' @param ... additional arguments to \code{link[reproducible]{prepInputs}}
 #'
 #' @export
-CBMsourceExtractToRast <- function(sourceID, templateRast, ...){
+CBMsourceExtractToRast <- function(sourceID, templateRast, returnSource = FALSE, ...){
 
   # Read source
   srcCBM <- CBMsourcePrepInputs(sourceID, ...)
@@ -174,6 +175,8 @@ CBMsourceExtractToRast <- function(sourceID, templateRast, ...){
 
   # Extract to raster
   srcCBM$extractToRast <- extractToRast(srcCBM$source, templateRast, crop = crop)
+
+  if (!returnSource) srcCBM$source <- NULL
 
   srcCBM
 }
