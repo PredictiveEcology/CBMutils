@@ -1,5 +1,6 @@
 utils::globalVariables(
-  c("canfi_species", "juris_id", "ecozone", "age", "B", "speciesCode", "pixGroupCol",
+  c("..colToCheck",
+    "canfi_species", "juris_id", "ecozone", "age", "B", "speciesCode", "pixGroupCol",
     "merch", "foliage", "other",
     "a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3", "biom_min", "biom_max",
     "p_sw_low", "p_sb_low", "p_br_low", "p_fl_low", "p_sw_high", "p_sb_high",
