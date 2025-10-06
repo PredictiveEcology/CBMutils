@@ -8,7 +8,7 @@ utils::globalVariables(c(
 #' @description
 #' Maps proportions of carbon transfers across pools during a disturbance.
 #'
-#' @param cTransfers TODO
+#' @param cTransfers Carbon pool transfer matrix
 #' @param distMatrixID disturbance_matrix_id of the disturbance to plot.
 #' @param distName disturbance name you wish to plot. Required only if `distMatrixID` is not provided.
 #' @param spuID CBM-CFS3 spatial unit ID of the disturbance to plot. Required only if `distMatrixID` is not provided.

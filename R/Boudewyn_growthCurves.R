@@ -229,13 +229,13 @@ biomProp <- function(table6, table7, x, type = "volume") {
 #' conversion for forested and vegetated land in Canada (BC-X-411). Natural Resource Canada,
 #' Pacific Forestry Centre. <https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/27434.pdf>
 #'
-#' @param meta DESCRIPTION NEEDED
+#' @param meta Growth curve metadata
 #'
-#' @param gCvalues DESCRIPTION NEEDED
+#' @param gCvalues Growth curve volume values for each age
 #'
-#' @param spsMatch DESCRIPTION NEEDED
+#' @param spsMatch Species associated with growth curve
 #'
-#' @param ecozones DESCRIPTION NEEDED
+#' @param ecozones Ecozone associated with the growth curve
 #'
 #' @param params3 `data.frame` corresponding to Table 3 from Boudewyn et al. (2007),
 #' available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv>.
