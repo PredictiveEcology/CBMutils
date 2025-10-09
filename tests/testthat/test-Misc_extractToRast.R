@@ -108,6 +108,27 @@ test_that("Function: extractToRast: raster downsampling", {
     ), tolerance = 10, scale = 1)
 })
 
+test_that("Function: extractToRast: raster disaggregation", {
+
+  input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "tile1.tif"))
+
+  masterRaster <- terra::rast(
+    res = 2, vals = 1, crs = terra::crs(input),
+    ext = terra::ext(input))
+
+  alignVals <- extractToRast(input, masterRaster)
+
+  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-disagg.tif"), overwrite = TRUE)
+
+  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(
+    data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
+    data.table::data.table(
+      val = c(27, 28),
+      N   = c(1606850, 4643150)
+    ), tolerance = 10, scale = 1)
+})
+
 test_that("Function: extractToRast: raster reprojecting", {
 
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "tile1.tif"))
