@@ -3,42 +3,42 @@ utils::globalVariables(c(
   "age", "ageCalc", "ageDist", "id", "prev", "year"
 ))
 
-#' Adjust stand ages
+#' Adjust cohort ages
 #'
-#' Adjust stand ages to represent a year before or after a given date.
+#' Adjust cohort ages to represent a year before or after a given date.
 #' Optionally include disturbance events that reset ages to year 0.
 #'
-#' @param standAges data.table. Table of stand ages
+#' @param cohortAges data.table. Table of cohort ages
 #' with an ID column and the numeric columns 'age'.
-#' Optionally include a 'delay' column with regeneration delays for each stand.
+#' Optionally include a 'delay' column with regeneration delays for each cohort.
 #' A standard delay can also be provided with the \code{delay} argument.
-#' Optionally include a 'default' column with the default age for the stand
+#' Optionally include a 'default' column with the default age for the cohort
 #' if it cannot be otherwise calculated.
 #' A default age can also be provided with the \code{default} argument.
-#' @param yearInput integer. The year that the 'ages' column in \code{standAges} represents.
-#' @param yearOutput integer. The year that stand ages must be adjusted to.
+#' @param yearInput integer. The year that the 'ages' column in \code{cohortAges} represents.
+#' @param yearOutput integer. The year that cohort ages must be adjusted to.
 #' @param disturbanceEvents data.table. Optional.
-#' Table of disturbance events with the ID column in \code{standAges}
+#' Table of disturbance events with the ID column in \code{cohortAges}
 #' and another column 'year' of when the disturbance occurred.
-#' This can also include rows for years that stands were first established.
+#' This can also include rows for years that cohorts were first established.
 #' @param delay integer. Optional. Regeneration delay after a disturbance event.
-#' @param default integer. A default age for stands is otherwise unknown.
+#' @param default integer. A default age for cohorts is otherwise unknown.
 #' If \code{yearOutput} precedes \code{yearInput},
-#' the age cannot be calculated for stands that have disturbances between
+#' the age cannot be calculated for cohorts that have disturbances between
 #' \code{yearOutput} and \code{yearInput} but none before \code{yearOutput}.
 #' \code{default} will be assigned in these cases.
-#' NOTE: if a stand has an age lesser than the difference in these years,
+#' NOTE: if a cohort has an age lesser than the difference in these years,
 #' it is assumed that a disturbance event must have occurred when age == 0.
 #' \code{default} will be assigned in these cases.
 #' @param warn logical. Warn if ages cannot be calculated
 #' or if the provided disturbances do not match the input data.
 #'
-#' @return \code{standAges} with ages adjusted to \code{yearOutput}.
+#' @return \code{cohortAges} with ages adjusted to \code{yearOutput}.
 #'
 #' @importFrom data.table as.data.table key setkeyv setnames
 #' @export
-adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents = NULL,
-                            delay = NULL, default = NULL, warn = TRUE){
+adjustCohortAges <- function(cohortAges, yearInput, yearOutput, disturbanceEvents = NULL,
+                             delay = NULL, default = NULL, warn = TRUE){
 
   yearInput  <- as.integer(yearInput)
   yearOutput <- as.integer(yearOutput)
@@ -47,25 +47,25 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
   if (length(yearOutput) != 1) stop("'yearOutput' must be length 1")
 
   # Read input ages
-  standAges <- data.table::as.data.table(standAges)
-  if (!"age" %in% names(standAges)){
-    if ("ages" %in% names(standAges)){
-      data.table::setnames(standAges, "ages", "age")
-    }else stop("'standAges' must have column 'age'")
+  cohortAges <- data.table::as.data.table(cohortAges)
+  if (!"age" %in% names(cohortAges)){
+    if ("ages" %in% names(cohortAges)){
+      data.table::setnames(cohortAges, "ages", "age")
+    }else stop("'cohortAges' must have column 'age'")
   }
 
   ## Set table key
-  ageKey <- data.table::key(standAges)
+  ageKey <- data.table::key(cohortAges)
   if (is.null(ageKey)){
-    ageKey <- setdiff(names(standAges), "age")[[1]]
-    data.table::setkeyv(standAges, ageKey)
+    ageKey <- setdiff(names(cohortAges), "age")[[1]]
+    data.table::setkeyv(cohortAges, ageKey)
   }
 
-  if (yearInput == yearOutput) return(standAges[, .SD, .SDcols = c(ageKey, "age")])
+  if (yearInput == yearOutput) return(cohortAges[, .SD, .SDcols = c(ageKey, "age")])
 
   # Initiate table of adjusted ages
-  ageAdjust <- copy(standAges[!is.na(age),])[
-    , .SD, .SDcols = intersect(names(standAges), c(ageKey, "age", "default", "delay"))]
+  ageAdjust <- copy(cohortAges[!is.na(age),])[
+    , .SD, .SDcols = intersect(names(cohortAges), c(ageKey, "age", "default", "delay"))]
   data.table::setnames(ageAdjust, ageKey, "id")
 
   # Add delays to input table
@@ -119,7 +119,7 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
       # Determine which pixels were disturbed within time frame
       firstEvent <- disturbanceEvents[year %in% yearOutput:(yearInput - 1),][, .SD, .SDcols = c("id", "year")]
 
-      # Add events when stands were established
+      # Add events when cohorts were established
       negAges <- ageAdjust[age < 0 & !id %in% firstEvent$id,]
       if (nrow(negAges) > 0){
 
@@ -159,7 +159,7 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
         ageAdjust[match(firstEvent$id, ageAdjust$id), age := firstEvent$age]
       }
 
-      # Check that undisturbed stand ages match historical disturbance data
+      # Check that undisturbed cohort ages match historical disturbance data
       if (warn){
 
         currEvent <- disturbanceEvents[year < yearInput & !id %in% firstEvent$id,]
@@ -169,7 +169,7 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
           # Find the most recent disturbance before the input year
           currEvent <- unique(currEvent[, year := max(year), by = "id"])
 
-          # Calculate the age the stand "should" be
+          # Calculate the age the cohort "should" be
           currEvent[, ageDist := yearInput - year, ]
 
           # Compare with input ages
@@ -179,7 +179,7 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
 
           if (nrow(ageMismatch) > 0) warning(
             nrow(ageMismatch),
-            " stand(s) with age(s) too high to match historic disturbances")
+            " cohort(s) with age(s) too high to match historic disturbances")
         }
         rm(currEvent)
       }
@@ -199,7 +199,7 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
 
       ageAdjust[age < 0, age := NA]
 
-      if (warn) warning(sum(is.na(ageAdjust$age)), " stand(s) lost due to missing historical events.")
+      if (warn) warning(sum(is.na(ageAdjust$age)), " cohort(s) lost due to missing historical events.")
     }
   }
 
@@ -207,7 +207,7 @@ adjustStandAges <- function(standAges, yearInput, yearOutput, disturbanceEvents 
   data.table::setnames(ageAdjust, names(ageAdjust)[[1]], ageKey)
   ageAdjust <- rbind(
     ageAdjust[, .SD, .SDcols = c(ageKey, "age")],
-    standAges[is.na(age), .SD, .SDcols = c(ageKey, "age")]
+    cohortAges[is.na(age), .SD, .SDcols = c(ageKey, "age")]
   )
   data.table::setkeyv(ageAdjust, ageKey)
   ageAdjust

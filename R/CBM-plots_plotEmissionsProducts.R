@@ -6,7 +6,7 @@ utils::globalVariables(c(
 #'
 #' Plot yearly emissions and products.
 #'
-#' @param emissionsProducts TODO
+#' @param emissionsProducts Table of simlation emissions and products by cohort group by year
 #'
 #' @return `ggplot`
 #'

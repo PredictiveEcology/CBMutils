@@ -23,46 +23,46 @@ if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
   ))
 }
 
-test_that("adjustStandAges without disturbances", {
+test_that("adjustCohortAges without disturbances", {
 
   # Test: step ages forward in time without disturbances
-  agesAdjust <- adjustStandAges(
+  agesAdjust <- adjustCohortAges(
     yearInput = 2000, yearOutput = 2010,
-    standAges = data.frame(pixelIndex = 1:5, age = c(1:4, NA))
+    cohortAges = data.frame(pixelIndex = 1:5, age = c(1:4, NA))
   )
   expect_equal(as.data.frame(agesAdjust), data.frame(pixelIndex = 1:5, age = c(11:14, NA)))
 
   # Test: step ages backwards in time without disturbances
-  agesAdjust <- adjustStandAges(
+  agesAdjust <- adjustCohortAges(
     yearInput = 2000, yearOutput = 1990,
-    standAges = data.frame(pixelIndex = 1:5, age = c(11:14, NA))
+    cohortAges = data.frame(pixelIndex = 1:5, age = c(11:14, NA))
   )
   expect_equal(as.data.frame(agesAdjust), data.frame(pixelIndex = 1:5, age = c(1:4, NA)))
 
-  # Test: step back further than the stand ages without a default
+  # Test: step back further than the cohort ages without a default
   agesAdjust <- expect_warning(
-    adjustStandAges(
+    adjustCohortAges(
       yearInput = 2000, yearOutput = 1987,
-      standAges = data.frame(pixelIndex = 1:5, age = c(11:14, NA)),
+      cohortAges = data.frame(pixelIndex = 1:5, age = c(11:14, NA)),
     ))
   expect_equal(as.data.frame(agesAdjust), data.frame(pixelIndex = 1:5, age = c(NA, NA, 0, 1, NA)))
 
-  # Test: step back further than the stand ages with a default in a column
-  agesAdjust <- adjustStandAges(
+  # Test: step back further than the cohort ages with a default in a column
+  agesAdjust <- adjustCohortAges(
     yearInput = 2000, yearOutput = 1987,
-    standAges = data.frame(pixelIndex = 1:5, age = c(11:14, NA), default = 1:5)
+    cohortAges = data.frame(pixelIndex = 1:5, age = c(11:14, NA), default = 1:5)
   )
   expect_equal(as.data.frame(agesAdjust), data.frame(pixelIndex = 1:5, age = c(1, 2, 0, 1, NA)))
 
 })
 
-test_that("adjustStandAges forward with disturbances", {
+test_that("adjustCohortAges forward with disturbances", {
 
   disturbanceEvents <- .distEventsAgeAdjustTest()
 
-  agesAdjust <- adjustStandAges(
+  agesAdjust <- adjustCohortAges(
     yearInput = 2000, yearOutput = 2010,
-    standAges = data.frame(id = 1:6, age = c(rep(20, 5), NA)),
+    cohortAges = data.frame(id = 1:6, age = c(rep(20, 5), NA)),
     disturbanceEvents = disturbanceEvents
   )
   expect_equal(as.data.frame(agesAdjust), as.data.frame(rbind(
@@ -75,9 +75,9 @@ test_that("adjustStandAges forward with disturbances", {
   )))
 
   # Check adding a regeneration delay
-  agesAdjust <- adjustStandAges(
+  agesAdjust <- adjustCohortAges(
     yearInput = 2000, yearOutput = 2010,
-    standAges = data.frame(id = 1:6, age = c(rep(20, 5), NA)),
+    cohortAges = data.frame(id = 1:6, age = c(rep(20, 5), NA)),
     disturbanceEvents = disturbanceEvents,
     delay = 2
   )
@@ -93,24 +93,24 @@ test_that("adjustStandAges forward with disturbances", {
   ## Check for same result if 'delay' is a column
   expect_equal(
     agesAdjust,
-    suppressWarnings(adjustStandAges(
+    suppressWarnings(adjustCohortAges(
       yearInput = 2000, yearOutput = 2010,
-      standAges = data.frame(id = 1:6, age = c(rep(20, 5), NA), delay = 2),
+      cohortAges = data.frame(id = 1:6, age = c(rep(20, 5), NA), delay = 2),
       disturbanceEvents = disturbanceEvents
     )))
 })
 
-test_that("adjustStandAges backwards with disturbances", {
+test_that("adjustCohortAges backwards with disturbances", {
 
   disturbanceEvents <- .distEventsAgeAdjustTest()
 
-  ## Expect warning: stand 3 could not be calculated.
+  ## Expect warning: cohort 3 could not be calculated.
   ## It was disturbed before the input date, but there's no
-  ## event previous to this to indicate when the stand began growing.
+  ## event previous to this to indicate when the cohort began growing.
   agesAdjust <- expect_warning(
-    adjustStandAges(
+    adjustCohortAges(
       yearInput = 2000, yearOutput = 1990,
-      standAges = data.frame(id = 1:6, age = c(rep(20, 5), NA)),
+      cohortAges = data.frame(id = 1:6, age = c(rep(20, 5), NA)),
       disturbanceEvents = disturbanceEvents
     )
   )
@@ -124,9 +124,9 @@ test_that("adjustStandAges backwards with disturbances", {
   )))
 
   ## Check using a default age when age is unknown
-  agesAdjust <- adjustStandAges(
+  agesAdjust <- adjustCohortAges(
     yearInput = 2000, yearOutput = 1990,
-    standAges = data.frame(id = 1:6, age = c(rep(20, 5), NA)),
+    cohortAges = data.frame(id = 1:6, age = c(rep(20, 5), NA)),
     disturbanceEvents = disturbanceEvents,
     default = 1000
   )
@@ -142,22 +142,22 @@ test_that("adjustStandAges backwards with disturbances", {
   ## Check for same result if given as a column
   expect_equal(
     agesAdjust,
-    adjustStandAges(
+    adjustCohortAges(
       yearInput = 2000, yearOutput = 1990,
-      standAges = data.frame(id = 1:6, age = c(rep(20, 5), NA), default = 1000),
+      cohortAges = data.frame(id = 1:6, age = c(rep(20, 5), NA), default = 1000),
       disturbanceEvents = disturbanceEvents
     ))
 
   # Check adding a regeneration delay
   agesAdjust <- expect_warning(
-    adjustStandAges(
+    adjustCohortAges(
       yearInput = 2000, yearOutput = 1990,
-      standAges = data.frame(id = 1:6, age = c(rep(20, 5), NA), delay = 2),
+      cohortAges = data.frame(id = 1:6, age = c(rep(20, 5), NA), delay = 2),
       disturbanceEvents = disturbanceEvents
     )
   )
   expect_equal(as.data.frame(agesAdjust), as.data.frame(rbind(
-    c(id = 1, age = 3),  # stand delayed
+    c(id = 1, age = 3),  # cohort delayed
     c(id = 2, age = 10),
     c(id = 3, age = NA),
     c(id = 4, age = 0),
@@ -167,14 +167,14 @@ test_that("adjustStandAges backwards with disturbances", {
 
   ## Check if regeneration delay exceeds potential growth time
   agesAdjust <- expect_warning(
-    adjustStandAges(
+    adjustCohortAges(
       yearInput = 2000, yearOutput = 1990,
-      standAges = data.frame(id = 1:6, age = c(rep(20, 5), NA), delay = 8),
+      cohortAges = data.frame(id = 1:6, age = c(rep(20, 5), NA), delay = 8),
       disturbanceEvents = disturbanceEvents
     )
   )
   expect_equal(as.data.frame(agesAdjust), as.data.frame(rbind(
-    c(id = 1, age = 0),  # stand delayed
+    c(id = 1, age = 0),  # cohort delayed
     c(id = 2, age = 10),
     c(id = 3, age = NA),
     c(id = 4, age = 0),
@@ -182,32 +182,32 @@ test_that("adjustStandAges backwards with disturbances", {
     c(id = 6, age = NA)
   )))
 
-  ## Check warning: stands lost
+  ## Check warning: cohorts lost
   agesAdjust <- expect_warning(
-    adjustStandAges(
+    adjustCohortAges(
       yearInput = 2000, yearOutput = 1990,
-      standAges         = data.frame(id = 1, age = 2),
+      cohortAges        = data.frame(id = 1, age = 2),
       disturbanceEvents = data.frame(id = 1, year = 2009)
     ))
   expect_equal(as.data.frame(agesAdjust), as.data.frame(rbind(
     c(id = 1, age = NA)
   )))
 
-  agesAdjust <- adjustStandAges(
+  agesAdjust <- adjustCohortAges(
     yearInput = 2000, yearOutput = 1990,
-    standAges         = data.frame(id = 1, age = 2, default = 10),
+    cohortAges        = data.frame(id = 1, age = 2, default = 10),
     disturbanceEvents = data.frame(id = 1, year = 2009)
   )
   expect_equal(as.data.frame(agesAdjust), as.data.frame(rbind(
     c(id = 1, age = 10)
   )))
 
-  ## Check warning: disturbances indicate that stand ages are too high
+  ## Check warning: disturbances indicate that cohort ages are too high
   ## Age returned ignores disturbance event
   agesAdjust <- expect_warning(
-    adjustStandAges(
+    adjustCohortAges(
       yearInput = 2000, yearOutput = 1997,
-      standAges         = data.frame(id = 1, age = 20),
+      cohortAges        = data.frame(id = 1, age = 20),
       disturbanceEvents = data.frame(id = 1, year = c(1985, 1995))
     ))
   expect_equal(as.data.frame(agesAdjust), as.data.frame(rbind(

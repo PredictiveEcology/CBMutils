@@ -9,12 +9,12 @@ utils::globalVariables(c(
 #'
 #' @param aboveGroundC data.table with mass of carbon (tonnes/ha) in the Merch, Foliage and Other pools
 #' @param sw_hw a boolean vector indicating if the cohort is softwood (0) or hardwood (1)
-#' @param a_sw DESCRIPTION NEEDED
-#' @param b_sw DESCRIPTION NEEDED
-#' @param a_hw DESCRIPTION NEEDED
-#' @param b_hw DESCRIPTION NEEDED
-#' @param a_frp DESCRIPTION NEEDED
-#' @param b_frp DESCRIPTION NEEDED
+#' @param a_sw "a" value for softwood root biomass
+#' @param b_sw "b" value for softwood root biomass
+#' @param a_hw "a" value for hardwood root biomass
+#' @param b_hw "b" value for hardwood root biomass
+#' @param a_frp "a" value for fine root proportion
+#' @param b_frp "b" value for fine root proportion
 #'
 #' @references
 #' Li, Z., Kurz, W. A., Apps, M. J., & Beukema, S. J. (2003). Belowground biomass
