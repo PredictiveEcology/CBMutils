@@ -80,7 +80,7 @@ test_that("Function: extractToRast: raster upsampling with categories", {
 
   expect_equal(length(alignVals), terra::ncell(masterRaster))
   expect_equal(
-    data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
+    data.table::data.table(val = as.character(alignVals))[, .N, by = "val"][order(val)],
     data.table::data.table(
       val = c("B", "C", "E", NA),
       N   = c(27859, 3091, 12723, 316327)
@@ -379,9 +379,9 @@ test_that("Function: extractToRast: sf polygons with text field: reproject", {
   expect_equal(length(alignVals), terra::ncell(masterRaster))
 
   ## Make sure spaces and letter case are honored
-  expect_is(alignVals, "character")
+  expect_is(alignVals, "factor")
   expect_equal(
-    data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
+    data.table::data.table(val = as.character(alignVals))[, .N, by = "val"][order(val)],
     data.table::data.table(
       val = c("Id 1", "Id 4", "Id 5", "Id 8"),
       N   = c(69052, 116674, 19458, 44816)
