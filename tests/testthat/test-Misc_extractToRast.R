@@ -9,27 +9,27 @@ if (viewResults){
 
 test_that("Function: writeRasterWithValues", {
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 100, vals = 1, crs = "EPSG:32613",
     ext = c(xmin =  456000,  xmax = 457000, ymin = 6105000, ymax = 6106000))
 
   outPath <- file.path(tempDir, "writeRasterWithValues-numeric.tif")
   writeRasterWithValues(
-    masterRaster, values = c(rep(1, 50), rep(2, 50)),
+    templateRast, values = c(rep(1, 50), rep(2, 50)),
     filename = outPath, overwrite = TRUE)
 
   rVals <- terra::rast(outPath)
-  expect_true(terra::compareGeom(rVals, masterRaster, stopOnError = FALSE))
+  expect_true(terra::compareGeom(rVals, templateRast, stopOnError = FALSE))
   expect_equal(terra::values(rVals)[, 1], c(rep(1, 50), rep(2, 50)))
   expect_true(is.null(terra::cats(rVals)[[1]]))
 
   outPath <- file.path(tempDir, "writeRasterWithValues-text.tif")
   writeRasterWithValues(
-    masterRaster, values = c(rep("Hello 1", 50), rep("Goodbye 2", 50)),
+    templateRast, values = c(rep("Hello 1", 50), rep("Goodbye 2", 50)),
     filename = outPath, overwrite = TRUE)
 
   rVals <- terra::rast(outPath)
-  expect_true(terra::compareGeom(rVals, masterRaster, stopOnError = FALSE))
+  expect_true(terra::compareGeom(rVals, templateRast, stopOnError = FALSE))
   expect_equal(terra::values(rVals)[, 1], c(rep(2, 50), rep(1, 50)))
   expect_equal(terra::cats(rVals)[[1]][[1]],  1:2)
   expect_equal(terra::cats(rVals)[[1]][[2]],  c("Goodbye 2", "Hello 1"))
@@ -40,15 +40,15 @@ test_that("Function: extractToRast: raster upsampling", {
 
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 5, vals = 1, crs = "EPSG:3979",
     ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-upsample.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-upsample.tif"), overwrite = TRUE)
 
-  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
     data.table::data.table(
@@ -68,17 +68,17 @@ test_that("Function: extractToRast: raster upsampling with categories", {
 
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 5, vals = 1, crs = "EPSG:3979",
     ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
 
   levels(input) <- data.frame(id = 1:5, cat = LETTERS[1:5])
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-upsample-cats.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-upsample-cats.tif"), overwrite = TRUE)
 
-  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
     data.table::data.table(val = as.character(alignVals))[, .N, by = "val"][order(val)],
     data.table::data.table(
@@ -91,15 +91,15 @@ test_that("Function: extractToRast: raster downsampling", {
 
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 50, vals = 1, crs = "EPSG:3979",
     ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-downsample.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-downsample.tif"), overwrite = TRUE)
 
-  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
     data.table::data.table(
@@ -112,15 +112,15 @@ test_that("Function: extractToRast: raster disaggregation", {
 
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "tile1.tif"))
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 2, vals = 1, crs = terra::crs(input),
     ext = terra::ext(input))
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-disagg.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-disagg.tif"), overwrite = TRUE)
 
-  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
     data.table::data.table(
@@ -133,17 +133,17 @@ test_that("Function: extractToRast: raster reprojecting", {
 
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "tile1.tif"))
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     ncols = 213, nrows = 215,
     vals = 1, crs = "EPSG:4326",
     ext = c(xmin = -105.6567825386380974, xmax = -105.6294401406081107,
             ymin =   55.1008597705739831, ymax =   55.1284589047357017))
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-reproject.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-reproject.tif"), overwrite = TRUE)
 
-  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
     data.table::data.table(
@@ -156,15 +156,15 @@ test_that("Function: extractToRast: TIF file", {
 
   input <- file.path(testDirs$testdata, "extractToRast", "tile1.tif")
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 10, vals = 1, crs = "EPSG:32613",
     ext = c(xmin =  458500, xmax =  463500, ymin = 6105000, ymax = 6110000))
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-TIF.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-TIF.tif"), overwrite = TRUE)
 
-  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
     data.table::data.table(
@@ -177,15 +177,15 @@ test_that("Function: extractToRast: TIF tiles", {
 
   input <- file.path(testDirs$testdata, "extractToRast", c("tile1.tif", "tile2.tif"))
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 10, vals = 1, crs = "EPSG:32613",
     ext = c(xmin =  458500, xmax =  463500, ymin = 6105000, ymax = 6110000))
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "rast-TIF-tiles.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-TIF-tiles.tif"), overwrite = TRUE)
 
-  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
     data.table::data.table(
@@ -200,30 +200,30 @@ test_that("Function: extractToRast: coverage with NAs", {
   inputTemplate <- terra::rast(
     res = 5, vals = 1,
     crs = "EPSG:3979", xmin = 0, ymin = 0, xmax = 10, ymax = 10)
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 10, vals = 1,
     crs = "EPSG:3979", xmin = 0, ymin = 0, xmax = 10, ymax = 10)
 
   ## 25% coverage NA
   input <- inputTemplate
   terra::values(input) <- c(1, 1, 1, NA)
-  expect_equal(extractToRast(input, masterRaster), 1)
+  expect_equal(extractToRast(input, templateRast), 1)
 
   ## 50% coverage NA
   input <- inputTemplate
   terra::values(input) <- c(1, 1, NA, NA)
-  expect_equal(extractToRast(input, masterRaster), 1)
+  expect_equal(extractToRast(input, templateRast), 1)
 
   ## 75% coverage NA
   input <- inputTemplate
   terra::values(input) <- c(1, NA, NA, NA)
-  expect_in(extractToRast(input, masterRaster), c(NaN, NA_real_))
+  expect_in(extractToRast(input, templateRast), c(NaN, NA_real_))
 
   ## > 50% coverage NA in 1 pixel
   input <- terra::rast(
     res = 8, vals = c(NA, NA, 1, NA),
     crs = "EPSG:3979", xmin = 0, ymin = 0, xmax = 16, ymax = 16)
-  expect_equal(extractToRast(input, masterRaster), 1)
+  expect_equal(extractToRast(input, templateRast), 1)
 
   # Test: with reprojection
   inputTemplate <- terra::rast(
@@ -234,7 +234,7 @@ test_that("Function: extractToRast: coverage with NAs", {
     ymin =  729200,
     ymax =  729400
   )
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     #crs = "EPSG:102001"
     crs = paste(c(
       "PROJCS[\"Canada_Albers_Equal_Area_Conic\"",
@@ -255,12 +255,12 @@ test_that("Function: extractToRast: coverage with NAs", {
   ## < 50% coverage NA
   input <- inputTemplate
   terra::values(input) <- c(NA, NA, 1, 1)
-  expect_in(extractToRast(input, masterRaster), c(NaN, NA_real_))
+  expect_in(extractToRast(input, templateRast), c(NaN, NA_real_))
 
   ## > 50% coverage NA
   input <- inputTemplate
   terra::values(input) <- c(1, 1, NA, NA)
-  expect_equal(extractToRast(input, masterRaster), 1)
+  expect_equal(extractToRast(input, templateRast), 1)
 
   ## > 50% coverage NA in 1 large area
   input <- terra::rast(
@@ -271,7 +271,7 @@ test_that("Function: extractToRast: coverage with NAs", {
     ymin =  729200,
     ymax =  729400
   )
-  expect_equal(extractToRast(input, masterRaster), 1)
+  expect_equal(extractToRast(input, templateRast), 1)
 
 })
 
@@ -284,15 +284,15 @@ test_that("Function: extractToRast: sf polygons with numeric field", {
   ## Create an NA area
   input <- subset(input, id != 8)
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 100, vals = 1, crs = terra::crs(input),
     ext = round(terra::ext(input)))
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-numeric.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "sf-numeric.tif"), overwrite = TRUE)
 
-  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_is(alignVals, "numeric")
   expect_equal(
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
@@ -307,7 +307,7 @@ test_that("Function: extractToRast: sf polygons with non-unique values", {
   ## Check that the value assigned matches the value covering the greatest total area,
   ## not the value from individual polygon covering the greatest area.
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 10, vals = 1, crs = "local",
     xmin = 0, ymin = 0, xmax = 10, ymax = 10)
 
@@ -329,7 +329,7 @@ test_that("Function: extractToRast: sf polygons with non-unique values", {
         crs = "local"))
   )
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
   expect_equal(alignVals, 1)
 })
@@ -343,15 +343,15 @@ test_that("Function: extractToRast: sf polygons with numeric field: reproject", 
   ## Create an NA area
   input <- subset(input, id != 8)
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 10, vals = 1, crs = "EPSG:32613",
     ext = c(xmin =  456000,  xmax = 461000, ymin = 6105000, ymax = 6110000))
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-numeric-reproject.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "sf-numeric-reproject.tif"), overwrite = TRUE)
 
-  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_is(alignVals, "numeric")
   expect_equal(
     data.table::data.table(val = alignVals)[, .N, by = "val"][order(val)],
@@ -368,15 +368,15 @@ test_that("Function: extractToRast: sf polygons with text field: reproject", {
     quiet = TRUE)[, "id"]
   input$id <- paste("Id", input$id)
 
-  masterRaster <- terra::rast(
+  templateRast <- terra::rast(
     res = 10, vals = 1, crs = "EPSG:32613",
     ext = c(xmin =  456000,  xmax = 461000, ymin = 6105000, ymax = 6110000))
 
-  alignVals <- extractToRast(input, masterRaster)
+  alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(masterRaster, alignVals, file.path(tempDir, "sf-text-reproject.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "sf-text-reproject.tif"), overwrite = TRUE)
 
-  expect_equal(length(alignVals), terra::ncell(masterRaster))
+  expect_equal(length(alignVals), terra::ncell(templateRast))
 
   ## Make sure spaces and letter case are honored
   expect_is(alignVals, "factor")
