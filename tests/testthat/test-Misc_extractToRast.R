@@ -219,6 +219,11 @@ test_that("Function: extractToRast: coverage with NAs", {
   terra::values(input) <- c(1, NA, NA, NA)
   expect_in(extractToRast(input, templateRast), c(NaN, NA_real_))
 
+  ## 100% coverage NA
+  input <- inputTemplate
+  terra::values(input) <- c(NA, NA, NA, NA)
+  expect_in(extractToRast(input, templateRast), c(NaN, NA_real_))
+
   ## > 50% coverage NA in 1 pixel
   input <- terra::rast(
     res = 8, vals = c(NA, NA, 1, NA),
