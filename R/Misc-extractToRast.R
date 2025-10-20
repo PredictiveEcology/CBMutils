@@ -74,8 +74,7 @@ extractToRast_rast <- function(input, templateRast, layer = 1, crop = TRUE){
     crs = TRUE, warncrs = FALSE, stopOnError = FALSE, messages = FALSE,
     lyrs = FALSE, ext = FALSE, rowcol = FALSE, res = FALSE)
 
-  disagg <- !reproject &&
-    !terra::is.lonlat(input) && !terra::is.lonlat(templateRast) &&
+  disagg <- !reproject && !terra::is.lonlat(templateRast) &&
     terra::xmin(input) == terra::xmin(templateRast) &&
     terra::ymax(input) == terra::ymax(templateRast) &&
     length(unique(terra::res(input))        == 1) &&
