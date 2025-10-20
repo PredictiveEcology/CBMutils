@@ -95,14 +95,15 @@ extractToRast_rast <- function(input, templateRast, layer = 1, crop = TRUE){
     anyNA <- terra::global(input, "anyNA")[1,1]
     if (anyNA){
 
-      valUq <- terra::unique(input, na.rm = FALSE)
+      valUq <- unique(terra::unique(input, na.rm = FALSE))
+
       if (length(valUq[,1]) == 1){
         return(rep(valUq[1,1], terra::ncell(templateRast)))
       }
 
       valUq <- data.table(inp = rev(valUq[,1]), temp = 1:nrow(valUq))
       if (!is.null(cats)) valUq$inp <- match(valUq$inp, cats[[2]])
-      input <- terra::classify(input, valUq)
+      input <- terra::classify(input, valUq, others = 1)
     }
 
     # Reproject and resample
