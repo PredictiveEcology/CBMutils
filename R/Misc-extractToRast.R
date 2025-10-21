@@ -60,64 +60,76 @@ extractToRast_rast <- function(input, templateRast, layer = 1, crop = TRUE){
   # Get raster categories
   cats <- terra::cats(input)[[1]]
 
-  # Crop
-  if (crop){
-    input <- terra::crop(
-      input,
-      terra::project(terra::as.polygons(templateRast, extent = TRUE), terra::crs(input)),
-      snap = "out")
-  }
-
-  # Set instructions
-  reproject <- !terra::compareGeom(
+  # Check if rasters are already aligned
+  align <- !terra::compareGeom(
     input, templateRast,
     crs = TRUE, warncrs = FALSE, stopOnError = FALSE, messages = FALSE,
-    lyrs = FALSE, ext = FALSE, rowcol = FALSE, res = FALSE)
+    lyrs = FALSE, ext = TRUE, rowcol = TRUE, res = TRUE)
 
-  disagg <- !reproject && !terra::is.lonlat(templateRast) &&
-    terra::xmin(input) == terra::xmin(templateRast) &&
-    terra::ymax(input) == terra::ymax(templateRast) &&
-    length(unique(terra::res(input))        == 1) &&
-    length(unique(terra::res(templateRast)) == 1) &&
-    terra::res(input)[[1]] > terra::res(templateRast)[[1]] &&
-    terra::res(input)[[1]] %% terra::res(templateRast)[[1]] == 0
+  reclass <- FALSE
 
-  if (disagg){
+  if (align){
 
-    # Disaggregate cells
-    input <- terra::disagg(input, fact = terra::res(input)[[1]] / terra::res(templateRast)[[1]])
-    input <- terra::crop(input, templateRast)
-
-  }else{
-
-    # Reclassify if contains NAs
-    anyNA <- terra::global(input, "anyNA")[1,1]
-    if (anyNA){
-
-      valUq <- unique(terra::unique(input, na.rm = FALSE))
-
-      if (length(valUq[,1]) == 1){
-        return(rep(valUq[1,1], terra::ncell(templateRast)))
-      }
-
-      valUq <- data.table(inp = rev(valUq[,1]), temp = 1:nrow(valUq))
-      if (!is.null(cats)) valUq$inp <- match(valUq$inp, cats[[2]])
-      input <- terra::classify(input, valUq, others = 1)
+    # Crop
+    if (crop){
+      input <- terra::crop(
+        input,
+        terra::project(terra::as.polygons(templateRast, extent = TRUE), terra::crs(input)),
+        snap = "out")
     }
 
-    # Reproject and resample
-    if (reproject){
-      input <- terra::project(input, templateRast, method = "mode")
+    # Set instructions
+    reproject <- !terra::compareGeom(
+      input, templateRast,
+      crs = TRUE, warncrs = FALSE, stopOnError = FALSE, messages = FALSE,
+      lyrs = FALSE, ext = FALSE, rowcol = FALSE, res = FALSE)
+
+    disagg <- !reproject && !terra::is.lonlat(templateRast) &&
+      terra::xmin(input) == terra::xmin(templateRast) &&
+      terra::ymax(input) == terra::ymax(templateRast) &&
+      length(unique(terra::res(input))        == 1) &&
+      length(unique(terra::res(templateRast)) == 1) &&
+      terra::res(input)[[1]] > terra::res(templateRast)[[1]] &&
+      terra::res(input)[[1]] %% terra::res(templateRast)[[1]] == 0
+
+    if (disagg){
+
+      # Disaggregate cells
+      disaggFact <- terra::res(input)[[1]] / terra::res(templateRast)[[1]]
+      if (disaggFact != 1) input <- terra::disagg(input, fact = disaggFact)
+      input <- terra::crop(input, templateRast)
 
     }else{
-      terra::crs(input) <- terra::crs(templateRast)
-      input <- exactextractr::exact_resample(input, templateRast, fun = "mode")
+
+      # Reclassify if contains NAs
+      reclass <- terra::global(input, "anyNA")[1,1]
+      if (reclass){
+
+        valUq <- unique(terra::unique(input, na.rm = FALSE))
+
+        if (length(valUq[,1]) == 1){
+          return(rep(valUq[1,1], terra::ncell(templateRast)))
+        }
+
+        valUq <- data.table(inp = rev(valUq[,1]), temp = 1:nrow(valUq))
+        if (!is.null(cats)) valUq$inp <- match(valUq$inp, cats[[2]])
+        input <- terra::classify(input, valUq, others = 1)
+      }
+
+      # Reproject and resample
+      if (reproject){
+        input <- terra::project(input, templateRast, method = "mode")
+
+      }else{
+        terra::crs(input) <- terra::crs(templateRast)
+        input <- exactextractr::exact_resample(input, templateRast, fun = "mode")
+      }
     }
   }
 
   # Extract and return raster values
   alignVals <- terra::values(input, mat = FALSE)
-  if (!disagg && anyNA) alignVals <- valUq$inp[alignVals]
+  if (reclass) alignVals <- valUq$inp[alignVals]
   if (!is.null(cats)){
     alignVals <- factor(
       cats[match(alignVals, cats[[1]]), 2],
