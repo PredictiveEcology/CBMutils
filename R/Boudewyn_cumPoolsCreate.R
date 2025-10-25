@@ -1,14 +1,14 @@
 #' Create `cumPools` data.table
 #'
-#' @param fullSpecies DESCRIPTION NEEDED
-#' @param gcMeta DESCRIPTION NEEDED
-#' @param userGcM3 DESCRIPTION NEEDED
-#' @param stable3 DESCRIPTION NEEDED
-#' @param stable4 DESCRIPTION NEEDED
-#' @param stable5 DESCRIPTION NEEDED
-#' @param stable6 DESCRIPTION NEEDED
-#' @param stable7 DESCRIPTION NEEDED
-#' @param thisAdmin DESCRIPTION NEEDED
+#' @param fullSpecies Study area species' names
+#' @param gcMeta Growth curve metadata table
+#' @param userGcM3 Table of growth curve volume by age
+#' @param stable3 Boudewyn et al. 2007 stem wood biomass model parameters table for merchantable-sized trees
+#' @param stable4 Boudewyn et al. 2007 stem wood biomass model parameters table for non-merchantable-sized trees
+#' @param stable5 Boudewyn et al. 2007 stem wood biomass model parameters table for sapling-sized trees
+#' @param stable6 Boudewyn et al. 2007 stem wood biomass model parameters table for proportion model parameters
+#' @param stable7 Boudewyn et al. 2007 stem wood biomass model parameters table for caps on proportion models
+#' @param thisAdmin Ecozone and spatial unit information table for the study area
 #'
 #' @return `cumPools` data.table
 #'
