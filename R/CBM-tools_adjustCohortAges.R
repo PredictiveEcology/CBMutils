@@ -48,11 +48,7 @@ adjustCohortAges <- function(cohortAges, yearInput, yearOutput, disturbanceEvent
 
   # Read input ages
   cohortAges <- data.table::as.data.table(cohortAges)
-  if (!"age" %in% names(cohortAges)){
-    if ("ages" %in% names(cohortAges)){
-      data.table::setnames(cohortAges, "ages", "age")
-    }else stop("'cohortAges' must have column 'age'")
-  }
+  if (!"age" %in% names(cohortAges)) stop("'cohortAges' must have column 'age'")
 
   ## Set table key
   ageKey <- data.table::key(cohortAges)
