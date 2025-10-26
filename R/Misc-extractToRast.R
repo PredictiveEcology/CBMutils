@@ -28,9 +28,6 @@ extractToRast <- function(input, templateRast, index = 1, crop = TRUE){
 
   withr::local_options(list(rasterTmpDir = withr::local_tempdir("raster_", tmpdir = tmpdir)))
 
-  if (basename(dirname(terra::terraOptions(print = FALSE)[["tempdir"]])) != "CBMutils") stop()
-  if (is.null(getOption("rasterTmpDir")) || basename(dirname(getOption("rasterTmpDir"))) != "CBMutils") stop()
-
   if (inherits(input, "sf")){
     extractToRast_vect(input, templateRast, field = index, crop = TRUE)
 
