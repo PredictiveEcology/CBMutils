@@ -17,7 +17,7 @@ cTransfersAlluvial(
 )
 }
 \arguments{
-\item{cTransfers}{TODO}
+\item{cTransfers}{Carbon pool transfer matrix}
 
 \item{distMatrixID}{disturbance_matrix_id of the disturbance to plot.}
 

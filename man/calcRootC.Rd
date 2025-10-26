@@ -20,17 +20,17 @@ calcRootC(
 
 \item{sw_hw}{a boolean vector indicating if the cohort is softwood (0) or hardwood (1)}
 
-\item{a_sw}{DESCRIPTION NEEDED}
+\item{a_sw}{"a" value for softwood root biomass}
 
-\item{b_sw}{DESCRIPTION NEEDED}
+\item{b_sw}{"b" value for softwood root biomass}
 
-\item{a_hw}{DESCRIPTION NEEDED}
+\item{a_hw}{"a" value for hardwood root biomass}
 
-\item{b_hw}{DESCRIPTION NEEDED}
+\item{b_hw}{"b" value for hardwood root biomass}
 
-\item{a_frp}{DESCRIPTION NEEDED}
+\item{a_frp}{"a" value for fine root proportion}
 
-\item{b_frp}{DESCRIPTION NEEDED}
+\item{b_frp}{"b" value for fine root proportion}
 }
 \value{
 data.table with mass of carbon (tonnes/ha) in coarseRoots and fineRoots pools.

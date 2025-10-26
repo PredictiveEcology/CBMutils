@@ -17,13 +17,13 @@ convertM3biom(
 )
 }
 \arguments{
-\item{meta}{DESCRIPTION NEEDED}
+\item{meta}{Growth curve metadata}
 
-\item{gCvalues}{DESCRIPTION NEEDED}
+\item{gCvalues}{Growth curve volume values for each age}
 
-\item{spsMatch}{DESCRIPTION NEEDED}
+\item{spsMatch}{Species associated with growth curve}
 
-\item{ecozones}{DESCRIPTION NEEDED}
+\item{ecozones}{Ecozone associated with the growth curve}
 
 \item{params3}{\code{data.frame} corresponding to Table 3 from Boudewyn et al. (2007),
 available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv}.}

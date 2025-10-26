@@ -7,7 +7,7 @@
 plotEmissionsProducts(emissionsProducts)
 }
 \arguments{
-\item{emissionsProducts}{TODO}
+\item{emissionsProducts}{Table of simlation emissions and products by cohort group by year}
 }
 \value{
 \code{ggplot}

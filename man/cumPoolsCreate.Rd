@@ -17,23 +17,23 @@ cumPoolsCreate(
 )
 }
 \arguments{
-\item{fullSpecies}{DESCRIPTION NEEDED}
+\item{fullSpecies}{Study area species' names}
 
-\item{gcMeta}{DESCRIPTION NEEDED}
+\item{gcMeta}{Growth curve metadata table}
 
-\item{userGcM3}{DESCRIPTION NEEDED}
+\item{userGcM3}{Table of growth curve volume by age}
 
-\item{stable3}{DESCRIPTION NEEDED}
+\item{stable3}{Boudewyn et al. 2007 stem wood biomass model parameters table for merchantable-sized trees}
 
-\item{stable4}{DESCRIPTION NEEDED}
+\item{stable4}{Boudewyn et al. 2007 stem wood biomass model parameters table for non-merchantable-sized trees}
 
-\item{stable5}{DESCRIPTION NEEDED}
+\item{stable5}{Boudewyn et al. 2007 stem wood biomass model parameters table for sapling-sized trees}
 
-\item{stable6}{DESCRIPTION NEEDED}
+\item{stable6}{Boudewyn et al. 2007 stem wood biomass model parameters table for proportion model parameters}
 
-\item{stable7}{DESCRIPTION NEEDED}
+\item{stable7}{Boudewyn et al. 2007 stem wood biomass model parameters table for caps on proportion models}
 
-\item{thisAdmin}{DESCRIPTION NEEDED}
+\item{thisAdmin}{Ecozone and spatial unit information table for the study area}
 }
 \value{
 \code{cumPools} data.table
