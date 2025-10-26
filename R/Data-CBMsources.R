@@ -175,8 +175,13 @@ CBMsourceExtractToRast <- function(sourceID, templateRast, returnSource = FALSE,
 
   # Extract to raster
   srcCBM$extractToRast <- extractToRast(srcCBM$source, templateRast, crop = crop)
-
   if (!returnSource) srcCBM$source <- NULL
+
+  if (sourceID == "SCANFI-2020-age"){
+
+    # Ages that are 0 should be NA
+    srcCBM$extractToRast[srcCBM$extractToRast == 0] <- NA
+  }
 
   srcCBM
 }
