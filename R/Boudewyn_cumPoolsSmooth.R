@@ -119,7 +119,7 @@ cumPoolsSmooth <- function(cumPoolsRaw, colsToUse = c("totMerch", "fol", "other"
             wtsOrig <- wts
             if (length(tooBig) > 0) {
               SD[tooBig, (c2u) := NA]
-              SD <- na.omit(SD)
+              SD <- SD[!is.na(get(c2u))]
               wts <- wts[-tooBig]
               ind <- ind[-tooBig]
             } else {
