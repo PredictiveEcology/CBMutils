@@ -8,6 +8,7 @@ ageStepBackward(
   ageRast,
   yearIn,
   yearOut,
+  fill = TRUE,
   distEvents = NULL,
   formula = z ~ 1,
   agg.fact = 2,
@@ -21,6 +22,8 @@ ageStepBackward(
 \item{yearIn}{numeric. Year that ages in \code{ageRast} represent.}
 
 \item{yearOut}{numeric. Year that ages will be stepped backwards to.}
+
+\item{fill}{logical. Fill disturbed areas and cells with ages <= 0 with values from surrounding cells.}
 
 \item{distEvents}{data.table. Optional.
 Table of disturbance events with columns "pixelIndex" and "year".

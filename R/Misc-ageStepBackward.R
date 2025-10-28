@@ -8,6 +8,7 @@ utils::globalVariables(c("x", "y", "z"))
 #' @param ageRast SpatRaster. Raster with numeric values of cohort ages.
 #' @param yearIn numeric. Year that ages in `ageRast` represent.
 #' @param yearOut numeric. Year that ages will be stepped backwards to.
+#' @param fill logical. Fill disturbed areas and cells with ages <= 0 with values from surrounding cells.
 #' @param distEvents data.table. Optional.
 #' Table of disturbance events with columns "pixelIndex" and "year".
 #' If provided, disturbances will be reversed and the disturbed areas
@@ -18,7 +19,7 @@ utils::globalVariables(c("x", "y", "z"))
 #'
 #' @export
 ageStepBackward <- function(
-    ageRast, yearIn, yearOut, distEvents = NULL,
+    ageRast, yearIn, yearOut, fill = TRUE, distEvents = NULL,
     formula = z~1, agg.fact = 2, agg.fun = "median", ...){
 
   if (yearIn == yearOut) return(ageRast)
@@ -38,7 +39,17 @@ ageStepBackward <- function(
 
   withr::local_options(list(rasterTmpDir = withr::local_tempdir("raster_", tmpdir = tmpdir)))
 
-  if (is.null(distEvents)){
+  if (is.null(distEvents) | !fill){
+
+    if (!is.null(distEvents)){
+
+      message("Masking out disturbance events")
+
+      terra::set.values(
+        ageRast,
+        unique(subset(distEvents, year %in% (yearIn - 1):yearOut)$pixelIndex),
+        NA)
+    }
 
     message("Stepping ages back from ", yearIn, " to ", yearOut)
 
@@ -76,15 +87,24 @@ ageStepBackward <- function(
 
     cellsLTE0 <- terra::cells(terra::classify(ageRast <= 0, cbind(FALSE, NA)))
 
-    message("Replacing ages <=0 in ", length(cellsLTE0), " pixels")
+    if (fill){
 
-    ageRast <- gstat_krige_replace(
-      inRast   = ageRast,
-      cells    = cellsLTE0,
-      formula  = formula,
-      agg.fact = agg.fact,
-      agg.fun  = agg.fun,
-      ...)
+      message("Replacing ages <=0 in ", length(cellsLTE0), " pixels")
+
+      ageRast <- gstat_krige_replace(
+        inRast   = ageRast,
+        cells    = cellsLTE0,
+        formula  = formula,
+        agg.fact = agg.fact,
+        agg.fun  = agg.fun,
+        ...)
+
+    }else{
+
+      message("Removing ages <=0 in ", length(cellsLTE0), " pixels")
+
+      terra::set.values(ageRast, cellsLTE0, NA)
+    }
   }
 
   return(ageRast)
