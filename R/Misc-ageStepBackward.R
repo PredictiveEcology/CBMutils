@@ -3,7 +3,7 @@ utils::globalVariables(c("x", "y", "z"))
 #' Age Step Backwards
 #'
 #' Step an age raster backwards in time.
-#' Ages that are set as <=0 are replaced with surrounding ages >0 with `gstat_krige_replace`.
+#' Ages that are set as <=0 are replaced with surrounding ages >0 with `gstat_replace`.
 #'
 #' @param ageRast SpatRaster. Raster with numeric values of cohort ages.
 #' @param yearIn numeric. Year that ages in `ageRast` represent.
@@ -12,15 +12,15 @@ utils::globalVariables(c("x", "y", "z"))
 #' @param distEvents data.table. Optional.
 #' Table of disturbance events with columns "pixelIndex" and "year".
 #' If provided, disturbances will be reversed and the disturbed areas
-#' will be filled with `gstat_krige_replace`.
-#' @inheritParams gstat_krige_replace
+#' will be filled with `gstat_replace`.
+#' @inheritParams gstat_replace
 #'
 #' @return \code{SpatRaster}
 #'
 #' @export
 ageStepBackward <- function(
     ageRast, yearIn, yearOut, fill = TRUE, distEvents = NULL,
-    formula = z~1, agg.fact = 2, agg.fun = "median", ...){
+    idw = TRUE, formula = z~1, agg.fact = 2, agg.fun = "median", ...){
 
   if (yearIn == yearOut) return(ageRast)
   if (yearIn <  yearOut) stop("Year input is less than year output. Use `ageStepForward`")
@@ -70,10 +70,11 @@ ageStepBackward <- function(
 
       # Reverse disturbances and fill
       if (!is.null(distEvents)){
-        ageRast <- gstat_krige_replace(
+        ageRast <- gstat_replace(
           inRast   = ageRast,
           cells    = intersect(cellsInit, subset(distEvents, year == yearEnd)$pixelIndex),
           ignore   = -500:0,
+          idw      = idw,
           formula  = formula,
           agg.fact = agg.fact,
           agg.fun  = agg.fun,
@@ -91,9 +92,10 @@ ageStepBackward <- function(
 
       message("Replacing ages <=0 in ", length(cellsLTE0), " pixels")
 
-      ageRast <- gstat_krige_replace(
+      ageRast <- gstat_replace(
         inRast   = ageRast,
         cells    = cellsLTE0,
+        idw      = idw,
         formula  = formula,
         agg.fact = agg.fact,
         agg.fun  = agg.fun,
@@ -111,12 +113,14 @@ ageStepBackward <- function(
 }
 
 
-#' gstat::krige replace cells
+#' gstat replace cells
 #'
 #' Replace cells in a raster by interpolating their values
-#' from the other cells values with gstat::krige.
+#' from the other cells values with gstat::idw or gstat::krige.
 #'
 #' @param ignore numeric. Raster values to exclude from input data.
+#' @param idw logical. Use \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.
+#' @param formula Interpolation formula.
 #' @param agg.fact Aggregation factor for the input raster.
 #' If >1, the raster will be aggregated before cell values
 #' are extracted as input data points for interpolation.
@@ -124,29 +128,28 @@ ageStepBackward <- function(
 #' See \code{\link[terra]{aggregate}}.
 #' @param agg.fun Aggregation function.
 #' @param agg.na.rm Remove NA cells in aggregation function.
-#' @param formula Interpolation formula. See \code{\link[gstat]{krige}}.
-#' @param ... additional arguments to \code{\link[gstat]{krige}}.
+#' @param ... additional arguments to \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.
 #'
 #' @keywords internal
-gstat_krige_replace <- function(
+gstat_replace <- function(
     inRast, cells, ignore = NULL,
-    formula = z~1, ...,
+    idw = TRUE, formula = z~1, ...,
     agg.fact = 2, agg.fun = "median", agg.na.rm = TRUE,
     verbose = TRUE){
 
   if (length(cells) == 0){
-    if (verbose) message("gstat::krige replace: 0 cells to replace; skipping")
+    if (verbose) message("gstat_replace: 0 cells to replace; skipping")
     return(inRast)
   }
 
-  if (verbose) message("gstat::krige replace: Removing values in fill cells")
+  if (verbose) message("gstat_replace: Removing values in fill cells")
 
   names(inRast) <- "z"
   terra::set.values(inRast, cells, NA)
 
   if (agg.fact > 1){
 
-    if (verbose) message("gstat::krige replace: Aggregating input raster")
+    if (verbose) message("gstat_replace: Aggregating input raster")
 
     if (!is.null(ignore)){
       smRast <- terra::classify(inRast, cbind(ignore, NA))
@@ -155,7 +158,7 @@ gstat_krige_replace <- function(
 
   }else smRast <- inRast
 
-  if (verbose) message("gstat::krige replace: Predicting values for fill cells")
+  if (verbose) message("gstat_replace: Predicting values for fill cells")
 
   inData <- terra::extract(smRast, terra::cells(smRast), xy = TRUE)
   if (!is.null(ignore) & !agg.fact > 1){
@@ -164,7 +167,8 @@ gstat_krige_replace <- function(
 
   if (nrow(inData) == 0) stop("Raster does not contain any values to use as predictors")
 
-  newVals <- gstat::krige(
+  gstatFunc <- if (idw) gstat::idw else gstat::krige
+  newVals <- gstatFunc(
     formula     = formula,
     locations   = ~x+y,
     data        = inData,
@@ -175,7 +179,7 @@ gstat_krige_replace <- function(
   rm(inData)
 
   if (any(is.na(newVals))) stop(
-    "gstat::krige failed to predict all replacement values. Try adjusting parameters")
+    "gstat failed to predict all replacement values. Try adjusting parameters")
 
   terra::set.values(inRast, cells, newVals)
 

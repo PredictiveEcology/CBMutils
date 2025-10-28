@@ -10,6 +10,7 @@ ageStepBackward(
   yearOut,
   fill = TRUE,
   distEvents = NULL,
+  idw = TRUE,
   formula = z ~ 1,
   agg.fact = 2,
   agg.fun = "median",
@@ -28,9 +29,11 @@ ageStepBackward(
 \item{distEvents}{data.table. Optional.
 Table of disturbance events with columns "pixelIndex" and "year".
 If provided, disturbances will be reversed and the disturbed areas
-will be filled with \code{gstat_krige_replace}.}
+will be filled with \code{gstat_replace}.}
 
-\item{formula}{Interpolation formula. See \code{\link[gstat]{krige}}.}
+\item{idw}{logical. Use \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.}
+
+\item{formula}{Interpolation formula.}
 
 \item{agg.fact}{Aggregation factor for the input raster.
 If >1, the raster will be aggregated before cell values
@@ -40,12 +43,12 @@ See \code{\link[terra]{aggregate}}.}
 
 \item{agg.fun}{Aggregation function.}
 
-\item{...}{additional arguments to \code{\link[gstat]{krige}}.}
+\item{...}{additional arguments to \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.}
 }
 \value{
 \code{SpatRaster}
 }
 \description{
 Step an age raster backwards in time.
-Ages that are set as <=0 are replaced with surrounding ages >0 with \code{gstat_krige_replace}.
+Ages that are set as <=0 are replaced with surrounding ages >0 with \code{gstat_replace}.
 }
