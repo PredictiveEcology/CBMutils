@@ -39,6 +39,9 @@ test_that("ageStepBackward: without disturbances", {
     terra::values(ageRastStep, mat = FALSE),
     c(NA, 5, NA, NA, 5, 5, rep(NA, 3))
   )
+
+  # Expect error: no cells >=0 to interpolate from
+  expect_error(ageStepBackward(ageRast, yearIn = 2025, yearOut = 2010))
 })
 
 test_that("ageStepBackward: with disturbances", {
