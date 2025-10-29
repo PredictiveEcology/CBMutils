@@ -64,7 +64,14 @@ mapNPP <- function(flux, masterRaster, year = NULL) {
     theme_no_axes() +
     scale_x_continuous(expand = c(0, 0)) +
     scale_y_continuous(expand = c(0, 0)) +
-    scale_fill_continuous(low = "#873f38", high = "#61d464", na.value = "transparent", guide = "colorbar") +
+    scale_fill_gradient2(
+      low = "#D73027",       # red for low
+      mid = "#FEE08B",       # yellow for middle
+      high = "#1A9850",      # green for high
+      midpoint = mean(flux$NPP, na.rm = TRUE),
+      na.value = "transparent",
+      guide = "colorbar"
+    ) +
     labs(fill = "Carbon\n(MgC/ha)" ) +
     ggtitle(paste0(plotTitle, "\n", "Landscape average: ", round(mean(flux$NPP), 3), " MgC/ha."))
 }
