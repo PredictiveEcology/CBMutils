@@ -21,7 +21,7 @@ utils::globalVariables(c(
 #' @export
 #' @importFrom data.table as.data.table is.data.table
 #' @importFrom ggforce theme_no_axes
-#' @importFrom ggplot2 coord_sf ggplot ggtitle labs scale_fill_continuous scale_x_continuous scale_y_continuous
+#' @importFrom ggplot2 coord_sf ggplot ggtitle labs scale_fill_gradient2 scale_x_continuous scale_y_continuous
 #' @importFrom tidyterra geom_spatraster
 #' @importFrom terra rast unwrap
 mapTotalCarbon <- function(pools, masterRaster, year = NULL){
