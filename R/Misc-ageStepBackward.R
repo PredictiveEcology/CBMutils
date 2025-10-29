@@ -39,40 +39,51 @@ ageStepBackward <- function(
 
   withr::local_options(list(rasterTmpDir = withr::local_tempdir("raster_", tmpdir = tmpdir)))
 
-  if (is.null(distEvents) | !fill){
+  # Copy input raster
+  ageRast <- terra::deepcopy(ageRast)
 
-    if (!is.null(distEvents)){
+  if (!is.null(distEvents)){
 
-      message("Masking out disturbance events")
-
-      terra::set.values(
-        ageRast,
-        unique(subset(distEvents, year %in% (yearIn - 1):yearOut)$pixelIndex),
-        NA)
+    if (!data.table::is.data.table(distEvents)){
+      distEvents <- data.table::as.data.table(distEvents)
     }
+    distEvents <- unique(distEvents[
+      pixelIndex %in% terra::cells(ageRast) & year %in% (yearIn - 1):yearOut,
+      .(pixelIndex, year)])
+    if (nrow(distEvents) == 0) distEvents <- NULL
+  }
 
-    message("Stepping ages back from ", yearIn, " to ", yearOut)
+  if (!is.null(distEvents) & !fill){
 
-    ageRast <- ageRast - (yearIn - yearOut)
+    message("Masking out disturbance events")
 
-  }else{
+    terra::set.values(ageRast, unique(distEvents$pixelIndex), NA)
+    distEvents <- NULL
+  }
 
-    cellsInit <- terra::cells(ageRast)
+  stepBack <- 1
+  for (yearInit in yearIn:(yearOut + 1)){
 
-    for (yearInit in yearIn:(yearOut + 1)){
+    yearEnd <- yearInit - 1
 
-      yearEnd <- yearInit - 1
+    distCells <- if (!is.null(distEvents)) distEvents[year == yearEnd,]$pixelIndex
 
-      message("Stepping ages back from ", yearInit, " to ", yearEnd)
+    if (yearEnd != yearOut & length(distCells) == 0){
 
-      # Step ages back 1 year
-      ageRast <- ageRast - 1
+      stepBack <- stepBack + 1
+
+    }else{
+
+      message("Stepping ages back from ", yearEnd + stepBack, " to ", yearEnd)
+
+      # Step ages back
+      ageRast <- ageRast - stepBack
 
       # Reverse disturbances and fill
-      if (!is.null(distEvents)){
+      if (length(distCells) > 0){
         ageRast <- gstat_replace(
           inRast   = ageRast,
-          cells    = intersect(cellsInit, subset(distEvents, year == yearEnd)$pixelIndex),
+          cells    = distCells,
           ignore   = -500:0,
           idw      = idw,
           formula  = formula,
@@ -80,7 +91,11 @@ ageStepBackward <- function(
           agg.fun  = agg.fun,
           ...)
       }
+
+      stepBack <- 1
     }
+
+    rm(distCells)
   }
 
   # Replace cells with ages <=0
@@ -142,25 +157,24 @@ gstat_replace <- function(
     return(inRast)
   }
 
-  if (verbose) message("gstat_replace: Removing values in fill cells")
-
-  names(inRast) <- "z"
+  if (verbose) message("gstat_replace: Removing old values")
   terra::set.values(inRast, cells, NA)
 
+  smRast <- inRast
   if (agg.fact > 1){
 
     if (verbose) message("gstat_replace: Aggregating input raster")
 
     if (!is.null(ignore)){
-      smRast <- terra::classify(inRast, cbind(ignore, NA))
-    }else smRast <- inRast
+      smRast <- terra::classify(smRast, cbind(ignore, NA))
+    }
     smRast <- terra::aggregate(smRast, fact = agg.fact, fun = agg.fun, na.rm = agg.na.rm)
+  }
 
-  }else smRast <- inRast
-
-  if (verbose) message("gstat_replace: Predicting values for fill cells")
+  if (verbose) message("gstat_replace: Predicting new values")
 
   inData <- terra::extract(smRast, terra::cells(smRast), xy = TRUE)
+  names(inData)[[3]] <- "z"
   if (!is.null(ignore) & !agg.fact > 1){
     inData <- subset(inData, !z %in% ignore)
   }
