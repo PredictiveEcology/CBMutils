@@ -9,9 +9,11 @@ gstat_replace(
   cells,
   ignore = NULL,
   idw = TRUE,
-  formula = z ~ 1,
+  idp = 2,
+  nmax = Inf,
+  maxdist = Inf,
   ...,
-  agg.fact = 2,
+  agg.fact = 1,
   agg.fun = "median",
   agg.na.rm = TRUE,
   verbose = TRUE
@@ -22,7 +24,11 @@ gstat_replace(
 
 \item{idw}{logical. Use \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.}
 
-\item{formula}{Interpolation formula.}
+\item{idp}{numeric. IDW power.}
+
+\item{nmax}{numeric. The maximum number of nearest observations to use.}
+
+\item{maxdist}{numeric. The maximum distance of observations to use.}
 
 \item{...}{additional arguments to \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.}
 
@@ -34,7 +40,7 @@ See \code{\link[terra]{aggregate}}.}
 
 \item{agg.fun}{Aggregation function.}
 
-\item{agg.na.rm}{Remove NA cells in aggregation function.}
+\item{agg.na.rm}{Remove NA cells when aggregating.}
 }
 \description{
 Replace cells in a raster by interpolating their values

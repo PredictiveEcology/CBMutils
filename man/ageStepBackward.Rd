@@ -10,10 +10,8 @@ ageStepBackward(
   yearOut,
   fill = TRUE,
   distEvents = NULL,
-  idw = TRUE,
-  formula = z ~ 1,
-  agg.fact = 2,
-  agg.fun = "median",
+  idp = 2,
+  nmax = 250,
   ...
 )
 }
@@ -31,19 +29,11 @@ Table of disturbance events with columns "pixelIndex" and "year".
 If provided, disturbances will be reversed and the disturbed areas
 will be filled with \code{gstat_replace}.}
 
-\item{idw}{logical. Use \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.}
+\item{idp}{numeric. IDW power.}
 
-\item{formula}{Interpolation formula.}
+\item{nmax}{numeric. The maximum number of nearest observations to use.}
 
-\item{agg.fact}{Aggregation factor for the input raster.
-If >1, the raster will be aggregated before cell values
-are extracted as input data points for interpolation.
-This smooths the input data and speeds up the interpolation process.
-See \code{\link[terra]{aggregate}}.}
-
-\item{agg.fun}{Aggregation function.}
-
-\item{...}{additional arguments to \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.}
+\item{...}{arguments to \code{\link{gstat_replace}}.}
 }
 \value{
 \code{SpatRaster}
