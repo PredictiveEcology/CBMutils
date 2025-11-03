@@ -11,7 +11,7 @@ ageStepBackward(
   fill = TRUE,
   distEvents = NULL,
   idp = 1,
-  nmax = 500,
+  nmax = 250,
   ...
 )
 }

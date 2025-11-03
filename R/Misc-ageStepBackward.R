@@ -21,7 +21,7 @@ utils::globalVariables(c("x", "y", "z"))
 #' @export
 ageStepBackward <- function(
     ageRast, yearIn, yearOut, fill = TRUE, distEvents = NULL,
-    idp = 1, nmax = 500, ...){
+    idp = 1, nmax = 250, ...){
 
   if (yearIn == yearOut) return(ageRast)
   if (yearIn <  yearOut) stop("Year input is less than year output. Use `ageStepForward`")
