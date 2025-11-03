@@ -10,7 +10,7 @@ ageStepBackward(
   yearOut,
   fill = TRUE,
   distEvents = NULL,
-  idp = 5,
+  idp = 1,
   nmax = 500,
   ...
 )
