@@ -2,46 +2,48 @@
 % Please edit documentation in R/Python_ReticulateFindPython.R
 \name{ReticulateFindPython}
 \alias{ReticulateFindPython}
-\title{Reticulate find Python}
+\title{Reticulate Find Python}
 \usage{
 ReticulateFindPython(
   version,
   versionInstall = version,
-  useGit = TRUE,
-  prompt = FALSE,
   pyenvRoot = tools::R_user_dir("CBMutils"),
-  pyenvOnly = FALSE
+  pyenvOnly = FALSE,
+  useGit = TRUE,
+  prompt = FALSE
 )
 }
 \arguments{
 \item{version}{character. Python version or a comma separated list of version constraints.
-See ?reticulate::virtualenv_starter 'version' argument}
+See \code{\link[reticulate]{virtualenv_starter}} for more details.}
 
 \item{versionInstall}{character. Version to install if suitable version not found.
-Defaults to 'version'. Required if 'version' is a string of versions constraints instead of a specific version.}
+Required if \code{version} is a list of version constraints.}
 
-\item{useGit}{logical. Allow reticulate to clone pyenv-win if Git is available}
+\item{pyenvRoot}{character. Path of location for install of the pyenv-win tool.
+Defaults to the R user data directory.}
 
-\item{prompt}{logical. Prompt user to approve download of pyenv-win tool}
+\item{pyenvOnly}{logical. Exclude versions not within a pyenv install directory.}
 
-\item{pyenvRoot}{character. Path to directory of where to download the pyenv-win tool}
+\item{useGit}{logical. Allow \code{reticulate} to clone pyenv-win if Git is available.}
 
-\item{pyenvOnly}{logical. Exclude versions not within a pyenv install directory}
+\item{prompt}{logical. Prompt user to approve download of pyenv-win tool.}
 }
 \value{
-character. Path to Python interpreter
+character. Path to Python interpreter.
 }
 \description{
-Use reticulate to find or install Python that meets version requirements.
-Download the pyenv-win Python version management tool from Github if necessary.
+Use \code{reticulate} to find or install Python to meet version requirements.
+Download and use the \href{https://pypi.org/project/pyenv-win/}{pyenv-win}
+Python version management tool from Github if necessary.
 }
 \details{
 This function was created to bypass the requirement for Git to be installed
 when \code{\link[reticulate]{install_python}} is called on a Windows computer
 without pyenv-win already installed.
-pyenv-win is installed by reticulate by cloning the Github repository.
-This will instead download the pyenv-win repository as a ZIP file.
-
-Note: If pyenv-win is installed by ZIP download instead of via Git clone,
-it will not be updated after the first time it is downloaded.
+If Git is available, \code{reticulate} will clone the
+\href{https://github.com/pyenv-win/pyenv-win}{pyenv-win Github repository}
+and use the tool to install Python.
+If Git is not available, this function will instead download the latest version
+directly from the repository and make it available to \code{reticulate}.
 }

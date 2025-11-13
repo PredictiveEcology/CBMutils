@@ -1,31 +1,39 @@
 
-#' Reticulate find Python
+#' Reticulate Find Python
 #'
-#' Use reticulate to find or install Python that meets version requirements.
-#' Download the pyenv-win Python version management tool from Github if necessary.
+#' Use `reticulate` to find or install Python to meet version requirements.
+#' Download and use the \href{https://pypi.org/project/pyenv-win/}{pyenv-win}
+#' Python version management tool from Github if necessary.
 #'
 #' This function was created to bypass the requirement for Git to be installed
 #' when \code{\link[reticulate]{install_python}} is called on a Windows computer
 #' without pyenv-win already installed.
-#' pyenv-win is installed by reticulate by cloning the Github repository.
-#' This will instead download the pyenv-win repository as a ZIP file.
-#'
-#' Note: If pyenv-win is installed by ZIP download instead of via Git clone,
-#' it will not be updated after the first time it is downloaded.
+#' If Git is available, `reticulate` will clone the
+#' \href{https://github.com/pyenv-win/pyenv-win}{pyenv-win Github repository}
+#' and use the tool to install Python.
+#' If Git is not available, this function will instead download the latest version
+#' directly from the repository and make it available to `reticulate`.
 #'
 #' @param version character. Python version or a comma separated list of version constraints.
-#' See ?reticulate::virtualenv_starter 'version' argument
+#' See \code{\link[reticulate]{virtualenv_starter}} for more details.
 #' @param versionInstall character. Version to install if suitable version not found.
-#' Defaults to 'version'. Required if 'version' is a string of versions constraints instead of a specific version.
-#' @param useGit logical. Allow reticulate to clone pyenv-win if Git is available
-#' @param prompt logical. Prompt user to approve download of pyenv-win tool
-#' @param pyenvRoot character. Path to directory of where to download the pyenv-win tool
-#' @param pyenvOnly logical. Exclude versions not within a pyenv install directory
+#' Required if `version` is a list of version constraints.
+#' @param pyenvRoot character. Path of location for install of the pyenv-win tool.
+#' Defaults to the R user data directory.
+#' @param pyenvOnly logical. Exclude versions not within a pyenv install directory.
+#' @param useGit logical. Allow `reticulate` to clone pyenv-win if Git is available.
+#' @param prompt logical. Prompt user to approve download of pyenv-win tool.
 #'
-#' @return character. Path to Python interpreter
+#' @return character. Path to Python interpreter.
 #' @export
-ReticulateFindPython <- function(version, versionInstall = version, useGit = TRUE, prompt = FALSE,
-                                 pyenvRoot = tools::R_user_dir("CBMutils"), pyenvOnly = FALSE){
+#'
+#' @importFrom tools R_user_dir
+ReticulateFindPython <- function(version, versionInstall = version,
+                                 pyenvRoot = tools::R_user_dir("CBMutils"),
+                                 pyenvOnly = FALSE, useGit = TRUE, prompt = FALSE){
+
+  if (!requireNamespace("reticulate", quietly = TRUE)) stop(
+    "The package \"reticulate\" is required to use Python")
 
   # Get path to Python interpreter
   pyInterp <- reticulate_python_path(version, pyenvRoot = pyenvRoot, pyenvOnly = pyenvOnly)
@@ -48,40 +56,53 @@ ReticulateFindPython <- function(version, versionInstall = version, useGit = TRU
   reticulate_python_path(version, pyenvRoot = pyenvRoot, pyenvOnly = pyenvOnly)
 }
 
-#' Python interpreter path
+#' Reticulate: Return Python interpreter path
 #'
-#' Get path to Python interpreter, including installs at a given pyenv-win location
+#' Get path to a Python interpreter including installs at a given pyenv-win location.
 #'
 #' @param version character. Python version or a comma separated list of version constraints.
-#' See ?reticulate::virtualenv_starter 'version' argument
-#' @param pyenvRoot character. Path to directory containing pyenv-win tool
-#' @param pyenvOnly logical. Exclude versions not within a pyenv install directory
+#' See \code{\link[reticulate]{virtualenv_starter}} for more details.
+#' @param pyenvRoot character. Path to directory containing pyenv-win tool.
+#' @param pyenvOnly logical. Exclude versions not installed by pyenv.
 #'
-#' @return character or NULL. IF found, a path to Python interpreter
+#' @return character or NULL. If found, a path to Python interpreter.
+#'
+#' @importFrom tools R_user_dir
+#' @keywords internal
 reticulate_python_path <- function(version = NULL,
                                    pyenvRoot = tools::R_user_dir("CBMutils"), pyenvOnly = FALSE){
+
+  if (!requireNamespace("reticulate", quietly = TRUE)) stop(
+    "The package \"reticulate\" is required to use Python")
 
   # Get paths to Python interpreters in known locations
   pyPaths <- reticulate::virtualenv_starter(version = version, all = TRUE)
 
-  # Search provided 'pyenvRoot' for more installs
-  pyenvDir <- file.path(pyenvRoot, "pyenv")
-  if (file.exists(pyenvDir)){
+  # Search pyenv-win installs
+  if (identical(.Platform$OS.type, "windows")){
 
-    withr::local_envvar(
-      c(PYENV      = file.path(pyenvDir, "pyenv-win", fsep = "/"),
-        PYENV_ROOT = file.path(pyenvDir, "pyenv-win", fsep = "/"),
-        PYENV_HOME = file.path(pyenvDir, "pyenv-win", fsep = "/")
-      ))
-    withr::local_path(
-      c(file.path(pyenvDir, "pyenv-win/bin",   fsep = "/"),
-        file.path(pyenvDir, "pyenv-win/shims", fsep = "/")),
-      action = "prefix")
+    # Set pyenv-win location
+    pyenvDir <- file.path(pyenvRoot, "pyenv")
 
-    pyPaths <- rbind(
-      pyPaths,
-      reticulate::virtualenv_starter(version = version, all = TRUE)
-    )
+    if (file.exists(pyenvDir)){
+
+      if (!requireNamespace("withr", quietly = TRUE)) stop("The package \"withr\" is required")
+
+      withr::local_envvar(
+        c(PYENV      = file.path(pyenvDir, "pyenv-win", fsep = "/"),
+          PYENV_ROOT = file.path(pyenvDir, "pyenv-win", fsep = "/"),
+          PYENV_HOME = file.path(pyenvDir, "pyenv-win", fsep = "/")
+        ))
+      withr::local_path(
+        c(file.path(pyenvDir, "pyenv-win", "bin",   fsep = "/"),
+          file.path(pyenvDir, "pyenv-win", "shims", fsep = "/")),
+        action = "prefix")
+
+      pyPaths <- rbind(
+        pyPaths,
+        reticulate::virtualenv_starter(version = version, all = TRUE)
+      )
+    }
   }
 
   if (pyenvOnly & nrow(pyPaths) > 0){
@@ -101,17 +122,38 @@ reticulate_python_path <- function(version = NULL,
 }
 
 
-#' Install Python with reticulate::install_python
+#' Reticulate: Install Python on Windows
 #'
-#' Download the pyenv-win Python version management tool from Github if necessary.
-#' See: https://github.com/pyenv-win/pyenv-win
+#' Download and use the latest version of the
+#' \href{https://pypi.org/project/pyenv-win/}{pyenv-win}
+#' Python version management tool to install Python on Windows.
+#'
+#' If Git is available, `reticulate` will clone the
+#' \href{https://github.com/pyenv-win/pyenv-win}{pyenv-win Github repository}
+#' and use the tool to install Python.
+#' If Git is not available, this function will instead download the latest version
+#' directly from the repository and make it available to `reticulate`.
 #'
 #' @param version character. Python version string.
-#' @param useGit logical. Allow reticulate to clone pyenv-win if Git is available
-#' @param prompt logical. Prompt user to approve download of pyenv-win tool
-#' @param pyenvRoot character. Path to directory of where to download the pyenv-win tool
-reticulate_install_python_windows <- function(version = NULL, useGit = TRUE, prompt = interactive(),
-                                              pyenvRoot = tools::R_user_dir("CBMutils")){
+#' @param pyenvRoot character. Path of location for install of the pyenv-win tool.
+#' Defaults to the R user data directory.
+#' @param useGit logical. Allow `reticulate` to clone pyenv-win if Git is available.
+#' @param prompt logical. Prompt user to approve download of pyenv-win tool.
+#'
+#' @importFrom tools R_user_dir
+#' @importFrom utils download.file unzip
+#' @keywords internal
+reticulate_install_python_windows <- function(
+    version = NULL, useGit = TRUE, prompt = interactive(),
+    pyenvRoot = tools::R_user_dir("CBMutils")){
+
+  if (!requireNamespace("reticulate", quietly = TRUE)) stop(
+    "The package \"reticulate\" is required to use Python")
+
+  if (!identical(.Platform$OS.type, "windows")) stop("Windows OS required")
+
+  # Set location for local install of pyenv-win
+  pyenvDir <- file.path(pyenvRoot, "pyenv")
 
   # Check if Git is available on system
   reqAvailable <- c(
@@ -131,98 +173,88 @@ reticulate_install_python_windows <- function(version = NULL, useGit = TRUE, pro
   }
 
   # If neither Git or pyenv is available: install pyenv-win directly from Github
-  if (!any(reqAvailable)){
+  dlPyenv <- !any(reqAvailable)
 
-    # Set location for local install of pyenv-win
-    pyenvDir <- file.path(pyenvRoot, "pyenv")
+  if (dlPyenv & !file.exists(pyenvDir) & prompt){
 
-    # Download 'pyenv-win' from Github
+    ans <- readline("Type Y to download the pyenv-win tool for managing Python installations ")
+
+    if (!identical(trimws(tolower(ans)), "y")){
+      message(col_yellow(
+        "pyenv-win not downloaded; reticulate will try to install Python without it"))
+      dlPyenv <- FALSE
+    }
+  }
+
+  if (dlPyenv){
+
+    # Create temporary directory
+    tempDir <- tempfile()
+    dir.create(tempDir)
+    on.exit(unlink(tempDir, recursive = TRUE))
+
+    # Download URL & unzip
+    tempZip <- file.path(tempDir, "master.zip")
+    download.file("https://github.com/pyenv-win/pyenv-win/archive/master.zip",
+                  destfile = tempZip, quiet = TRUE)
+    unzip(tempZip, exdir = tempDir)
+
     if (!file.exists(pyenvDir)){
 
-      dlPyenv <- TRUE
+      # Unzip and move to destination path
+      dir.create(pyenvRoot, recursive = TRUE, showWarnings = FALSE)
+      res <- suppressWarnings(
+        file.rename(file.path(tempDir, "pyenv-win-master"), pyenvDir))
+      if (!res) message(col_yellow(
+        "pyenv-win download failed; reticulate will try to install Python without it"))
 
-      if (prompt){
+    }else{
 
-        ans <- readline("Type Y to download the pyenv-win tool for managing Python installations ")
+      # Replace libexec and bin directories
+      ## https://github.com/pyenv-win/pyenv-win?tab=readme-ov-file#how-to-update-pyenv
+      for (dir in c("libexec", "bin")){
 
-        if (!identical(trimws(tolower(ans)), "y")){
-
-          dlPyenv <- FALSE
-
-          warning("reticulate may not be able install Python without pyenv-win")
-        }
-      }
-
-      if (dlPyenv){
-
-        dir.create(pyenvRoot, recursive = TRUE, showWarnings = FALSE)
-        download_unzip_url(
-          "https://github.com/pyenv-win/pyenv-win/archive/master.zip",
-          destdir = pyenvDir)
+        res <- suppressWarnings(
+          file.copy(file.path(tempDir, "pyenv-win-master", "pyenv-win", dir),
+                    file.path(pyenvDir, "pyenv-win"),
+                    recursive = TRUE, overwrite = TRUE))
+        if (!res) stop(
+          "pyenv-win update failed due to being unable to overwrite directory: ",
+          file.path(pyenvDir, "pyenv-win", dir),
+          "\nTry refreshing R session")
       }
     }
+  }
 
-    # Add pyenv-win to environmental variables
-    if (file.exists(pyenvDir)){
+  # Add pyenv-win to environmental variables
+  if (file.exists(pyenvDir)){
 
-      withr::local_envvar(
-        c(PYENV      = file.path(pyenvDir, "pyenv-win", fsep = "/"),
-          PYENV_ROOT = file.path(pyenvDir, "pyenv-win", fsep = "/"),
-          PYENV_HOME = file.path(pyenvDir, "pyenv-win", fsep = "/")
-        ))
-      withr::local_path(
-        c(file.path(pyenvDir, "pyenv-win/bin",   fsep = "/"),
-          file.path(pyenvDir, "pyenv-win/shims", fsep = "/")),
-        action = "prefix")
-    }
+    if (!requireNamespace("withr", quietly = TRUE)) stop("The package \"withr\" is required")
+
+    withr::local_envvar(
+      c(PYENV      = file.path(pyenvDir, "pyenv-win", fsep = "/"),
+        PYENV_ROOT = file.path(pyenvDir, "pyenv-win", fsep = "/"),
+        PYENV_HOME = file.path(pyenvDir, "pyenv-win", fsep = "/")
+      ))
+    withr::local_path(
+      c(file.path(pyenvDir, "pyenv-win", "bin",   fsep = "/"),
+        file.path(pyenvDir, "pyenv-win", "shims", fsep = "/")),
+      action = "prefix")
   }
 
   # Install Python
-  ## If not specified, let reticulate decide which version to install
-  tryCatch({
-
-    do.call(
-
-      reticulate::install_python,
-
-      if (!is.null(version)){
-        list(version = version)
-      }else list()
-    )
-  }, error = function(e) stop(
-    "Python installation failed. Python can be installed directly from python.org/downloads",
-    "\n", e$message,
-    call. = FALSE))
-}
-
-#' Download and unzip URL
-#' @param url character.
-#' @param destdir character. Path to destination directory
-#' @param overwrite logical. Overwrite existing file
-#' @importFrom utils download.file unzip
-download_unzip_url <- function(url, destdir, overwrite = FALSE){
-
-  if (file.exists(destdir) & overwrite){
-    unlink(destdir, recursive = TRUE)
-    if (file.exists(destdir)) stop("Could not remove directory: ", destdir)
-  }
-  if (file.exists(destdir)) stop("Destination directory found; set overwrite = TRUE: ", destdir)
-
-  # Create temporary directory
-  tempDir <- tempfile()
-  dir.create(tempDir)
-  on.exit(unlink(tempDir, recursive = TRUE))
-
-  # Download URL
-  tempZip <- file.path(tempDir, "temp.zip")
-  utils::download.file(url = url, destfile = tempZip, quiet = TRUE)
-
-  # Unzip and move to destination path
-  unzip(tempZip, exdir = tempDir)
-
-  unzipDir <- list.dirs(tempDir, recursive = FALSE)
   tryCatch(
-    file.rename(unzipDir, destdir),
-    warning = function(w) stop(w, call. = FALSE))
+
+    if (is.null(version)){
+      reticulate::install_python() # Let reticulate decide which version to install
+    }else{
+      reticulate::install_python(version = version)
+    },
+
+    error = function(e) stop(
+      "Python installation failed. Python can be installed directly from python.org/downloads",
+      "\n", e$message,
+      call. = FALSE))
 }
+
 

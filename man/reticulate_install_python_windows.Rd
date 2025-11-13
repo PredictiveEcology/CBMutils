@@ -2,7 +2,7 @@
 % Please edit documentation in R/Python_ReticulateFindPython.R
 \name{reticulate_install_python_windows}
 \alias{reticulate_install_python_windows}
-\title{Install Python with reticulate::install_python}
+\title{Reticulate: Install Python on Windows}
 \usage{
 reticulate_install_python_windows(
   version = NULL,
@@ -14,13 +14,23 @@ reticulate_install_python_windows(
 \arguments{
 \item{version}{character. Python version string.}
 
-\item{useGit}{logical. Allow reticulate to clone pyenv-win if Git is available}
+\item{useGit}{logical. Allow \code{reticulate} to clone pyenv-win if Git is available.}
 
-\item{prompt}{logical. Prompt user to approve download of pyenv-win tool}
+\item{prompt}{logical. Prompt user to approve download of pyenv-win tool.}
 
-\item{pyenvRoot}{character. Path to directory of where to download the pyenv-win tool}
+\item{pyenvRoot}{character. Path of location for install of the pyenv-win tool.
+Defaults to the R user data directory.}
 }
 \description{
-Download the pyenv-win Python version management tool from Github if necessary.
-See: https://github.com/pyenv-win/pyenv-win
+Download and use the latest version of the
+\href{https://pypi.org/project/pyenv-win/}{pyenv-win}
+Python version management tool to install Python on Windows.
 }
+\details{
+If Git is available, \code{reticulate} will clone the
+\href{https://github.com/pyenv-win/pyenv-win}{pyenv-win Github repository}
+and use the tool to install Python.
+If Git is not available, this function will instead download the latest version
+directly from the repository and make it available to \code{reticulate}.
+}
+\keyword{internal}

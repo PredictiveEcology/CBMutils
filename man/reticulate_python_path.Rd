@@ -2,7 +2,7 @@
 % Please edit documentation in R/Python_ReticulateFindPython.R
 \name{reticulate_python_path}
 \alias{reticulate_python_path}
-\title{Python interpreter path}
+\title{Reticulate: Return Python interpreter path}
 \usage{
 reticulate_python_path(
   version = NULL,
@@ -12,15 +12,16 @@ reticulate_python_path(
 }
 \arguments{
 \item{version}{character. Python version or a comma separated list of version constraints.
-See ?reticulate::virtualenv_starter 'version' argument}
+See \code{\link[reticulate]{virtualenv_starter}} for more details.}
 
-\item{pyenvRoot}{character. Path to directory containing pyenv-win tool}
+\item{pyenvRoot}{character. Path to directory containing pyenv-win tool.}
 
-\item{pyenvOnly}{logical. Exclude versions not within a pyenv install directory}
+\item{pyenvOnly}{logical. Exclude versions not installed by pyenv.}
 }
 \value{
-character or NULL. IF found, a path to Python interpreter
+character or NULL. If found, a path to Python interpreter.
 }
 \description{
-Get path to Python interpreter, including installs at a given pyenv-win location
+Get path to a Python interpreter including installs at a given pyenv-win location.
 }
+\keyword{internal}
