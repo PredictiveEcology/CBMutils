@@ -4,8 +4,7 @@
 #' Retrieve species metadata by matching species names or other identifiers with columns in \code{sppEquivalencies}.
 #'
 #' @param species Species identifiers.
-#' @param match character. \code{sppEquivalencies} columns to match \code{species} with.
-#' Defaults to \code{LandR::sppEquivalencies_CA} columns with Latin and generic English species names.
+#' @param match character. \code{sppEquivalencies} column(s) to match \code{species} with.
 #' @param otherNames list. A list of alternative species identified to allow in matching.
 #' Item names must match `species` and item contents must be vectors of additional allowable matches.
 #' @param return character. \code{sppEquivalencies} columns to return.
@@ -19,8 +18,8 @@
 #'
 #' @export
 #' @importFrom data.table as.data.table
-sppMatch <- function(species, match = NULL, otherNames = NULL,
-                     return = NULL, checkNA = !is.null(return),
+sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short", "EN_generic_full"),
+                     otherNames = NULL, return = NULL, checkNA = !is.null(return),
                      sppEquivalencies = NULL){
 
   # Read species equivalencies table
@@ -33,9 +32,7 @@ sppMatch <- function(species, match = NULL, otherNames = NULL,
   # Return 0 rows
   if (length(species) == 0) return(sppEquiv[0,])
 
-  # Set matching columns
-  if (is.null(match)) match <- c("Latin_full", "EN_generic_short", "EN_generic_full")
-
+  # Check matching columns
   colExists <- c(match, return) %in% names(sppEquiv)
   if (!all(colExists)) stop(
     "column(s) not found in sppEquivalencies: ",
