@@ -13,7 +13,7 @@ available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_tabl
 \item{eq2}{two-column matrix giving stemwood biomass of non-merchantable trees
 (i.e., \eqn{b_n} given in units \eqn{T/ha}), and merchantable + non-merchantable trees
 (i.e., \eqn{b_{nm}} given in units \eqn{T/ha}), from equation 2 of Boudewyn et al. (2007)
-(i.e., the result of \code{\link[=nmfac]{nmfac()}}).}
+(i.e., the result of \code{\link{nmfac}}).}
 
 \item{vol}{gross merchantable volume per hectare (\eqn{m^3/ha})}
 }

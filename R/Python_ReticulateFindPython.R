@@ -180,8 +180,7 @@ reticulate_install_python_windows <- function(
     ans <- readline("Type Y to download the pyenv-win tool for managing Python installations ")
 
     if (!identical(trimws(tolower(ans)), "y")){
-      message(col_yellow(
-        "pyenv-win not downloaded; reticulate will try to install Python without it"))
+      message("pyenv-win not downloaded; reticulate will try to install Python without it")
       dlPyenv <- FALSE
     }
   }
@@ -205,8 +204,7 @@ reticulate_install_python_windows <- function(
       dir.create(pyenvRoot, recursive = TRUE, showWarnings = FALSE)
       res <- suppressWarnings(
         file.rename(file.path(tempDir, "pyenv-win-master"), pyenvDir))
-      if (!res) message(col_yellow(
-        "pyenv-win download failed; reticulate will try to install Python without it"))
+      if (!res) message("pyenv-win download failed; reticulate will try to install Python without it")
 
     }else{
 

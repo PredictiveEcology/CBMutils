@@ -11,7 +11,7 @@ nmfac(table4, eq1, vol)
 available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv}.}
 
 \item{eq1}{stemwood biomass of merchantable trees (\eqn{T/ha}) from equation 1 of
-Boudewyn et al. (2007) (i.e., the result of \code{\link[=b_m]{b_m()}}).}
+Boudewyn et al. (2007) (i.e., the result of \code{\link{b_m}}).}
 
 \item{vol}{gross merchantable volume per hectare (\eqn{m^3/ha})}
 }

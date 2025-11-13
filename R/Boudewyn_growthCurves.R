@@ -53,7 +53,7 @@ b_m <- function(table3, vol) {
 #' available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv>.
 #'
 #' @param eq1 stemwood biomass of merchantable trees (\eqn{T/ha}) from equation 1 of
-#' Boudewyn et al. (2007) (i.e., the result of [b_m()]).
+#' Boudewyn et al. (2007) (i.e., the result of \code{\link{b_m}}).
 #'
 #' @param vol gross merchantable volume per hectare (\eqn{m^3/ha})
 #'
@@ -93,7 +93,7 @@ nmfac <- function(table4, eq1, vol) {
 #' @param eq2 two-column matrix giving stemwood biomass of non-merchantable trees
 #' (i.e., \eqn{b_n} given in units \eqn{T/ha}), and merchantable + non-merchantable trees
 #' (i.e., \eqn{b_{nm}} given in units \eqn{T/ha}), from equation 2 of Boudewyn et al. (2007)
-#' (i.e., the result of [nmfac()]).
+#' (i.e., the result of \code{\link{nmfac}}).
 #'
 #' @param vol gross merchantable volume per hectare (\eqn{m^3/ha})
 #'
