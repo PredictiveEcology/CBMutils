@@ -21,7 +21,7 @@ utils::globalVariables(c("x", "y", "z"))
 #' @export
 ageStepBackward <- function(
     ageRast, yearIn, yearOut, fill = TRUE, distEvents = NULL,
-    idp = 1, nmax = 250, ...){
+    idp = 1, nmax = 250, agg.fact = 2, ...){
 
   if (yearIn == yearOut) return(ageRast)
   if (yearIn <  yearOut) stop("Year input is less than year output. Use `ageStepForward`")
@@ -84,9 +84,10 @@ ageStepBackward <- function(
       if (length(distCells) > 0){
         ageRast <- gstat_replace(
           ageRast, distCells,
-          ignore = -500:0,
-          idp    = idp,
-          nmax   = nmax,
+          ignore   = -500:0,
+          idp      = idp,
+          nmax     = nmax,
+          agg.fact = agg.fact,
           ...)
       }
 
@@ -107,8 +108,9 @@ ageStepBackward <- function(
 
       ageRast <- gstat_replace(
         ageRast, cellsLTE0,
-        idp    = idp,
-        nmax   = nmax,
+        idp      = idp,
+        nmax     = nmax,
+        agg.fact = agg.fact,
         ...)
 
     }else{

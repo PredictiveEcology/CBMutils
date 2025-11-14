@@ -12,6 +12,7 @@ ageStepBackward(
   distEvents = NULL,
   idp = 1,
   nmax = 250,
+  agg.fact = 2,
   ...
 )
 }
@@ -32,6 +33,12 @@ will be filled with \code{gstat_replace}.}
 \item{idp}{numeric. IDW power.}
 
 \item{nmax}{numeric. The maximum number of nearest observations to use.}
+
+\item{agg.fact}{Aggregation factor for the input raster.
+If >1, the raster will be aggregated before cell values
+are extracted as input data points for interpolation.
+This smooths the input data and speeds up the interpolation process.
+See \code{\link[terra]{aggregate}}.}
 
 \item{...}{arguments to \code{\link{gstat_replace}}.}
 }
