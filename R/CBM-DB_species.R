@@ -23,7 +23,10 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
                      sppEquivalencies = NULL){
 
   # Read species equivalencies table
-  if (is.null(sppEquivalencies)) sppEquivalencies <- LandR::sppEquivalencies_CA
+  if (is.null(sppEquivalencies)){
+    if (length(find.package("LandR", quiet = TRUE)) == 0) stop("LandR package required")
+    sppEquivalencies <- LandR::sppEquivalencies_CA
+  }
   sppEquiv <- tryCatch(
     as.data.table(sppEquivalencies),
     error = function(e) stop(
