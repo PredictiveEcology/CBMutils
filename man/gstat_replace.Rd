@@ -16,6 +16,8 @@ gstat_replace(
   agg.fact = 1,
   agg.fun = "median",
   agg.na.rm = TRUE,
+  parallel.cores = 1,
+  parallel.chunkSize = 10000,
   verbose = TRUE
 )
 }
@@ -41,6 +43,11 @@ See \code{\link[terra]{aggregate}}.}
 \item{agg.fun}{Aggregation function.}
 
 \item{agg.na.rm}{Remove NA cells when aggregating.}
+
+\item{parallel.cores}{Number of cores to use in parallel processing.
+See \code{\link[parallel]{mclapply}}.}
+
+\item{parallel.chunkSize}{Number of cells to process in each parallel processing chunk.}
 }
 \description{
 Replace cells in a raster by interpolating their values

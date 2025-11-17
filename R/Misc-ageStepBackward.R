@@ -142,6 +142,9 @@ ageStepBackward <- function(
 #' See \code{\link[terra]{aggregate}}.
 #' @param agg.fun Aggregation function.
 #' @param agg.na.rm Remove NA cells when aggregating.
+#' @param parallel.cores Number of cores to use in parallel processing.
+#' See \code{\link[parallel]{mclapply}}.
+#' @param parallel.chunkSize Number of cells to process in each parallel processing chunk.
 #' @param ... additional arguments to \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.
 #'
 #' @keywords internal
@@ -150,7 +153,7 @@ gstat_replace <- function(
     idw = TRUE, idp = 2,
     nmax = Inf, maxdist = Inf, ...,
     agg.fact = 1, agg.fun = "median", agg.na.rm = TRUE,
-    verbose = TRUE){
+    parallel.cores = 1, parallel.chunkSize = 10000, verbose = TRUE){
 
   if (length(cells) == 0){
     if (verbose) message("gstat_replace: 0 cells to replace; skipping")
@@ -171,15 +174,18 @@ gstat_replace <- function(
 
   if (verbose) message("gstat_replace: Predicting new values")
 
+  func <- if (idw) gstat::idw else gstat::krige
+
+  newVals <- data.table::data.table(terra::xyFromCell(inRast, cells))
+
   inArgs  <- list(
-    debug.level = 0,
-    locations = ~x+y,
     data      = data.table::data.table(terra::extract(smRast, terra::cells(smRast), xy = TRUE)),
-    newdata   = data.table::data.table(terra::xyFromCell(inRast, cells)),
+    locations = ~x+y,
     formula   = if (idw) z~1,
     idp       = if (idw) idp,
     nmax      = nmax,
-    maxdist   = maxdist
+    maxdist   = maxdist,
+    debug.level = 0
   )
   data.table::setnames(inArgs$data, names(inArgs$data)[[3]], "z")
   if (!is.null(ignore) & agg.fact == 1) inArgs$data <- inArgs$data[!z %in% ignore,]
@@ -189,7 +195,22 @@ gstat_replace <- function(
   inArgs <- c(inArgs[!sapply(inArgs, is.null) & !names(inArgs) %in% names(dotArgs)], dotArgs)
   rm(dotArgs)
 
-  newVals <- do.call(if (idw) gstat::idw else gstat::krige, inArgs)[,3]
+  if (parallel.cores == 1){
+
+    newVals <- do.call(func, c(list(newdata = newVals), inArgs))[,3]
+
+  }else{
+
+    chunk <- NULL
+    newVals[, chunk := ceiling(1:nrow(newVals) / parallel.chunkSize)]
+    newVals <- parallel::mclapply(
+      mc.cores = parallel.cores, mc.silent = TRUE,
+      unique(newVals$chunk),
+      function(i) do.call(func, c(list(newdata = newVals[chunk == i,]), inArgs))[,3]
+    )
+    newVals <- do.call(c, newVals)
+  }
+
   rm(inArgs)
 
   if (any(is.na(newVals))) stop("gstat failed to predict all replacement values. Try adjusting parameters")
