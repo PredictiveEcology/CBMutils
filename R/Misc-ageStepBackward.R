@@ -176,8 +176,6 @@ gstat_replace <- function(
 
   func <- if (idw) gstat::idw else gstat::krige
 
-  newVals <- data.table::data.table(terra::xyFromCell(inRast, cells))
-
   inArgs  <- list(
     data      = data.table::data.table(terra::extract(smRast, terra::cells(smRast), xy = TRUE)),
     locations = ~x+y,
@@ -197,18 +195,20 @@ gstat_replace <- function(
 
   if (parallel.cores == 1){
 
-    newVals <- do.call(func, c(list(newdata = newVals), inArgs))[,3]
+    inArgs$newdata <- data.table::data.table(terra::xyFromCell(inRast, cells))
+
+    newVals <- do.call(func, inArgs)[,3]
 
   }else{
 
-    newVals <- split(newVals, ceiling(1:nrow(newVals) / parallel.chunkSize))
-
     newVals <- parallel::mclapply(
       mc.cores = parallel.cores, mc.silent = TRUE,
-      newVals,
-      function(chunk) do.call(func, c(list(newdata = chunk), inArgs))[,3]
-    )
-    newVals <- do.call(c, newVals)
+      split(cells, ceiling(1:length(cells) / parallel.chunkSize)),
+      function(chunk){
+        newdata <- data.table::data.table(terra::xyFromCell(inRast, chunk))
+        do.call(func, c(list(newdata = newdata), inArgs))[,3]
+      })
+    newVals <- unname(do.call(c, newVals))
   }
 
   rm(inArgs)
