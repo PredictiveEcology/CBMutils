@@ -14,7 +14,7 @@ name: test-coverage
 
 jobs:
   test-coverage:
-    if: "!contains(github.event.commits[0].message, '[skip-ci]')"
+    if: "github.ref == 'refs/heads/main' || !contains(github.event.commits[0].message, '[skip-ci]')"
     runs-on: macOS-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
