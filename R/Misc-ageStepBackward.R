@@ -201,12 +201,12 @@ gstat_replace <- function(
 
   }else{
 
-    chunk <- NULL
-    newVals[, chunk := ceiling(1:nrow(newVals) / parallel.chunkSize)]
+    newVals <- split(newVals, ceiling(1:nrow(newVals) / parallel.chunkSize))
+
     newVals <- parallel::mclapply(
       mc.cores = parallel.cores, mc.silent = TRUE,
-      unique(newVals$chunk),
-      function(i) do.call(func, c(list(newdata = newVals[chunk == i,]), inArgs))[,3]
+      newVals,
+      function(chunk) do.call(func, c(list(newdata = chunk), inArgs))[,3]
     )
     newVals <- do.call(c, newVals)
   }
