@@ -153,7 +153,7 @@ gstat_replace <- function(
     idw = TRUE, idp = 2,
     nmax = Inf, maxdist = Inf, ...,
     agg.fact = 1, agg.fun = "median", agg.na.rm = TRUE,
-    parallel.cores = 1, parallel.chunkSize = 50000, verbose = TRUE){
+    parallel.cores = 1, parallel.chunkSize = 10000, verbose = TRUE){
 
   if (length(cells) == 0){
     if (verbose) message("gstat_replace: 0 cells to replace; skipping")
