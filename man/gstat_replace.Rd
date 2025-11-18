@@ -17,7 +17,7 @@ gstat_replace(
   agg.fun = "median",
   agg.na.rm = TRUE,
   parallel.cores = 1,
-  parallel.chunkSize = 10000,
+  parallel.chunkSize = 15000,
   verbose = TRUE
 )
 }
