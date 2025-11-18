@@ -191,7 +191,7 @@ gstat_replace <- function(
     idw = TRUE, idp = 2,
     nmax = Inf, maxdist = Inf, ...,
     agg.fact = 1, agg.fun = "median", agg.na.rm = TRUE,
-    parallel.cores = 1, parallel.chunkSize = 15000, verbose = TRUE){
+    parallel.cores = 1, parallel.chunkSize = 20000, verbose = TRUE){
 
   cells <- sort(unique(cells))
   if (length(cells) == 0){
