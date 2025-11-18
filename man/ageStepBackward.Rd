@@ -11,7 +11,7 @@ ageStepBackward(
   fill = TRUE,
   distEvents = NULL,
   idp = 1,
-  nmax = 250,
+  nmax = 100,
   agg.fact = 2,
   agg.fun = "median",
   ...
