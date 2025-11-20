@@ -10,10 +10,9 @@ ageStepBackward(
   yearOut,
   fill = TRUE,
   distEvents = NULL,
-  idp = 1,
+  idp = 2,
   nmax = 100,
   agg.fact = 2,
-  agg.fun = "median",
   ...
 )
 }
@@ -40,8 +39,6 @@ If >1, the raster will be aggregated before cell values
 are extracted as input data points for interpolation.
 This smooths the input data and speeds up the interpolation process.
 See \code{\link[terra]{aggregate}}.}
-
-\item{agg.fun}{Aggregation function.}
 
 \item{...}{arguments to \code{\link{gstat_replace}}.}
 }

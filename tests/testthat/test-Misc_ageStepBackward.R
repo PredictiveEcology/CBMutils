@@ -27,7 +27,7 @@ test_that("ageStepBackward: without disturbances", {
     vals = c(5, 10, -1, 0, 10, 10, rep(NA, 3))
   )
 
-  ageRastStep <- ageStepBackward(ageRastNeedsFill, yearIn = 2025, yearOut = 2020)
+  ageRastStep <- ageStepBackward(ageRastNeedsFill, yearIn = 2025, yearOut = 2020, agg.fact = 1)
   expect_equal(
     terra::values(ageRastStep, mat = FALSE),
     c(rep(5, 6), rep(NA, 3))
@@ -80,7 +80,7 @@ test_that("ageStepBackward: with disturbances", {
       ageRastTemplate,
       vals = c(20, 10, -1, 0, 10, 10, rep(NA, 3))
     ),
-    yearIn = 2025, yearOut = 2020, distEvents = distEvents)
+    yearIn = 2025, yearOut = 2020, distEvents = distEvents, agg.fact = 1)
   expect_equal(
     terra::values(ageRastStep, mat = FALSE),
     c(rep(5, 6), rep(NA, 3))

@@ -21,7 +21,7 @@ utils::globalVariables(c("x", "y", "z"))
 #' @export
 ageStepBackward <- function(
     ageRast, yearIn, yearOut, fill = TRUE, distEvents = NULL,
-    idp = 1, nmax = 100, agg.fact = 2, agg.fun = "median", ...){
+    idp = 2, nmax = 100, agg.fact = 2, ...){
 
   if (yearIn == yearOut) return(ageRast)
   if (yearIn <  yearOut) stop("Year input is less than year output. Use `ageStepForward`")
@@ -57,40 +57,24 @@ ageStepBackward <- function(
     message("Stepping ages back from ", yearIn, " to ", yearOut)
     ageRast <- ageRast - (yearIn - yearOut)
 
-    if (!is.null(distEvents)){
+    cellsRM <- list(
+      dist = distEvents$pixelIndex,
+      lte0 = terra::cells(terra::classify(ageRast <= 0, cbind(FALSE, NA)))
+    )
 
-      message("Masking out disturbance events")
-      terra::set.values(ageRast, unique(distEvents$pixelIndex), NA)
-      distEvents <- NULL
-    }
+    if (length(cellsRM$dist) > 0 | length(cellsRM$lte0) > 0){
 
-    cellsLTE0 <- terra::cells(terra::classify(ageRast <= 0, cbind(FALSE, NA)))
-    if (length(cellsLTE0) > 0){
+      message("Masking out ", paste(c(
+        "disturbance events"[length(cellsRM$dist) > 0],
+        paste("ages <=0 in", length(cellsRM$lte0), "pixels")[length(cellsRM$lte0) > 0]
+      ), collapse = " and "))
 
-      message("Removing ages <=0 in ", length(cellsLTE0), " pixels")
-      terra::set.values(ageRast, cellsLTE0, NA)
+      terra::set.values(ageRast, unique(do.call(c, cellsRM)), NA)
     }
 
     return(ageRast)
 
   }else{
-
-    # Aggregate input raster
-    if (!is.null(distEvents) & agg.fact > 1){
-
-      message("Aggregating input age raster")
-
-      stepRast <- terra::classify(ageRast, matrix(c(-Inf, 0, NA), ncol = 3, byrow = TRUE))
-      stepRast <- terra::aggregate(stepRast, fact = agg.fact, fun = agg.fun, na.rm = TRUE)
-
-      if (!is.null(distEvents)){
-        distEvents <- cbind(distEvents, terra::xyFromCell(ageRast, distEvents$pixelIndex))
-        data.table::setnames(distEvents, "pixelIndex", "pixelIndexIn")
-        distEvents[, pixelIndex   := terra::cellFromXY(stepRast, distEvents[, .(x, y)])]
-        distEvents[, c("x", "y") := NULL]
-      }
-
-    }else stepRast <- ageRast
 
     # Estimate ages before disturbances
     stepBack <- 1
@@ -109,15 +93,16 @@ ageStepBackward <- function(
         message("Estimating ages before disturbances in ", yearEnd)
 
         # Step ages back
-        stepRast <- stepRast - stepBack
+        ageRast <- ageRast - stepBack
 
         # Reverse disturbances and fill
         if (length(distCells) > 0){
-          stepRast <- gstat_replace(
-            stepRast, distCells,
+          ageRast <- gstat_replace(
+            ageRast, distCells,
             ignore = -500:0,
             idp    = idp,
             nmax   = nmax,
+            agg.fact = agg.fact,
             ...)
         }
 
@@ -127,38 +112,22 @@ ageStepBackward <- function(
       rm(distCells)
     }
 
-    # Disaggregate result
-    if (!is.null(distEvents) & agg.fact > 1){
-
-      message("Resampling output")
-
-      stepRast <- terra::disagg(stepRast, agg.fact)
-      stepRast <- terra::crop(stepRast, ageRast)
-
-      mSize <- (agg.fact - 1) * 2 + 1
-      stepRast <- terra::focal(stepRast, w = matrix(1, nrow = mSize, ncol = mSize),
-                               fun = mean, na.rm = TRUE)
-
-      terra::set.values(stepRast, setdiff(1:terra::ncell(stepRast), distEvents$pixelIndexIn), NA)
-      stepRast <- terra::cover(stepRast, ageRast - (yearIn - yearOut))
-    }
-
     # Replace cells with ages <=0
-    cellsLTE0 <- terra::cells(terra::classify(stepRast <= 0, cbind(FALSE, NA)))
+    cellsLTE0 <- terra::cells(terra::classify(ageRast <= 0, cbind(FALSE, NA)))
     if (length(cellsLTE0) > 0){
 
       message("Replacing ages <=0 in ", length(cellsLTE0), " pixels")
 
-      stepRast <- gstat_replace(
-        stepRast, cellsLTE0,
+      ageRast <- gstat_replace(
+        ageRast, cellsLTE0,
+        ignore = -500:0,
         idp  = idp,
         nmax = nmax,
         agg.fact = agg.fact,
-        agg.fun  = agg.fun,
         ...)
     }
 
-    return(stepRast)
+    return(ageRast)
   }
 }
 
@@ -191,7 +160,7 @@ gstat_replace <- function(
     idw = TRUE, idp = 2,
     nmax = Inf, maxdist = Inf, ...,
     agg.fact = 1, agg.fun = "median", agg.na.rm = TRUE,
-    parallel.cores = 1, parallel.chunkSize = 20000, verbose = TRUE){
+    parallel.cores = NULL, parallel.chunkSize = 20000, verbose = TRUE){
 
   cells <- sort(unique(cells))
   if (length(cells) == 0){
@@ -199,91 +168,86 @@ gstat_replace <- function(
     return(inRast)
   }
 
-  # Set input arguments
-  inArgs  <- list(
-    locations = ~x+y,
-    formula   = if (idw) z~1,
-    idp       = if (idw) idp,
-    nmax      = nmax,
-    maxdist   = maxdist,
-    debug.level = 0
-  )
-  dotArgs <- list(...)
-  inArgs <- c(inArgs[!sapply(inArgs, is.null) & !names(inArgs) %in% names(dotArgs)], dotArgs)
-  rm(dotArgs)
-
   if (verbose) message("gstat_replace: Reading input raster")
+
+  smRast <- terra::deepcopy(inRast)
+  terra::set.values(smRast, cells, NA)
+  if (!is.null(ignore)) smRast <- terra::classify(smRast, cbind(ignore, NA))
+
   if (agg.fact > 1){
 
-    smRast <- terra::deepcopy(inRast)
-    terra::set.values(smRast, cells, NA)
-    if (!is.null(ignore)) smRast <- terra::classify(smRast, cbind(ignore, NA))
     smRast <- terra::aggregate(smRast, fact = agg.fact, fun = agg.fun, na.rm = agg.na.rm)
 
-    inArgs$data <- terra::extract(smRast, terra::cells(smRast), xy = TRUE) |>
-      data.table::data.table()
-    data.table::setnames(inArgs$data, names(inRast), "z")
+    cellsPredict <- unique(terra::cellFromXY(smRast, terra::xyFromCell(inRast, cells)))
 
-    cellsIn <- cells
-    cells <- unique(terra::cellFromXY(smRast, terra::xyFromCell(inRast, cells)))
+  }else cellsPredict <- cells
 
-  }else{
+  xyzIn <- terra::extract(smRast, setdiff(terra::cells(smRast), cellsPredict), xy = TRUE) |>
+    data.table::data.table()
+  data.table::setnames(xyzIn, names(smRast), "z")
 
-    inArgs$data <- terra::extract(inRast, setdiff(terra::cells(inRast), cells), xy = TRUE) |>
-      data.table::data.table()
-    data.table::setnames(inArgs$data, names(inRast), "z")
-
-    if (!is.null(ignore)) inArgs$data <- inArgs$data[!z %in% ignore,]
-  }
-
-  if (nrow(inArgs$data) == 0) stop("Raster does not contain any values to use as predictors")
+  if (nrow(xyzIn) == 0) stop("Raster does not contain any values to use as predictors")
 
   if (verbose) message("gstat_replace: Predicting new values")
 
-  func <- if (idw) gstat::idw else gstat::krige
+  gstatFunc <- if (idw) gstat::idw else gstat::krige
+  xyPredict <- data.table::as.data.table(terra::xyFromCell(smRast, cellsPredict))
 
-  if (parallel.cores == 1){
+  if (is.null(parallel.cores)){
 
-    inArgs$newdata <- data.table::data.table(terra::xyFromCell(inRast, cells))
-
-    newVals <- do.call(func, inArgs)[,3]
+    newVals <- gstatFunc(
+      data      = xyzIn,
+      newdata   = xyPredict,
+      locations = ~x+y,
+      formula   = if (idw) z~1,
+      idp       = if (idw) idp,
+      nmax      = nmax,
+      maxdist   = maxdist,
+      debug.level = 0,
+      ...)[,3]
 
   }else{
 
+    xyPredict <- split(xyPredict, ceiling(1:nrow(xyPredict) / parallel.chunkSize))
+
     newVals <- parallel::mclapply(
       mc.cores = parallel.cores, mc.silent = TRUE,
-      split(cells, ceiling(1:length(cells) / parallel.chunkSize)),
+      xyPredict,
       function(chunk){
-        newdata <- data.table::data.table(terra::xyFromCell(inRast, chunk))
-        do.call(func, c(list(newdata = newdata), inArgs))[,3]
+        gstatFunc(
+          data      = xyzIn,
+          newdata   = chunk,
+          locations = ~x+y,
+          formula   = if (idw) z~1,
+          idp       = if (idw) idp,
+          nmax      = nmax,
+          maxdist   = maxdist,
+          debug.level = 0,
+          ...)[,3]
       })
     newVals <- unname(do.call(c, newVals))
   }
 
-  rm(inArgs)
+  rm(xyzIn)
+  rm(xyPredict)
 
   if (any(is.na(newVals))) stop("gstat failed to predict all replacement values. Try adjusting parameters")
 
+  terra::set.values(smRast, cellsPredict, newVals)
+
   if (agg.fact > 1){
 
-    if (verbose) message("gstat_replace: Resampling new values")
+    if (verbose) message("gstat_replace: Upsampling new values")
 
-    smRast <- terra::rast(smRast, vals = NA)
-    terra::set.values(smRast, cells, newVals)
+    terra::set.values(smRast, setdiff(terra::cells(smRast), cellsPredict), NA)
     smRast <- terra::disagg(smRast, agg.fact)
     smRast <- terra::crop(smRast, inRast)
 
-    mSize <- (agg.fact - 1) * 2 + 1
-    smRast <- terra::focal(smRast, w = matrix(1, nrow = mSize, ncol = mSize), fun = mean, na.rm = TRUE)
-
-    cells <- cellsIn
-    newVals <- terra::extract(smRast, cellsIn)[,1]
-
-    rm(cellsIn)
-    rm(smRast)
+    wSize <- (agg.fact - 1) * 2 + 1
+    smRast <- terra::focal(smRast, w = matrix(1, nrow = wSize, ncol = wSize), fun = mean, na.rm = TRUE)
   }
 
-  terra::set.values(inRast, cells, newVals)
+  terra::set.values(inRast, cells, terra::extract(smRast, cells)[,1])
 
   inRast
 

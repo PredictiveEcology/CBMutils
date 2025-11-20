@@ -5,7 +5,7 @@ Description: Implementation of several components of the Carbon Budget Model of 
     Canadian Forest Service (v3).
 URL:
     https://github.com/PredictiveEcology/CBMutils
-Version: 2.4.1.9005
+Version: 2.4.1.9006
 Authors@R: c(
     person("Céline",    "Boisvenue", email = "celine.boisvenue@nrcan-rncan.gc.ca", role = c("aut")),
     person("Alex M",    "Chubaty",   email = "achubaty@for-cast.ca",               role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7146-8135")),
