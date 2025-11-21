@@ -40,22 +40,18 @@ ageStepBackward <- function(
 
   withr::local_options(list(rasterTmpDir = withr::local_tempdir("raster_", tmpdir = tmpdir)))
 
-  # Read input disturbances
-  if (!is.null(distEvents)){
-
-    if (!data.table::is.data.table(distEvents)){
-      distEvents <- data.table::as.data.table(distEvents)
-    }
-    distEvents <- unique(distEvents[
-      pixelIndex %in% terra::cells(ageRast) & year %in% (yearIn - 1):yearOut,
-      .(pixelIndex, year)])
-    if (nrow(distEvents) == 0) distEvents <- NULL
+  if (!is.null(distEvents) && !data.table::is.data.table(distEvents)){
+    distEvents <- data.table::as.data.table(distEvents)
   }
 
   if (!fill){
 
     message("Stepping ages back from ", yearIn, " to ", yearOut)
     ageRast <- ageRast - (yearIn - yearOut)
+
+    if (!is.null(distEvents)) distEvents <- distEvents[
+      pixelIndex %in% terra::cells(ageRast) & year %in% (yearIn - 1):yearOut,
+      .(pixelIndex, year)]
 
     cellsRM <- list(
       dist = distEvents$pixelIndex,
@@ -77,12 +73,14 @@ ageStepBackward <- function(
   }else{
 
     # Estimate ages before disturbances
+    cellsIn <- terra::cells(ageRast)
+
     stepBack <- 1
     for (yearInit in yearIn:(yearOut + 1)){
 
       yearEnd <- yearInit - 1
 
-      distCells <- if (!is.null(distEvents)) distEvents[year == yearEnd,]$pixelIndex
+      distCells <- if (!is.null(distEvents)) intersect(distEvents[year == yearEnd,]$pixelIndex, cellsIn)
 
       if (yearEnd != yearOut & length(distCells) == 0){
 
@@ -111,6 +109,7 @@ ageStepBackward <- function(
 
       rm(distCells)
     }
+    rm(cellsIn)
 
     # Replace cells with ages <=0
     cellsLTE0 <- terra::cells(terra::classify(ageRast <= 0, cbind(FALSE, NA)))
