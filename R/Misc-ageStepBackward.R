@@ -186,6 +186,8 @@ gstat_replace <- function(
     data.table::data.table()
   data.table::setnames(xyzIn, names(smRast), "z")
 
+  smRast <- terra::rast(smRast)
+
   if (nrow(xyzIn) == 0) stop("Raster does not contain any values to use as predictors")
 
   if (verbose) message("gstat_replace: Predicting new values")
@@ -239,7 +241,6 @@ gstat_replace <- function(
 
     if (verbose) message("gstat_replace: Upsampling new values")
 
-    terra::set.values(smRast, setdiff(terra::cells(smRast), cellsPredict), NA)
     smRast <- terra::disagg(smRast, agg.fact)
     smRast <- terra::crop(smRast, inRast)
 
