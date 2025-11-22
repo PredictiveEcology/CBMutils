@@ -113,7 +113,7 @@ ageStepBackward <- function(
     rm(cellsIn)
 
     # Replace cells with ages <=0
-    cellsLTE0 <- terra::cells(terra::classify(ageRast <= 0, cbind(FALSE, NA)))
+    cellsLTE0 <- terra::cells(terra::subst(ageRast <= 0, FALSE, NA))
     if (length(cellsLTE0) > 0){
 
       message("Replacing ages <=0 in ", length(cellsLTE0), " pixels")
@@ -172,7 +172,7 @@ gstat_replace <- function(
 
   smRast <- terra::deepcopy(inRast)
   terra::set.values(smRast, cells, NA)
-  if (!is.null(ignore)) smRast <- terra::classify(smRast, cbind(ignore, NA))
+  if (!is.null(ignore)) smRast <- terra::subst(smRast, ignore, NA)
 
   if (agg.fact > 1){
 
