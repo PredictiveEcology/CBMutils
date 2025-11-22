@@ -34,10 +34,11 @@ ageStepBackward <- function(
   # Set temporary directories for intermediate data; unlink and reset on close
   tmpdir <- file.path(getOption("spades.scratchPath", default = tempdir()), "CBMutils")
 
-  terraDirInit <- evalq(terra::terraOptions(print = FALSE)[["tempdir"]])
-  withr::defer(terra::terraOptions(tempdir = terraDirInit, print = FALSE))
-  terra::terraOptions(tempdir = withr::local_tempdir("terra_", tmpdir = tmpdir), print = FALSE)
-
+  terraDirInit <- evalq(terra::terraOptions(print = FALSE)[c("tempdir", "memfrac")])
+  withr::defer(do.call(terra::terraOptions, terraDirInit))
+  terra::terraOptions(
+    tempdir = withr::local_tempdir("terra_", tmpdir = tmpdir),
+    memfrac = 0)
   withr::local_options(list(rasterTmpDir = withr::local_tempdir("raster_", tmpdir = tmpdir)))
 
   if (!is.null(distEvents) && !data.table::is.data.table(distEvents)){
