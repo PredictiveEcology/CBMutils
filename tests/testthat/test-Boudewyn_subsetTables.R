@@ -24,14 +24,11 @@ spatial_units <- RSQLite::dbReadTable(cbmDBcon, "spatial_unit") |>
 
 spatial_units[, AdminBoundaryID := admin_boundary_id]
 spatial_units[, EcoBoundaryID   := eco_boundary_id]
+spatial_units[, abreviation     := c(
+  "NL", "NL", "NS", "PE", "NB", "QC", "ON", "MB", "SK", "AB", "BC", "YK", "NT", "NU"
+)[spatial_units$admin_boundary_id],]
 
 data.table::setkey(spatial_units, admin_boundary_id, eco_boundary_id)
-
-## TEMPORARY: test only a subset of provinces
-spatial_units <- spatial_units[admin_boundary_id %in% c(
-  9, # SK
-  11 # BC
-),]
 
 for (i in 1:nrow(spatial_units)){
 
