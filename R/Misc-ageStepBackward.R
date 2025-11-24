@@ -107,8 +107,8 @@ ageStepBackward <- function(
             cxyz, distCells,
             ignore = -500:0,
             idp    = idp,
-            nmax   = nmax
-          )
+            nmax   = nmax,
+            ...)
         }
 
         stepBack <- 1
@@ -128,8 +128,8 @@ ageStepBackward <- function(
         cxyz, cellsLTE0,
         ignore = -500:0,
         idp  = idp,
-        nmax = nmax
-      )
+        nmax = nmax,
+        ...)
     }
 
     ageRast <- terra::rast(ageRast)
@@ -277,7 +277,7 @@ gstat_replace <- function(
 
     sapply(1:nrow(xyOut), function(i){
       w <- 1 / (nn$nn.dist[i,] ^ p)
-      sum(w * xyzIn$z[nn$nn.index[i,]]) / sum(w)
+      sum(w * zIn[nn$nn.index[i,]]) / sum(w)
     })
   }
 
@@ -356,11 +356,30 @@ idw_replace <- function(
     })
   }
 
-  newVals <- idw(
-    cxyz[inp == TRUE, .(x, y)],
-    cxyz[inp == TRUE]$z,
-    cxyz[rep == TRUE, .(x, y)],
-    p = idp, k = nmax)
+  if (is.null(parallel.cores)){
+
+    newVals <- idw(
+      cxyz[inp == TRUE, .(x, y)],
+      cxyz[inp == TRUE]$z,
+      cxyz[rep == TRUE, .(x, y)],
+      p = idp, k = nmax)
+
+  }else{
+
+    cxyz[rep == TRUE, ch := ceiling(1:length(cells) / parallel.chunkSize)]
+
+    newVals <- parallel::mclapply(
+      mc.cores = parallel.cores, mc.silent = TRUE,
+      na.omit(unique(cxyz$ch)),
+      function(chunk) idw(
+        cxyz[inp == TRUE, .(x, y)],
+        cxyz[inp == TRUE]$z,
+        cxyz[ch == chunk, .(x, y)],
+        p = idp, k = nmax)
+    )
+    newVals <- unname(do.call(c, newVals))
+    cxyz[, ch  := NULL]
+  }
 
   if (verbose) message("gstat_replace: Replacing with new values")
 
