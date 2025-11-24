@@ -12,7 +12,7 @@ ageStepBackward(
   distEvents = NULL,
   idp = 2,
   nmax = 100,
-  agg.fact = 2,
+  agg.fact = 1,
   ...
 )
 }
