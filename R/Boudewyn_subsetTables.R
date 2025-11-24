@@ -45,8 +45,8 @@ boudewynSubsetTables <- function(table, thisAdmin, eco) {
   # "YK" - NT/BC
   # "NU" - NT/NL
   # "NS" - NB
-  abreviation <- c("PE", "MB", "SK", "YK", "NU", "NS")
-  tabreviation <- c("NB", "AB", "AB", "NT", "NT", "NB")
+  abreviation <- c("PE", "MB", "SK", "NS")
+  tabreviation <- c("NB", "AB", "AB", "NB")
 
   abreviationReplace <- data.table(
     abreviation = abreviation,
@@ -59,14 +59,34 @@ boudewynSubsetTables <- function(table, thisAdmin, eco) {
             EcoBoundaryID := i.EcoBoundaryNew]
 
   # Replaces QC and ON with appropriate replacements depending on ecozone
-  if (thisAdmin[abreviation %in% c("QC", "ON") & EcoBoundaryID %in% c(5, 6), .N] > 0) {
+  if (thisAdmin[abreviation %in% c("QC", "ON") & EcoBoundaryID %in% c(5, 6), .N] > 0  && !any(c("QC", "ON") %in% table$juris_id)) {
     thisAdmin[abreviation %in% c("QC", "ON") & EcoBoundaryID %in% c(5, 6),
               abreviation := "NL"]
   }
 
-  if (thisAdmin[abreviation %in% c("QC", "ON") & EcoBoundaryID == 7, .N] > 0) {
+  if (thisAdmin[abreviation %in% c("QC", "ON") & EcoBoundaryID == 7, .N] > 0 && !any(c("QC", "ON") %in% table$juris_id)) {
     thisAdmin[abreviation %in% c("QC", "ON") & EcoBoundaryID == 7,
               abreviation := "NB"]
+  }
+
+  if (thisAdmin[abreviation %in% c("NU") & EcoBoundaryID == 5, .N] > 0 && !"NU" %in% table$juris_id) {
+    thisAdmin[abreviation %in% c("NU") & EcoBoundaryID == 5,
+              abreviation := "NT"]
+  }
+
+  if (thisAdmin[abreviation %in% "NU" & EcoBoundaryID == 6, .N] > 0 && !"NU" %in% table$juris_id) {
+    thisAdmin[abreviation %in% c("NU") & EcoBoundaryID == 6,
+              abreviation := "NL"]
+  }
+
+  if (thisAdmin[abreviation %in% "YK" & EcoBoundaryID %in% c(4, 12), .N] > 0 && !"YK" %in% table$juris_id) {
+    thisAdmin[abreviation %in% c("YK") & EcoBoundaryID %in% c(4, 12),
+              abreviation := "NT"]
+  }
+
+  if (thisAdmin[abreviation %in% c("YK") & EcoBoundaryID == 13, .N] > 0 && !"YK" %in% table$juris_id) {
+    thisAdmin[abreviation %in% c("YK") & EcoBoundaryID == 13,
+              abreviation := "BC"]
   }
 
   # Replaces abreviation not in table with appropriate replacement
