@@ -170,28 +170,40 @@ gstat_replace <- function(
 
   if (verbose) message("gstat_replace: Reading input raster")
 
-  smRast <- terra::deepcopy(inRast)
-  terra::set.values(smRast, cells, NA)
-  if (!is.null(ignore)) smRast <- terra::subst(smRast, ignore, NA)
+  if (agg.fact == 1){
 
-  if (agg.fact > 1){
+    smRast <- inRast
+    cellsPredict <- cells
+
+  }else{
+
+    smRast <- terra::deepcopy(inRast)
+    terra::set.values(smRast, cells, NA)
+    if (!is.null(ignore)) smRast <- terra::subst(smRast, ignore, NA)
 
     smRast <- terra::aggregate(smRast, fact = agg.fact, fun = agg.fun, na.rm = agg.na.rm)
 
     cellsPredict <- unique(terra::cellFromXY(smRast, terra::xyFromCell(inRast, cells)))
 
-  }else cellsPredict <- cells
+  }
 
   cellsIn <- setdiff(terra::cells(smRast), cellsPredict)
   if (length(cellsIn) == 0) stop("Raster does not contain any values to use as predictors")
 
-  xyzIn <- list(
-    xy = terra::xyFromCell(smRast,  cellsIn) |> data.table::as.data.table(),
-    z  = terra::extract(smRast, cellsIn)[,1]
-  )
+  xyzIn <- terra::extract(smRast, cellsIn, xy = TRUE) |> data.table::as.data.table()
+  names(xyzIn) <- c("x", "y", "z")
   rm(cellsIn)
 
-  smRast <- terra::rast(smRast)
+  if (agg.fact == 1 & !is.null(ignore)){
+    xyzIn <- xyzIn[!z %in% ignore,]
+  }
+
+  xyzIn <- list(
+    xy = xyzIn[, .(x, y)],
+    z  = xyzIn$z
+  )
+
+  if (agg.fact > 1) smRast <- terra::rast(smRast)
 
   xyPredict <- terra::xyFromCell(smRast, cellsPredict) |> data.table::as.data.table()
 
@@ -243,6 +255,7 @@ gstat_replace <- function(
     rm(smRast)
   }
 
+  if (verbose) message("gstat_replace: Replacing with new values")
   terra::set.values(inRast, cells, newVals)
 
   inRast
