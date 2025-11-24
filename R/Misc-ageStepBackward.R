@@ -190,18 +190,16 @@ gstat_replace <- function(
   cellsIn <- setdiff(terra::cells(smRast), cellsPredict)
   if (length(cellsIn) == 0) stop("Raster does not contain any values to use as predictors")
 
-  xyzIn <- terra::extract(smRast, cellsIn, xy = TRUE) |> data.table::as.data.table()
-  names(xyzIn) <- c("x", "y", "z")
+  xyzIn <- list(
+    xy = terra::xyFromCell(smRast, cellsIn) |> data.table::as.data.table(),
+    z  = terra::extract(smRast, cellsIn)[,1]
+  )
   rm(cellsIn)
 
   if (agg.fact == 1 & !is.null(ignore)){
-    xyzIn <- xyzIn[!z %in% ignore,]
+    xyzIn$xy <- xyzIn$xy[!xyzIn$z %in% ignore,]
+    xyzIn$z  <- xyzIn$z[ !xyzIn$z %in% ignore]
   }
-
-  xyzIn <- list(
-    xy = xyzIn[, .(x, y)],
-    z  = xyzIn$z
-  )
 
   if (agg.fact > 1) smRast <- terra::rast(smRast)
 
