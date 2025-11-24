@@ -90,7 +90,7 @@ boudewynSubsetTables <- function(table, thisAdmin, eco) {
   }
 
   # Replaces abreviation not in table with appropriate replacement
-  if (any(thisAdmin$abreviation %in% abreviationReplace$abreviation)) {
+  if (any(thisAdmin$abreviation %in% abreviationReplace$abreviation) && !any(thisAdmin$abreviation %in% table$juris_id)) {
     thisAdmin[abreviationReplace,
               on = .(abreviation),
               abreviation := i.abreviationNew]
