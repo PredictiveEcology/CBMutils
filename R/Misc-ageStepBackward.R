@@ -281,7 +281,7 @@ gstat_replace <- function(
     })
   }
 
-  if (is.null(parallel.cores)){
+  if (is.null(parallel.cores) || is.na(parallel.cores)){
 
     newVals <- idw(xyzIn$xy, xyzIn$z, xyPredict, p = idp, k = nmax)
 
@@ -356,7 +356,7 @@ idw_replace <- function(
     })
   }
 
-  if (is.null(parallel.cores)){
+  if (is.null(parallel.cores) || is.na(parallel.cores)){
 
     newVals <- idw(
       cxyz[inp == TRUE, .(x, y)],
