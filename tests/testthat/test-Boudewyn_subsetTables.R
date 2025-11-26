@@ -18,9 +18,10 @@ boudewynTables <- lapply(3:7, function(n){
 names(boudewynTables) <- 3:7
 
 
-cbmDBcon <- DBI::dbConnect(RSQLite::dbDriver("SQLite"), dbPath)
+cbmDBcon <- RSQLite::dbConnect(RSQLite::dbDriver("SQLite"), dbPath)
 spatial_units <- RSQLite::dbReadTable(cbmDBcon, "spatial_unit") |>
   data.table::as.data.table()
+RSQLite::dbDisconnect(cbmDBcon)
 
 spatial_units[, AdminBoundaryID := admin_boundary_id]
 spatial_units[, EcoBoundaryID   := eco_boundary_id]
