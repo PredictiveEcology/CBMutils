@@ -1,3 +1,7 @@
+utils::globalVariables(c(
+  "EcoBoundaryID", "i.EcoBoundaryNew", "i.abreviationNew"
+))
+
 #' Subset Boudewyn tables to fit study area
 #'
 #' @param table Boudewyn table to subset
