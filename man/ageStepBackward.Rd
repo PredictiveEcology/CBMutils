@@ -12,8 +12,10 @@ ageStepBackward(
   distEvents = NULL,
   idp = 2,
   nmax = 100,
+  ...,
   agg.fact = 1,
-  ...
+  agg.fun = "median",
+  agg.na.rm = TRUE
 )
 }
 \arguments{
@@ -28,11 +30,13 @@ ageStepBackward(
 \item{distEvents}{data.table. Optional.
 Table of disturbance events with columns "pixelIndex" and "year".
 If provided, disturbances will be reversed and the disturbed areas
-will be filled with \code{gstat_replace}.}
+will be filled with \code{idw_replace}.}
 
 \item{idp}{numeric. IDW power.}
 
 \item{nmax}{numeric. The maximum number of nearest observations to use.}
+
+\item{...}{additional arguments to \code{\link{idw_replace}}.}
 
 \item{agg.fact}{Aggregation factor for the input raster.
 If >1, the raster will be aggregated before cell values
@@ -40,12 +44,14 @@ are extracted as input data points for interpolation.
 This smooths the input data and speeds up the interpolation process.
 See \code{\link[terra]{aggregate}}.}
 
-\item{...}{arguments to \code{\link{gstat_replace}}.}
+\item{agg.fun}{Aggregation function.}
+
+\item{agg.na.rm}{Remove NA cells when aggregating.}
 }
 \value{
 \code{SpatRaster}
 }
 \description{
 Step an age raster backwards in time.
-Ages that are set as <=0 are replaced with surrounding ages >0 with \code{gstat_replace}.
+Ages that are set as <=0 are replaced with surrounding ages >0 with \code{idw_replace}.
 }

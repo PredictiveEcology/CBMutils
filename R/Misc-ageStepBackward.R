@@ -3,7 +3,7 @@ utils::globalVariables(c("x", "y", "z"))
 #' Age Step Backwards
 #'
 #' Step an age raster backwards in time.
-#' Ages that are set as <=0 are replaced with surrounding ages >0 with `gstat_replace`.
+#' Ages that are set as <=0 are replaced with surrounding ages >0 with `idw_replace`.
 #'
 #' @param ageRast SpatRaster. Raster with numeric values of cohort ages.
 #' @param yearIn numeric. Year that ages in `ageRast` represent.
@@ -12,22 +12,28 @@ utils::globalVariables(c("x", "y", "z"))
 #' @param distEvents data.table. Optional.
 #' Table of disturbance events with columns "pixelIndex" and "year".
 #' If provided, disturbances will be reversed and the disturbed areas
-#' will be filled with `gstat_replace`.
-#' @param ... arguments to \code{\link{gstat_replace}}.
-#' @inheritParams gstat_replace
+#' will be filled with `idw_replace`.
+#' @param agg.fact Aggregation factor for the input raster.
+#' If >1, the raster will be aggregated before cell values
+#' are extracted as input data points for interpolation.
+#' This smooths the input data and speeds up the interpolation process.
+#' See \code{\link[terra]{aggregate}}.
+#' @param agg.fun Aggregation function.
+#' @param agg.na.rm Remove NA cells when aggregating.
+#' @param ... additional arguments to \code{\link{idw_replace}}.
+#' @inheritParams idw_replace
 #'
 #' @return \code{SpatRaster}
 #'
 #' @export
 ageStepBackward <- function(
     ageRast, yearIn, yearOut, fill = TRUE, distEvents = NULL,
-    idp = 2, nmax = 100, agg.fact = 1, ...){
+    idp = 2, nmax = 100, ...,
+    agg.fact = 1, agg.fun = "median", agg.na.rm = TRUE){
 
   if (yearIn == yearOut) return(ageRast)
   if (yearIn <  yearOut) stop("Year input is less than year output. Use `ageStepForward`")
 
-  if (length(find.package("gstat", quiet = TRUE)) == 0) stop(
-    "gstat package required. Install with `install.packages(\"gstat\")`")
   if (length(find.package("withr", quiet = TRUE)) == 0) stop(
     "withr package required. Install with `install.packages(\"withr\")`")
 
@@ -70,281 +76,117 @@ ageStepBackward <- function(
     }
 
     return(ageRast)
-
-  }else if (agg.fact == 1){
-
-    cellsIn <- terra::cells(ageRast)
-
-    cxyz <- data.table::as.data.table(terra::extract(ageRast, cellsIn, xy = TRUE))
-    data.table::setnames(cxyz, names(cxyz)[[3]], "z")
-    cxyz[, c := cellsIn]
-    cxyz[, x := x - min(x)]
-    cxyz[, y := y - min(y)]
-    data.table::setkey(cxyz, c)
-    data.table::setcolorder(cxyz)
-
-    stepBack <- 1
-    for (yearInit in yearIn:(yearOut + 1)){
-
-      yearEnd <- yearInit - 1
-
-      distCells <- if (!is.null(distEvents)) intersect(distEvents[year == yearEnd,]$pixelIndex, cellsIn)
-
-      if (yearEnd != yearOut & length(distCells) == 0){
-
-        stepBack <- stepBack + 1
-
-      }else{
-
-        message("Stepping ages back from ", yearEnd + stepBack, " to ", yearEnd)
-
-        cxyz[, z := z - stepBack]
-
-        message("Estimating ages before disturbances in ", yearEnd)
-
-        if (length(distCells) > 0){
-          cxyz <- idw_replace(
-            cxyz, distCells,
-            ignore = -500:0,
-            idp    = idp,
-            nmax   = nmax,
-            ...)
-        }
-
-        stepBack <- 1
-      }
-
-      rm(distCells)
-    }
-    rm(cellsIn)
-
-    # Replace cells with ages <=0
-    cellsLTE0 <- cxyz[z <= 0,]$c
-    if (length(cellsLTE0) > 0){
-
-      message("Replacing ages <=0 in ", length(cellsLTE0), " pixels")
-
-      cxyz <- idw_replace(
-        cxyz, cellsLTE0,
-        ignore = -500:0,
-        idp  = idp,
-        nmax = nmax,
-        ...)
-    }
-
-    ageRast <- terra::rast(ageRast)
-    terra::set.values(ageRast, cxyz$c, cxyz$z)
-    return(ageRast)
-
-  }else{
-
-    cellsIn <- terra::cells(ageRast)
-
-    stepBack <- 1
-    for (yearInit in yearIn:(yearOut + 1)){
-
-      yearEnd <- yearInit - 1
-
-      distCells <- if (!is.null(distEvents)) intersect(distEvents[year == yearEnd,]$pixelIndex, cellsIn)
-
-      if (yearEnd != yearOut & length(distCells) == 0){
-
-        stepBack <- stepBack + 1
-
-      }else{
-
-        message("Stepping ages back from ", yearEnd + stepBack, " to ", yearEnd)
-
-        ageRast <- ageRast - stepBack
-
-        message("Estimating ages before disturbances in ", yearEnd)
-
-        if (length(distCells) > 0){
-          ageRast <- gstat_replace(
-            ageRast, distCells,
-            ignore = -500:0,
-            idp    = idp,
-            nmax   = nmax,
-            agg.fact = agg.fact,
-            ...)
-        }
-
-        stepBack <- 1
-      }
-
-      rm(distCells)
-    }
-    rm(cellsIn)
-
-    # Replace cells with ages <=0
-    cellsLTE0 <- terra::cells(terra::subst(ageRast <= 0, FALSE, NA))
-    if (length(cellsLTE0) > 0){
-
-      message("Replacing ages <=0 in ", length(cellsLTE0), " pixels")
-
-      ageRast <- gstat_replace(
-        ageRast, cellsLTE0,
-        ignore = -500:0,
-        idp  = idp,
-        nmax = nmax,
-        agg.fact = agg.fact,
-        ...)
-    }
-
-    return(ageRast)
   }
+
+  if (agg.fact > 1) stop("agg.fact cannot yet be >= 1")
+
+  # Read input
+  cellsIn <- terra::cells(ageRast)
+
+  cxyz <- data.table::as.data.table(terra::extract(ageRast, cellsIn, xy = TRUE))
+  data.table::setnames(cxyz, names(cxyz)[[3]], "z")
+  cxyz[, c := cellsIn]
+  cxyz[, x := x - min(x)]
+  cxyz[, y := y - min(y)]
+  data.table::setkey(cxyz, c)
+  data.table::setcolorder(cxyz)
+
+  stepBack <- 1
+  for (yearInit in yearIn:(yearOut + 1)){
+
+    yearEnd <- yearInit - 1
+
+    distCells <- if (!is.null(distEvents)) intersect(distEvents[year == yearEnd,]$pixelIndex, cellsIn)
+
+    if (yearEnd != yearOut & length(distCells) == 0){
+
+      stepBack <- stepBack + 1
+
+    }else{
+
+      message("Stepping ages back from ", yearEnd + stepBack, " to ", yearEnd)
+
+      cxyz[, z := z - stepBack]
+
+      message("Estimating ages before disturbances in ", yearEnd)
+
+      if (length(distCells) > 0){
+        cxyz <- idw_replace(
+          cxyz, distCells,
+          ignore = -500:0,
+          idp    = idp,
+          nmax   = nmax,
+          ...)
+      }
+
+      stepBack <- 1
+    }
+
+    rm(distCells)
+  }
+  rm(cellsIn)
+
+  # Replace cells with ages <=0
+  cellsLTE0 <- cxyz[z <= 0,]$c
+  if (length(cellsLTE0) > 0){
+
+    message("Replacing ages <=0 in ", length(cellsLTE0), " pixels")
+
+    cxyz <- idw_replace(
+      cxyz, cellsLTE0,
+      ignore = -500:0,
+      idp  = idp,
+      nmax = nmax,
+      ...)
+  }
+
+  ageRast <- terra::rast(ageRast)
+  terra::set.values(ageRast, cxyz$c, cxyz$z)
+
+  return(ageRast)
+
 }
 
-
-#' gstat replace cells
+#' IDW replace
 #'
-#' Replace cells in a raster by interpolating their values
-#' from the other cells values with gstat::idw or gstat::krige.
+#' Replace values in a table by interpolating their values
+#' from the other points values using IDW interpolation.
 #'
+#' @param cxyz Table with xy coordinates, z values, and point IDs (c).
 #' @param ignore numeric. Raster values to exclude from input data.
-#' @param idw logical. Use \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.
 #' @param idp numeric. IDW power.
 #' @param nmax numeric. The maximum number of nearest observations to use.
-#' @param maxdist numeric. The maximum distance of observations to use.
-#' @param agg.fact Aggregation factor for the input raster.
-#' If >1, the raster will be aggregated before cell values
-#' are extracted as input data points for interpolation.
-#' This smooths the input data and speeds up the interpolation process.
-#' See \code{\link[terra]{aggregate}}.
-#' @param agg.fun Aggregation function.
-#' @param agg.na.rm Remove NA cells when aggregating.
 #' @param parallel.cores Number of cores to use in parallel processing.
 #' See \code{\link[parallel]{mclapply}}.
 #' @param parallel.chunkSize Number of cells to process in each parallel processing chunk.
-#' @param ... additional arguments to \code{\link[gstat]{idw}} or \code{\link[gstat]{krige}}.
+#' @param ... additional arguments to \code{\link[parallel]{mclapply}} or \code{\link[parallel]{mclapply}}.
 #'
 #' @keywords internal
-gstat_replace <- function(
-    inRast, cells, ignore = NULL,
-    idw = TRUE, idp = 2,
-    nmax = Inf, maxdist = Inf, ...,
-    agg.fact = 1, agg.fun = "median", agg.na.rm = TRUE,
-    parallel.cores = NULL, parallel.chunkSize = 20000, verbose = TRUE){
-
-  cells <- sort(unique(cells))
-  if (length(cells) == 0){
-    if (verbose) message("gstat_replace: 0 cells to replace; skipping")
-    return(inRast)
-  }
-
-  if (verbose) message("gstat_replace: Reading input raster")
-
-  if (agg.fact == 1){
-
-    smRast <- inRast
-    cellsPredict <- cells
-
-  }else{
-
-    smRast <- terra::deepcopy(inRast)
-    terra::set.values(smRast, cells, NA)
-    if (!is.null(ignore)) smRast <- terra::subst(smRast, ignore, NA)
-
-    smRast <- terra::aggregate(smRast, fact = agg.fact, fun = agg.fun, na.rm = agg.na.rm)
-
-    cellsPredict <- unique(terra::cellFromXY(smRast, terra::xyFromCell(inRast, cells)))
-
-  }
-
-  cellsIn <- setdiff(terra::cells(smRast), cellsPredict)
-  if (length(cellsIn) == 0) stop("Raster does not contain any values to use as predictors")
-
-  xyzIn <- list(
-    xy = terra::xyFromCell(smRast, cellsIn) |> data.table::as.data.table(),
-    z  = terra::extract(smRast, cellsIn)[,1]
-  )
-  rm(cellsIn)
-
-  if (agg.fact == 1 & !is.null(ignore)){
-    xyzIn$xy <- xyzIn$xy[!xyzIn$z %in% ignore,]
-    xyzIn$z  <- xyzIn$z[ !xyzIn$z %in% ignore]
-  }
-
-  if (agg.fact > 1) smRast <- terra::rast(smRast)
-
-  xyPredict <- terra::xyFromCell(smRast, cellsPredict) |> data.table::as.data.table()
-
-  if (verbose) message("gstat_replace: Predicting new values")
-
-  idw <- function(xyIn, zIn, xyOut, k, p, ...){
-
-    nn <- FNN::get.knnx(xyIn, query = xyOut, k = min(k, nrow(xyIn)), ...)
-
-    sapply(1:nrow(xyOut), function(i){
-      w <- 1 / (nn$nn.dist[i,] ^ p)
-      sum(w * zIn[nn$nn.index[i,]]) / sum(w)
-    })
-  }
-
-  if (is.null(parallel.cores) || is.na(parallel.cores)){
-
-    newVals <- idw(xyzIn$xy, xyzIn$z, xyPredict, p = idp, k = nmax)
-
-  }else{
-
-    xyPredict <- split(xyPredict, ceiling(1:nrow(xyPredict) / parallel.chunkSize))
-
-    newVals <- parallel::mclapply(
-      mc.cores = parallel.cores, mc.silent = TRUE,
-      xyPredict,
-      function(chunk) idw(xyzIn$xy, xyzIn$z, chunk, p = idp, k = nmax)
-    )
-    newVals <- unname(do.call(c, newVals))
-  }
-
-  rm(xyzIn)
-  rm(xyPredict)
-
-  if (any(is.na(newVals))) stop("gstat failed to predict all replacement values. Try adjusting parameters")
-
-  if (agg.fact > 1){
-
-    if (verbose) message("gstat_replace: Upsampling new values")
-
-    terra::set.values(smRast, cellsPredict, newVals)
-    smRast <- terra::disagg(smRast, agg.fact)
-    smRast <- terra::crop(smRast, inRast)
-
-    wSize <- (agg.fact - 1) * 2 + 1
-    smRast <- terra::focal(smRast, w = matrix(1, nrow = wSize, ncol = wSize), fun = mean, na.rm = TRUE)
-
-    newVals <- terra::extract(smRast, cells)[,1]
-    rm(smRast)
-  }
-
-  if (verbose) message("gstat_replace: Replacing with new values")
-  terra::set.values(inRast, cells, newVals)
-
-  inRast
-
-}
-
 idw_replace <- function(
     cxyz, cells, ignore = NULL,
-    idw = TRUE, idp = 2,
-    nmax = Inf, maxdist = Inf, ...,
-    agg.fact = 1, agg.fun = "median", agg.na.rm = TRUE,
-    parallel.cores = NULL, parallel.chunkSize = 25000, verbose = TRUE){
+    idp = 2, nmax = Inf,
+    parallel.cores = NULL, parallel.chunkSize = 25000, ...,
+    verbose = TRUE){
+
+  if (length(find.package("FNN", quiet = TRUE)) == 0) stop(
+    "FNN package required. Install with `install.packages(\"FNN\")`")
 
   cells <- sort(unique(cells))
   if (length(cells) == 0){
-    if (verbose) message("gstat_replace: 0 cells to replace; skipping")
+    if (verbose) message("idw_replace: 0 cells to replace; skipping")
     return(c())
   }
 
-  if (verbose) message("gstat_replace: Reading inputs")
+  if (verbose) message("idw_replace: Reading inputs")
+
+  rep <- inp <- ch <- NULL
 
   cxyz[, rep := c %in% cells]
   cxyz[, inp := !rep & !z %in% ignore]
 
-  if (sum(cxyz$inp) == 0) stop("No points to predict from")
+  if (sum(cxyz$inp) == 0) stop("No input values to predict from")
 
-  if (verbose) message("gstat_replace: Predicting new values")
+  if (verbose) message("idw_replace: Predicting new values")
 
   idw <- function(xyIn, zIn, xyOut, k, p, ...){
 
@@ -369,7 +211,7 @@ idw_replace <- function(
     cxyz[rep == TRUE, ch := ceiling(1:length(cells) / parallel.chunkSize)]
 
     newVals <- parallel::mclapply(
-      mc.cores = parallel.cores, mc.silent = TRUE,
+      mc.cores = parallel.cores, mc.silent = TRUE, ...,
       na.omit(unique(cxyz$ch)),
       function(chunk) idw(
         cxyz[inp == TRUE, .(x, y)],
@@ -378,10 +220,10 @@ idw_replace <- function(
         p = idp, k = nmax)
     )
     newVals <- unname(do.call(c, newVals))
-    cxyz[, ch  := NULL]
+    cxyz[, ch := NULL]
   }
 
-  if (verbose) message("gstat_replace: Replacing with new values")
+  if (verbose) message("idw_replace: Setting new values")
 
   cxyz[rep == TRUE, z := newVals]
   cxyz[, inp := NULL]
