@@ -3,12 +3,12 @@ utils::globalVariables(c("x", "y", "z"))
 #' Age Step Backwards
 #'
 #' Step an age raster backwards in time.
-#' Ages that are set as <=0 are replaced with surrounding ages >0 with `idw_replace`.
+#' Ages that are set as <0 are replaced with surrounding ages >0 with `idw_replace`.
 #'
 #' @param ageRast SpatRaster. Raster with numeric values of cohort ages.
 #' @param yearIn numeric. Year that ages in `ageRast` represent.
 #' @param yearOut numeric. Year that ages will be stepped backwards to.
-#' @param fill logical. Fill disturbed areas and cells with ages <= 0 with values from surrounding cells.
+#' @param fill logical. Fill disturbed areas and cells with ages < 0 with values from surrounding cells.
 #' @param distEvents data.table. Optional.
 #' Table of disturbance events with columns "pixelIndex" and "year".
 #' If provided, disturbances will be reversed and the disturbed areas
@@ -27,7 +27,8 @@ utils::globalVariables(c("x", "y", "z"))
 #'
 #' @export
 ageStepBackward <- function(
-    ageRast, yearIn, yearOut, fill = TRUE, distEvents = NULL,
+    ageRast, yearIn, yearOut, distEvents = NULL,
+    fill = TRUE, fillLT0 = TRUE,
     idp = 2, nmax = 100, ...,
     agg.fact = 1, agg.fun = "median", agg.na.rm = TRUE){
 
@@ -62,14 +63,14 @@ ageStepBackward <- function(
 
     cellsRM <- list(
       dist = distEvents$pixelIndex,
-      lte0 = terra::cells(terra::classify(ageRast <= 0, cbind(FALSE, NA)))
+      lte0 = terra::cells(terra::classify(ageRast < 0, cbind(FALSE, NA)))
     )
 
     if (length(cellsRM$dist) > 0 | length(cellsRM$lte0) > 0){
 
       message("Masking out ", paste(c(
         "disturbance events"[length(cellsRM$dist) > 0],
-        paste("ages <=0 in", length(cellsRM$lte0), "pixels")[length(cellsRM$lte0) > 0]
+        paste("ages <0 in", length(cellsRM$lte0), "pixels")[length(cellsRM$lte0) > 0]
       ), collapse = " and "))
 
       terra::set.values(ageRast, unique(do.call(c, cellsRM)), NA)
@@ -113,7 +114,7 @@ ageStepBackward <- function(
       if (length(distCells) > 0){
         cxyz <- idw_replace(
           cxyz, distCells,
-          ignore = -500:0,
+          ignore = -500:-1,
           idp    = idp,
           nmax   = nmax,
           ...)
@@ -126,18 +127,20 @@ ageStepBackward <- function(
   }
   rm(cellsIn)
 
-  # Replace cells with ages <=0
-  cellsLTE0 <- cxyz[z <= 0,]$c
-  if (length(cellsLTE0) > 0){
+  # Replace cells with ages <0
+  if (fillLT0){
+    cellsLTE0 <- cxyz[z < 0,]$c
+    if (length(cellsLTE0) > 0){
 
-    message("Replacing ages <=0 in ", length(cellsLTE0), " pixels")
+      message("Replacing ages <0 in ", length(cellsLTE0), " pixels")
 
-    cxyz <- idw_replace(
-      cxyz, cellsLTE0,
-      ignore = -500:0,
-      idp  = idp,
-      nmax = nmax,
-      ...)
+      cxyz <- idw_replace(
+        cxyz, cellsLTE0,
+        ignore = -500:-1,
+        idp  = idp,
+        nmax = nmax,
+        ...)
+    }
   }
 
   ageRast <- terra::rast(ageRast)

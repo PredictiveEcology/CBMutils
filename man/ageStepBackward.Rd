@@ -8,8 +8,9 @@ ageStepBackward(
   ageRast,
   yearIn,
   yearOut,
-  fill = TRUE,
   distEvents = NULL,
+  fill = TRUE,
+  fillLT0 = TRUE,
   idp = 2,
   nmax = 100,
   ...,
@@ -25,12 +26,12 @@ ageStepBackward(
 
 \item{yearOut}{numeric. Year that ages will be stepped backwards to.}
 
-\item{fill}{logical. Fill disturbed areas and cells with ages <= 0 with values from surrounding cells.}
-
 \item{distEvents}{data.table. Optional.
 Table of disturbance events with columns "pixelIndex" and "year".
 If provided, disturbances will be reversed and the disturbed areas
 will be filled with \code{idw_replace}.}
+
+\item{fill}{logical. Fill disturbed areas and cells with ages < 0 with values from surrounding cells.}
 
 \item{idp}{numeric. IDW power.}
 
@@ -53,5 +54,5 @@ See \code{\link[terra]{aggregate}}.}
 }
 \description{
 Step an age raster backwards in time.
-Ages that are set as <=0 are replaced with surrounding ages >0 with \code{idw_replace}.
+Ages that are set as <0 are replaced with surrounding ages >0 with \code{idw_replace}.
 }

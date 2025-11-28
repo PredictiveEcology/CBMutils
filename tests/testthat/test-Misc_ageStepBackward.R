@@ -21,10 +21,10 @@ test_that("ageStepBackward: without disturbances", {
   ageRastStep <- ageStepBackward(ageRast, yearIn = 2025, yearOut = 2020)
   expect_equal(terra::values(ageRastStep, mat = FALSE), terra::values(ageRast, mat = FALSE) - 5)
 
-  # Check filling values <= 0
+  # Check filling values < 0
   ageRastNeedsFill <- terra::rast(
     ageRastTemplate,
-    vals = c(5, 10, -1, 0, 10, 10, rep(NA, 3))
+    vals = c(4, 10, -1, 0, 10, 10, rep(NA, 3))
   )
 
   ageRastStep <- ageStepBackward(ageRastNeedsFill, yearIn = 2025, yearOut = 2020)
@@ -41,7 +41,7 @@ test_that("ageStepBackward: without disturbances", {
   )
 
   # Expect error: no cells >=0 to interpolate from
-  expect_error(ageStepBackward(ageRast, yearIn = 2025, yearOut = 2010))
+  expect_error(ageStepBackward(ageRast, yearIn = 2025, yearOut = 2009))
 })
 
 test_that("ageStepBackward: with disturbances", {
@@ -74,7 +74,7 @@ test_that("ageStepBackward: with disturbances", {
     c(rep(5, 6), rep(NA, 3))
   )
 
-  # Check ignoring values <= 0
+  # Check ignoring values < 0
   ageRastStep <- ageStepBackward(
     terra::rast(
       ageRastTemplate,
