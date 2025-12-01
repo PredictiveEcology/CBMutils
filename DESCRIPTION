@@ -48,9 +48,7 @@ Suggests:
     rmarkdown,
     testthat
 Remotes:
-    PredictiveEcology/LandR@development,
-    PredictiveEcology/reproducible@AI,
-    PredictiveEcology/SpaDES.core@box
+    PredictiveEcology/LandR@development
 VignetteBuilder: knitr, rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
