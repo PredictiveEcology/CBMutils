@@ -8,7 +8,8 @@ utils::globalVariables(c("x", "y", "z"))
 #' @param ageRast SpatRaster. Raster with numeric values of cohort ages.
 #' @param yearIn numeric. Year that ages in `ageRast` represent.
 #' @param yearOut numeric. Year that ages will be stepped backwards to.
-#' @param fill logical. Fill disturbed areas and cells with ages < 0 with values from surrounding cells.
+#' @param fill logical. Fill disturbed areas with values interpolated from surrounding cells.
+#' @param fillLT0 logical. Fill cells with ages <0 with values interpolated from surrounding cells.
 #' @param distEvents data.table. Optional.
 #' Table of disturbance events with columns "pixelIndex" and "year".
 #' If provided, disturbances will be reversed and the disturbed areas

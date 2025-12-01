@@ -31,7 +31,9 @@ Table of disturbance events with columns "pixelIndex" and "year".
 If provided, disturbances will be reversed and the disturbed areas
 will be filled with \code{idw_replace}.}
 
-\item{fill}{logical. Fill disturbed areas and cells with ages < 0 with values from surrounding cells.}
+\item{fill}{logical. Fill disturbed areas with values interpolated from surrounding cells.}
+
+\item{fillLT0}{logical. Fill cells with ages <0 with values interpolated from surrounding cells.}
 
 \item{idp}{numeric. IDW power.}
 
