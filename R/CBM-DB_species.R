@@ -35,6 +35,15 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
   # Return 0 rows
   if (length(species) == 0) return(sppEquiv[0,])
 
+  # Create a "Genus" column from the latin name
+  if ("Genus" %in% return & "Latin_full" %in% names(sppEquiv)){
+    sppEquiv[, Genus := toupper(
+      sapply(strsplit(Latin_full, ""), function(x) ifelse(
+        length(x) >= 4,
+        paste(x[1:4], collapse = ""),
+        NA_character_)))]
+  }
+
   # Check matching columns
   colExists <- c(match, return) %in% names(sppEquiv)
   if (!all(colExists)) stop(
