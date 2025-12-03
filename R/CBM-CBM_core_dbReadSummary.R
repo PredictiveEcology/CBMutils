@@ -64,6 +64,8 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year =
 
   if (by == "year"){
 
+    if (is.null(years)) stop("'years' argument required")
+
     sumTbl <- data.table::rbindlist(
       lapply(years, function(year){
         .spadesCBMdbReadSummary(spadesCBMdb, year, summary, by, useCache) |> cacheOrNot()
@@ -154,7 +156,7 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year =
     }
     groupCount <- CBMdbReadCohortGroupCount(spadesCBMdb, year) |> cacheOrNot()
 
-    dbTable <- (dbTable * groupCount$N)[, lapply(.SD, sum), .SDcols = !c("row_idx")]
+    dbTable <- (dbTable[, -"row_idx"] * groupCount$N)[, lapply(.SD, sum)]
     dbTable <- cbind(year = year, dbTable)
 
   }else{
