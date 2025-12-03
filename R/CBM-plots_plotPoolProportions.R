@@ -20,16 +20,16 @@ plotPoolProportions <- function(pools){
 
   if (!"year" %in% names(pools)) stop("pools requires column 'year'")
 
-  if (!identical(names(pools), c("year", "soil", "AGlive", "BGlive", "snags"))){
+  if (!identical(names(pools), c("year", "Soil", "BGlive", "AGlive", "Snags"))){
 
     if (!is.data.table(pools)) pools <- as.data.table(pools)
     pools <- pools[, .(
-      soil  = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
-                  AboveGroundFastSoil, BelowGroundFastSoil,
-                  AboveGroundSlowSoil, BelowGroundSlowSoil, MediumSoil),
-      AGlive = sum(Merch, Foliage, Other),
+      Soil   = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
+                   AboveGroundFastSoil, BelowGroundFastSoil,
+                   AboveGroundSlowSoil, BelowGroundSlowSoil, MediumSoil),
       BGlive = sum(CoarseRoots, FineRoots),
-      snags  = sum(StemSnag, BranchSnag)
+      AGlive = sum(Merch, Foliage, Other),
+      Snags  = sum(StemSnag, BranchSnag)
     ), by = "year"]
   }
 
