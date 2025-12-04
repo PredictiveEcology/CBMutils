@@ -118,12 +118,12 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year =
     for (colName in setdiff(names(dbTable), ls())) assign(colName, NULL)
 
     dbTable <- dbTable[, .(
-      soil   = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
+      Soil   = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
                    AboveGroundFastSoil, BelowGroundFastSoil,
                    AboveGroundSlowSoil, BelowGroundSlowSoil, MediumSoil),
-      AGlive = sum(Merch, Foliage, Other),
       BGlive = sum(CoarseRoots, FineRoots),
-      snags  = sum(StemSnag, BranchSnag)
+      AGlive = sum(Merch, Foliage, Other),
+      Snags  = sum(StemSnag, BranchSnag)
     ), by = row_idx]
   }
 
