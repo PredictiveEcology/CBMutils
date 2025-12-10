@@ -10,7 +10,8 @@ if (viewResults){
 test_that("Function: writeRasterWithValues", {
 
   templateRast <- terra::rast(
-    res = 100, vals = 1, crs = "EPSG:32613",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-32613.prj"),
+    res = 100, vals = 1,
     ext = c(xmin =  456000,  xmax = 457000, ymin = 6105000, ymax = 6106000))
 
   outPath <- file.path(tempDir, "writeRasterWithValues-numeric.tif")
@@ -41,7 +42,8 @@ test_that("Function: extractToRast: raster upsampling", {
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
   templateRast <- terra::rast(
-    res = 5, vals = 1, crs = "EPSG:3979",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
+    res = 5, vals = 1,
     ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
 
   alignVals <- extractToRast(input, templateRast)
@@ -69,7 +71,8 @@ test_that("Function: extractToRast: raster upsampling with categories", {
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
   templateRast <- terra::rast(
-    res = 5, vals = 1, crs = "EPSG:3979",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
+    res = 5, vals = 1,
     ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
 
   levels(input) <- data.frame(id = 1:5, cat = LETTERS[1:5])
@@ -92,7 +95,8 @@ test_that("Function: extractToRast: raster downsampling", {
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
   templateRast <- terra::rast(
-    res = 50, vals = 1, crs = "EPSG:3979",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
+    res = 50, vals = 1,
     ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
 
   alignVals <- extractToRast(input, templateRast)
@@ -134,8 +138,8 @@ test_that("Function: extractToRast: raster reprojecting", {
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "tile1.tif"))
 
   templateRast <- terra::rast(
-    ncols = 213, nrows = 215,
-    vals = 1, crs = "EPSG:4326",
+    crs = "EPSG:4326",
+    ncols = 213, nrows = 215, vals = 1,
     ext = c(xmin = -105.6567825386380974, xmax = -105.6294401406081107,
             ymin =   55.1008597705739831, ymax =   55.1284589047357017))
 
@@ -157,7 +161,8 @@ test_that("Function: extractToRast: TIF file", {
   input <- file.path(testDirs$testdata, "extractToRast", "tile1.tif")
 
   templateRast <- terra::rast(
-    res = 10, vals = 1, crs = "EPSG:32613",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-32613.prj"),
+    res = 10, vals = 1,
     ext = c(xmin =  458500, xmax =  463500, ymin = 6105000, ymax = 6110000))
 
   alignVals <- extractToRast(input, templateRast)
@@ -178,7 +183,8 @@ test_that("Function: extractToRast: TIF tiles", {
   input <- file.path(testDirs$testdata, "extractToRast", c("tile1.tif", "tile2.tif"))
 
   templateRast <- terra::rast(
-    res = 10, vals = 1, crs = "EPSG:32613",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-32613.prj"),
+    res = 10, vals = 1,
     ext = c(xmin =  458500, xmax =  463500, ymin = 6105000, ymax = 6110000))
 
   alignVals <- extractToRast(input, templateRast)
@@ -198,11 +204,13 @@ test_that("Function: extractToRast: coverage with NAs", {
 
   # Test: without reprojection
   inputTemplate <- terra::rast(
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
     res = 5, vals = 1,
-    crs = "EPSG:3979", xmin = 0, ymin = 0, xmax = 10, ymax = 10)
+    xmin = 0, ymin = 0, xmax = 10, ymax = 10)
   templateRast <- terra::rast(
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
     res = 10, vals = 1,
-    crs = "EPSG:3979", xmin = 0, ymin = 0, xmax = 10, ymax = 10)
+    xmin = 0, ymin = 0, xmax = 10, ymax = 10)
 
   ## 25% coverage NA
   input <- inputTemplate
@@ -226,13 +234,14 @@ test_that("Function: extractToRast: coverage with NAs", {
 
   ## > 50% coverage NA in 1 pixel
   input <- terra::rast(
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
     res = 8, vals = c(NA, NA, 1, NA),
-    crs = "EPSG:3979", xmin = 0, ymin = 0, xmax = 16, ymax = 16)
+    xmin = 0, ymin = 0, xmax = 16, ymax = 16)
   expect_equal(extractToRast(input, templateRast), 1)
 
   # Test: with reprojection
   inputTemplate <- terra::rast(
-    crs = "EPSG:3979",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
     res = 100, vals = 1,
     xmin = -663200,
     xmax = -663000,
@@ -240,16 +249,7 @@ test_that("Function: extractToRast: coverage with NAs", {
     ymax =  729400
   )
   templateRast <- terra::rast(
-    #crs = "EPSG:102001"
-    crs = paste(c(
-      "PROJCS[\"Canada_Albers_Equal_Area_Conic\"",
-      "GEOGCS[\"NAD83\"", "DATUM[\"North_American_Datum_1983\"", "SPHEROID[\"GRS 1980\",6378137,298.257222101", "AUTHORITY[\"EPSG\",\"7019\"]]", "AUTHORITY[\"EPSG\",\"6269\"]]",
-      "PRIMEM[\"Greenwich\",0", "AUTHORITY[\"EPSG\",\"8901\"]]", "UNIT[\"degree\",0.0174532925199433", "AUTHORITY[\"EPSG\",\"9122\"]]", "AUTHORITY[\"EPSG\",\"4269\"]]",
-      "PROJECTION[\"Albers_Conic_Equal_Area\"]",
-      "PARAMETER[\"latitude_of_center\",40]", "PARAMETER[\"longitude_of_center\",-96]", "PARAMETER[\"standard_parallel_1\",50]",
-      "PARAMETER[\"standard_parallel_2\",70]", "PARAMETER[\"false_easting\",0]", "PARAMETER[\"false_northing\",0]",
-      "UNIT[\"metre\",1", "AUTHORITY[\"EPSG\",\"9001\"]]", "AXIS[\"Easting\",EAST]", "AXIS[\"Northing\",NORTH]", "AUTHORITY[\"ESRI\",\"102001\"]]"
-    ), collapse = ","),
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-102001.prj"),
     res = 100, vals = 1,
     xmin = -607300,
     xmax = -607200,
@@ -269,7 +269,7 @@ test_that("Function: extractToRast: coverage with NAs", {
 
   ## > 50% coverage NA in 1 large area
   input <- terra::rast(
-    crs = "EPSG:3979",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
     res = 100, vals = c(1, NA, NA, NA),
     xmin = -663200 + 50,
     xmax = -663000 + 50,
@@ -349,7 +349,8 @@ test_that("Function: extractToRast: sf polygons with numeric field: reproject", 
   input <- subset(input, id != 8)
 
   templateRast <- terra::rast(
-    res = 10, vals = 1, crs = "EPSG:32613",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-32613.prj"),
+    res = 10, vals = 1,
     ext = c(xmin =  456000,  xmax = 461000, ymin = 6105000, ymax = 6110000))
 
   alignVals <- extractToRast(input, templateRast)
@@ -374,7 +375,8 @@ test_that("Function: extractToRast: sf polygons with text field: reproject", {
   input$id <- paste("Id", input$id)
 
   templateRast <- terra::rast(
-    res = 10, vals = 1, crs = "EPSG:32613",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-32613.prj"),
+    res = 10, vals = 1,
     ext = c(xmin =  456000,  xmax = 461000, ymin = 6105000, ymax = 6110000))
 
   alignVals <- extractToRast(input, templateRast)
