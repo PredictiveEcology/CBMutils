@@ -139,6 +139,12 @@ extractToRast_rast <- function(input, templateRast, layer = 1, crop = TRUE){
 # Extract values from spatial data source: vector
 extractToRast_vect <- function(input, templateRast, field = 1, crop = TRUE){
 
+  # Standardize geometry column name
+  if (attr(input, "sf_column") != "geometry"){
+    names(input)[names(input) == attr(input, "sf_column")] <- "geometry"
+    attr(input, "sf_column") <- "geometry"
+  }
+
   reproject <- !terra::compareGeom(
     terra::rast(crs = terra::crs(input)), templateRast,
     crs = TRUE, warncrs = FALSE, stopOnError = FALSE, messages = FALSE,
