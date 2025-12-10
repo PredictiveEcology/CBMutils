@@ -4,7 +4,7 @@ if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 test_that("ageStepBackward: without disturbances", {
 
   ageRastTemplate <- terra::rast(
-    crs  = "EPSG:3979",
+    crs  = "local",
     ext  = c(xmin = -681090, xmax = -681000, ymin = 711900, ymax = 711990),
     res  = 30)
 
@@ -47,7 +47,7 @@ test_that("ageStepBackward: without disturbances", {
 test_that("ageStepBackward: with disturbances", {
 
   ageRastTemplate <- terra::rast(
-    crs  = "EPSG:3979",
+    crs  = "local",
     ext  = c(xmin = -681090, xmax = -681000, ymin = 711900, ymax = 711990),
     res  = 30)
 
