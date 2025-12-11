@@ -67,19 +67,17 @@ extractToRast_rast <- function(input, templateRast, layer = 1, crop = TRUE){
 
   if (align){
 
-    # Crop
-    if (crop){
-      input <- terra::crop(
-        input,
-        terra::project(terra::as.polygons(templateRast, extent = TRUE), terra::crs(input)),
-        snap = "out")
-    }
-
-    # Set instructions
     reproject <- !terra::compareGeom(
       input, templateRast,
       crs = TRUE, warncrs = FALSE, stopOnError = FALSE, messages = FALSE,
       lyrs = FALSE, ext = FALSE, rowcol = FALSE, res = FALSE)
+
+    if (crop){
+      cropBBOX <- if (reproject){
+        terra::project(terra::as.polygons(templateRast, extent = TRUE), terra::crs(input))
+      }else templateRast
+      input <- terra::crop(input, cropBBOX, snap = "out")
+    }
 
     disagg <- !reproject && !terra::is.lonlat(templateRast) &&
       terra::xmin(input) == terra::xmin(templateRast) &&
