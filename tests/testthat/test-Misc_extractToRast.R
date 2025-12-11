@@ -42,7 +42,7 @@ test_that("Function: extractToRast: raster upsampling", {
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
   templateRast <- terra::rast(
-    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
+    crs = terra::crs(input),
     res = 5, vals = 1,
     ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
 
@@ -71,7 +71,7 @@ test_that("Function: extractToRast: raster upsampling with categories", {
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
   templateRast <- terra::rast(
-    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
+    crs = terra::crs(input),
     res = 5, vals = 1,
     ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
 
@@ -95,7 +95,7 @@ test_that("Function: extractToRast: raster downsampling", {
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
   templateRast <- terra::rast(
-    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-3979.prj"),
+    crs = terra::crs(input),
     res = 50, vals = 1,
     ext = c(xmin = -674500, xmax = -671500, ymin =  702000, ymax =  705000))
 
@@ -117,7 +117,8 @@ test_that("Function: extractToRast: raster disaggregation", {
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "tile1.tif"))
 
   templateRast <- terra::rast(
-    res = 2, vals = 1, crs = terra::crs(input),
+    crs = terra::crs(input),
+    res = 2, vals = 1,
     ext = terra::ext(input))
 
   alignVals <- extractToRast(input, templateRast)
@@ -138,7 +139,7 @@ test_that("Function: extractToRast: raster reprojecting", {
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "tile1.tif"))
 
   templateRast <- terra::rast(
-    crs = "EPSG:4326",
+    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-4326.prj"),
     ncols = 213, nrows = 215, vals = 1,
     ext = c(xmin = -105.6567825386380974, xmax = -105.6294401406081107,
             ymin =   55.1008597705739831, ymax =   55.1284589047357017))
@@ -161,7 +162,7 @@ test_that("Function: extractToRast: TIF file", {
   input <- file.path(testDirs$testdata, "extractToRast", "tile1.tif")
 
   templateRast <- terra::rast(
-    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-32613.prj"),
+    crs = terra::crs(terra::rast(input)),
     res = 10, vals = 1,
     ext = c(xmin =  458500, xmax =  463500, ymin = 6105000, ymax = 6110000))
 
@@ -183,7 +184,7 @@ test_that("Function: extractToRast: TIF tiles", {
   input <- file.path(testDirs$testdata, "extractToRast", c("tile1.tif", "tile2.tif"))
 
   templateRast <- terra::rast(
-    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-32613.prj"),
+    crs = terra::crs(terra::rast(input[[1]])),
     res = 10, vals = 1,
     ext = c(xmin =  458500, xmax =  463500, ymin = 6105000, ymax = 6110000))
 
