@@ -1,12 +1,12 @@
 
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-emissionsProducts <- qs::qread(file.path(testDirs$testdata, "CBM_core_outputs/SK/emissionsProducts.qs"))
+emissionsProducts <- qs2::qd_read(file.path(testDirs$testdata, "CBM_core_outputs/SK/emissionsProducts.qs2"))
 
-spadesCBMdb <- file.path(testDirs$temp$inputs, "CBM_core_outputs_SK", "CBM_core_db")
+spadesCBMdb <- file.path(testDirs$temp$inputs, "CBM_core_outputs_SK", "spadesCBMdb")
 if (!file.exists(spadesCBMdb)){
   dir.create(dirname(spadesCBMdb))
-  file.copy(file.path(testDirs$testdata, "CBM_core_outputs/SK/CBM_core_db"), dirname(spadesCBMdb), recursive = TRUE)
+  file.copy(file.path(testDirs$testdata, "CBM_core_outputs/SK/spadesCBMdb"), dirname(spadesCBMdb), recursive = TRUE)
 }
 
 masterRaster <- terra::rast(
@@ -34,12 +34,12 @@ test_that("plotPoolProportions", {
 
   pools <- rbind(
     cbind(year = 1985, merge(
-      qs::qread(file.path(spadesCBMdb, "data", "1985_key.qs")),
-      qs::qread(file.path(spadesCBMdb, "data", "1985_pools.qs")),
+      qs2::qd_read(file.path(spadesCBMdb, "data", "1985_key.qs2")),
+      qs2::qd_read(file.path(spadesCBMdb, "data", "1985_pools.qs2")),
       by = "row_idx")),
     cbind(year = 2011, merge(
-      qs::qread(file.path(spadesCBMdb, "data", "2011_key.qs")),
-      qs::qread(file.path(spadesCBMdb, "data", "2011_pools.qs")),
+      qs2::qd_read(file.path(spadesCBMdb, "data", "2011_key.qs2")),
+      qs2::qd_read(file.path(spadesCBMdb, "data", "2011_pools.qs2")),
       by = "row_idx"))
   )
 
@@ -76,8 +76,8 @@ test_that("simPlotPoolProportions", {
 test_that("mapTotalCarbon", {
 
   pools1985 <- merge(
-    qs::qread(file.path(spadesCBMdb, "data", "1985_key.qs")),
-    qs::qread(file.path(spadesCBMdb, "data", "1985_pools.qs")),
+    qs2::qd_read(file.path(spadesCBMdb, "data", "1985_key.qs2")),
+    qs2::qd_read(file.path(spadesCBMdb, "data", "1985_pools.qs2")),
     by = "row_idx")
 
   out <- mapTotalCarbon(pools = pools1985, masterRaster = masterRaster, year = 1985)
@@ -101,8 +101,8 @@ test_that("simMapTotalCarbon", {
 test_that("mapNPP", {
 
   flux1985 <- merge(
-    qs::qread(file.path(spadesCBMdb, "data", "1985_key.qs")),
-    qs::qread(file.path(spadesCBMdb, "data", "1985_flux.qs")),
+    qs2::qd_read(file.path(spadesCBMdb, "data", "1985_key.qs2")),
+    qs2::qd_read(file.path(spadesCBMdb, "data", "1985_flux.qs2")),
     by = "row_idx")
 
   out <- mapNPP(flux = flux1985, masterRaster = masterRaster, year = 1985)

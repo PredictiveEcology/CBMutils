@@ -3,7 +3,7 @@ if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
 test_that("cTransfersAlluvial", {
 
-  cTransfers <- qs::qread(file.path(testDirs$testdata, "cTransfers_SPU-27-28_wildfire.qs"))
+  cTransfers <- qs2::qd_read(file.path(testDirs$testdata, "cTransfers_SPU-27-28_wildfire.qs2"))
 
   cTransfersPlot <- cTransfersAlluvial(cTransfers, distMatrixID = 371)
 

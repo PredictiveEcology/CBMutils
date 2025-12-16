@@ -52,8 +52,8 @@ simCBMdbReadSummary <- function(simCBM, summary, by = "cohortID", year = NULL, y
 #' @export
 spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year = NULL, years = NULL, useCache = TRUE){
 
-  if (!requireNamespace("qs", quietly = TRUE)) stop(
-    "The package \"qs\" is required to read the SpaDES CBM database")
+  if (!requireNamespace("qs2", quietly = TRUE)) stop(
+    "The package \"qs2\" is required to read the SpaDES CBM database")
   if (useCache && !requireNamespace("reproducible", quietly = TRUE)) stop(
     "The package \"reproducible\" is required if useCache = TRUE")
   if (useCache && !requireNamespace("withr", quietly = TRUE)) stop(

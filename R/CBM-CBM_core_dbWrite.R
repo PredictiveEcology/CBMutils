@@ -42,7 +42,7 @@ spadesCBMdbWrite <- function(spadesCBMdb, cbm_vars, year, parameters = TRUE, sta
     "state"[state],
     "flux"[flux],
     "pools"[pools])
-  ) qs::qsave(cbm_vars[[table]], .spadesCBMdbDataPath(spadesCBMdb, year, table))
+  ) qs2::qd_save(cbm_vars[[table]], .spadesCBMdbDataPath(spadesCBMdb, year, table))
 
   return(invisible())
 }
@@ -54,6 +54,6 @@ spadesCBMdbWrite <- function(spadesCBMdb, cbm_vars, year, parameters = TRUE, sta
   if (is.null(year))        stop("year is NULL")
   if (is.null(table))       stop("table is NULL")
 
-  file.path(spadesCBMdb, "data", paste0(year, "_", table, ".qs"))
+  file.path(spadesCBMdb, "data", paste0(year, "_", table, ".qs2"))
 }
 

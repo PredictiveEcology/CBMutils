@@ -33,8 +33,8 @@ simCBMdbReadRaw <- function(simCBM, year, table, ...){
 #' @export
 spadesCBMdbReadRaw <- function(spadesCBMdb, year, table, ...){
 
-  if (!requireNamespace("qs", quietly = TRUE)) stop(
-    "The package \"qs\" is required to read the SpaDES CBM database")
+  if (!requireNamespace("qs2", quietly = TRUE)) stop(
+    "The package \"qs2\" is required to read the SpaDES CBM database")
 
   .spadesCBMdbReadRaw(spadesCBMdb, year, table)
 }
@@ -46,6 +46,6 @@ spadesCBMdbReadRaw <- function(spadesCBMdb, year, table, ...){
     "SpaDES CBM database file not found for year ", year, ": ", qsPath,
     "\nSee CBM_core module parameters to customize simulation saving behaviour")
 
-  qs::qread(qsPath)
+  qs2::qd_read(qsPath)
 }
 
