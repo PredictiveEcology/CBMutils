@@ -1,10 +1,11 @@
 
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-spadesCBMdb <- file.path(testDirs$temp$inputs, "CBM_core_outputs_SK", "CBM_core_db")
+spadesCBMdb <- file.path(testDirs$temp$inputs, "CBM_core_outputs_SK", "spadesCBMdb")
+
 if (!file.exists(spadesCBMdb)){
   dir.create(dirname(spadesCBMdb))
-  file.copy(file.path(testDirs$testdata, "CBM_core_outputs/SK/CBM_core_db"), dirname(spadesCBMdb), recursive = TRUE)
+  file.copy(file.path(testDirs$testdata, "CBM_core_outputs/SK/spadesCBMdb"), dirname(spadesCBMdb), recursive = TRUE)
 }
 
 test_that("spadesCBMdbWrite", {
