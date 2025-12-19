@@ -33,7 +33,11 @@ ageStepBackward <- function(
     idp = 2, nmax = 100, ...,
     agg.fact = 1, agg.fun = "median", agg.na.rm = TRUE){
 
-  if (yearIn == yearOut) return(ageRast)
+  if (yearIn == yearOut){
+    message("Stepping ages back from ", yearIn, " to ", yearOut)
+    return(ageRast)
+  }
+
   if (yearIn <  yearOut) stop("Year input is less than year output. Use `ageStepForward`")
 
   if (length(find.package("withr", quiet = TRUE)) == 0) stop(
@@ -48,6 +52,9 @@ ageStepBackward <- function(
     tempdir = withr::local_tempdir("terra_", tmpdir = tmpdir),
     memfrac = 0)
   withr::local_options(list(rasterTmpDir = withr::local_tempdir("raster_", tmpdir = tmpdir)))
+
+  # Read input
+  cellsIn <- terra::cells(ageRast)
 
   if (!is.null(distEvents) && !data.table::is.data.table(distEvents)){
     distEvents <- data.table::as.data.table(distEvents)
@@ -64,14 +71,18 @@ ageStepBackward <- function(
 
     cellsRM <- list(
       dist = distEvents$pixelIndex,
-      lte0 = terra::cells(terra::classify(ageRast < 0, cbind(FALSE, NA)))
+      lt0  = terra::cells(terra::classify(ageRast < 0, cbind(FALSE, NA)))
     )
 
-    if (length(cellsRM$dist) > 0 | length(cellsRM$lte0) > 0){
+    if (length(cellsRM$dist) > 0 | length(cellsRM$lt0) > 0){
 
       message("Masking out ", paste(c(
-        "disturbance events"[length(cellsRM$dist) > 0],
-        paste("ages <0 in", length(cellsRM$lte0), "pixels")[length(cellsRM$lte0) > 0]
+        sprintf("disturbance events in %s pixels (%.2f%%)",
+                format(length(cellsRM$dist), big.mark = ","),
+                length(cellsRM$dist) / length(cellsIn) * 100)[length(cellsRM$dist) > 0],
+        sprintf("ages <0 in %s pixels (%.2f%%)",
+                format(length(cellsRM$lt0), big.mark = ","),
+                length(cellsRM$lt0) / length(cellsIn) * 100)[length(cellsRM$lt0) > 0]
       ), collapse = " and "))
 
       terra::set.values(ageRast, unique(do.call(c, cellsRM)), NA)
@@ -82,9 +93,7 @@ ageStepBackward <- function(
 
   if (agg.fact > 1) stop("agg.fact cannot yet be >= 1")
 
-  # Read input
-  cellsIn <- terra::cells(ageRast)
-
+  # Read input ages
   cxyz <- data.table::as.data.table(terra::extract(ageRast, cellsIn, xy = TRUE))
   data.table::setnames(cxyz, names(cxyz)[[3]], "z")
   cxyz[, c := cellsIn]
@@ -110,9 +119,15 @@ ageStepBackward <- function(
 
       cxyz[, z := z - stepBack]
 
-      message("Estimating ages before disturbances in ", yearEnd)
-
       if (length(distCells) > 0){
+
+        message(sprintf(
+          "Estimating ages in %s pixels (%.2f%%) before disturbances in %s",
+          format(length(distCells), big.mark = ","),
+          length(distCells) / length(cellsIn) * 100,
+          yearEnd
+        ))
+
         cxyz <- idw_replace(
           cxyz, distCells,
           ignore = -500:-1,
@@ -130,13 +145,17 @@ ageStepBackward <- function(
 
   # Replace cells with ages <0
   if (fillLT0){
-    cellsLTE0 <- cxyz[z < 0,]$c
-    if (length(cellsLTE0) > 0){
+    cellsLT0 <- cxyz[z < 0,]$c
+    if (length(cellsLT0) > 0){
 
-      message("Replacing ages <0 in ", length(cellsLTE0), " pixels")
+      message(sprintf(
+        "Replacing ages <0 in %s pixels (%.2f%%)",
+        format(length(cellsLT0), big.mark = ","),
+        length(cellsLT0) / nrow(cxyz) * 100
+      ))
 
       cxyz <- idw_replace(
-        cxyz, cellsLTE0,
+        cxyz, cellsLT0,
         ignore = -500:-1,
         idp  = idp,
         nmax = nmax,
