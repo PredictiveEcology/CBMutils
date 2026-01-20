@@ -2,7 +2,7 @@ if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
 # Download CBM-CFS3 database
 dbPath <- {
-  url = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.8340.362.db"
+  url = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.9300.391.db"
   destfile <- file.path(testDirs$temp$inputs, basename(url))
   if (!file.exists(destfile)) download.file(url = url, destfile = destfile, mode = "wb", quiet = TRUE)
   destfile
