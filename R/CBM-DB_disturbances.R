@@ -92,8 +92,7 @@ spuDistMatch <- function(distTable, nearMatches = TRUE, identical = !ask, ask = 
 #'
 #' @param EXN logical. Use CBM-EXN CBM-CFS3 equivalent model data.
 #' @param spuIDs Optional. Subset by spatial unit ID(s)
-#' @param cbm_defaults_db Path to CBM-CFS3 SQLite database file.
-#' Required if EXN = TRUE or EXN = FALSE.
+#' @template cbm_defaults_db
 #' @param disturbance_matrix_association data.frame. Optional.
 #' Alternative disturbance_matrix_association table with columns
 #' "spatial_unit_id", "disturbance_type_id", and "disturbance_matrix_id".
@@ -211,8 +210,7 @@ spuHistDist <- function(spuIDs, localeID = 1, ask = FALSE, ...) {
 #'
 #' @param EXN logical. Use CBM-EXN CBM-CFS3 equivalent model data.
 #' @param matrixIDs character. Optional. Subset disturbances by disturbance_matrix_id
-#' @param cbm_defaults_db Path to CBM-CFS3 SQLite database file.
-#' Required if EXN = FALSE
+#' @template cbm_defaults_db
 #' @param disturbance_matrix_value disturbance_matrix_value table from CBM-EXN
 #' Required if EXN = TRUE
 #'

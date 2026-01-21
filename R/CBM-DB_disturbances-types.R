@@ -9,7 +9,7 @@
 #' @param listDist data.table. Optional. Result of a call to \code{\link{distList}}.
 #' Table of disturbance types with columns
 #' 'disturbance_type_id', 'name', 'description'.
-#' @param cbm_defaults_db Path to CBM-CFS3 SQLite database file. Required if `listDist` is NULL.
+#' @template cbm_defaults_db
 #' @inheritParams .matchSelect
 #' @param nearMatches logical. Allow for near matches; e.g. "clearcut" can match "clear-cut".
 #' @param ... additional arguments to \code{\link{.matchSelect}}
@@ -65,7 +65,7 @@ distMatch <- function(distNames, nearMatches = TRUE, identical = !ask, ask = int
 #'
 #' List CBM-CFS3 disturbance types.
 #'
-#' @param cbm_defaults_db Path to CBM-CFS3 SQLite database file.
+#' @template cbm_defaults_db
 #' @param localeID CBM-CFS3 locale_id
 #'
 #' @return \code{data.table} with 'disturbance_type_tr' columns

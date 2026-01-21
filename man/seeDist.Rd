@@ -16,8 +16,7 @@ seeDist(
 
 \item{matrixIDs}{character. Optional. Subset disturbances by disturbance_matrix_id}
 
-\item{cbm_defaults_db}{Path to CBM-CFS3 SQLite database file.
-Required if EXN = FALSE}
+\item{cbm_defaults_db}{Path to CBM defaults SQLite database.}
 
 \item{disturbance_matrix_value}{disturbance_matrix_value table from CBM-EXN
 Required if EXN = TRUE}

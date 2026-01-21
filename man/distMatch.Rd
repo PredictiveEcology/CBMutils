@@ -31,7 +31,7 @@ If FALSE, the function will look for a single match to each input.}
 Table of disturbance types with columns
 'disturbance_type_id', 'name', 'description'.}
 
-\item{cbm_defaults_db}{Path to CBM-CFS3 SQLite database file. Required if \code{listDist} is NULL.}
+\item{cbm_defaults_db}{Path to CBM defaults SQLite database.}
 
 \item{localeID}{CBM-CFS3 locale_id}
 

@@ -17,8 +17,7 @@ spuDistList(
 
 \item{spuIDs}{Optional. Subset by spatial unit ID(s)}
 
-\item{cbm_defaults_db}{Path to CBM-CFS3 SQLite database file.
-Required if EXN = TRUE or EXN = FALSE.}
+\item{cbm_defaults_db}{Path to CBM defaults SQLite database.}
 
 \item{disturbance_matrix_association}{data.frame. Optional.
 Alternative disturbance_matrix_association table with columns

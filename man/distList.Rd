@@ -7,7 +7,7 @@
 distList(cbm_defaults_db, localeID = 1)
 }
 \arguments{
-\item{cbm_defaults_db}{Path to CBM-CFS3 SQLite database file.}
+\item{cbm_defaults_db}{Path to CBM defaults SQLite database.}
 
 \item{localeID}{CBM-CFS3 locale_id}
 }
