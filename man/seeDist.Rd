@@ -7,8 +7,8 @@
 seeDist(
   EXN = TRUE,
   matrixIDs = NULL,
-  dbPath = NULL,
-  disturbance_matrix_value = NULL
+  cbm_defaults_db = NULL,
+  cbm_exn_dir = NULL
 )
 }
 \arguments{
@@ -16,11 +16,9 @@ seeDist(
 
 \item{matrixIDs}{character. Optional. Subset disturbances by disturbance_matrix_id}
 
-\item{dbPath}{Path to CBM-CFS3 SQLite database file.
-Required if EXN = FALSE}
+\item{cbm_defaults_db}{Path to CBM defaults SQLite database.}
 
-\item{disturbance_matrix_value}{disturbance_matrix_value table from CBM-EXN
-Required if EXN = TRUE}
+\item{cbm_exn_dir}{Path to CBM-EXN parameters directory.}
 }
 \value{
 List of \code{data.frame} named by disturbance_matrix_id
