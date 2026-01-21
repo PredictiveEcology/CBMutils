@@ -9,7 +9,7 @@
 #' @param listDist data.table. Optional. Result of a call to \code{\link{distList}}.
 #' Table of disturbance types with columns
 #' 'disturbance_type_id', 'name', 'description'.
-#' @param dbPath Path to CBM-CFS3 SQLite database file. Required if `listDist` is NULL.
+#' @param cbm_defaults_db Path to CBM-CFS3 SQLite database file. Required if `listDist` is NULL.
 #' @inheritParams .matchSelect
 #' @param nearMatches logical. Allow for near matches; e.g. "clearcut" can match "clear-cut".
 #' @param ... additional arguments to \code{\link{.matchSelect}}
@@ -19,7 +19,7 @@
 #' @export
 #' @importFrom data.table copy data.table setkey
 distMatch <- function(distNames, nearMatches = TRUE, identical = !ask, ask = interactive(),
-                      listDist = NULL, dbPath = NULL, localeID = 1, ...){
+                      listDist = NULL, cbm_defaults_db = NULL, localeID = 1, ...){
 
   # Set near matches
   if (nearMatches) nearMatches <- list(
@@ -30,7 +30,7 @@ distMatch <- function(distNames, nearMatches = TRUE, identical = !ask, ask = int
   # List disturbances
   if (is.null(listDist)){
 
-    listDist <- distList(dbPath = dbPath, localeID = 1)
+    listDist <- distList(cbm_defaults_db = cbm_defaults_db, localeID = 1)
 
   }else{
 
@@ -65,7 +65,7 @@ distMatch <- function(distNames, nearMatches = TRUE, identical = !ask, ask = int
 #'
 #' List CBM-CFS3 disturbance types.
 #'
-#' @param dbPath Path to CBM-CFS3 SQLite database file.
+#' @param cbm_defaults_db Path to CBM-CFS3 SQLite database file.
 #' @param localeID CBM-CFS3 locale_id
 #'
 #' @return \code{data.table} with 'disturbance_type_tr' columns
@@ -73,13 +73,13 @@ distMatch <- function(distNames, nearMatches = TRUE, identical = !ask, ask = int
 #'
 #' @importFrom RSQLite dbConnect dbDisconnect dbDriver dbListTables dbReadTable
 #' @importFrom data.table as.data.table setkey
-distList <- function(dbPath, localeID = 1){
+distList <- function(cbm_defaults_db, localeID = 1){
 
-  if (is.null(dbPath)) stop("'dbPath' input required")
-  if (length(dbPath) != 1) stop("length(dbPath) must == 1")
+  if (is.null(cbm_defaults_db)) stop("'cbm_defaults_db' input required")
+  if (length(cbm_defaults_db) != 1) stop("length(cbm_defaults_db) must == 1")
 
   # Connect to database
-  cbmDBcon <- dbConnect(dbDriver("SQLite"), dbname = dbPath)
+  cbmDBcon <- dbConnect(dbDriver("SQLite"), dbname = cbm_defaults_db)
   on.exit(dbDisconnect(cbmDBcon))
 
   # Read and return disturbance types

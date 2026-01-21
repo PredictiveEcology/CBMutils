@@ -1,7 +1,7 @@
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-# Download CBM-CFS3 database
-dbPath <- {
+# Download CBM defaults database
+cbm_defaults_db <- {
   url = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.9300.391.db"
   destfile <- file.path(testDirs$temp$inputs, basename(url))
   if (!file.exists(destfile)) download.file(url = url, destfile = destfile, mode = "wb", quiet = TRUE)
@@ -18,7 +18,7 @@ boudewynTables <- lapply(3:7, function(n){
 names(boudewynTables) <- 3:7
 
 
-cbmDBcon <- RSQLite::dbConnect(RSQLite::dbDriver("SQLite"), dbPath)
+cbmDBcon <- RSQLite::dbConnect(RSQLite::dbDriver("SQLite"), cbm_defaults_db)
 spatial_units <- RSQLite::dbReadTable(cbmDBcon, "spatial_unit") |>
   data.table::as.data.table()
 RSQLite::dbDisconnect(cbmDBcon)

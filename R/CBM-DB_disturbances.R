@@ -92,7 +92,7 @@ spuDistMatch <- function(distTable, nearMatches = TRUE, identical = !ask, ask = 
 #'
 #' @param EXN logical. Use CBM-EXN CBM-CFS3 equivalent model data.
 #' @param spuIDs Optional. Subset by spatial unit ID(s)
-#' @param dbPath Path to CBM-CFS3 SQLite database file.
+#' @param cbm_defaults_db Path to CBM-CFS3 SQLite database file.
 #' Required if EXN = TRUE or EXN = FALSE.
 #' @param disturbance_matrix_association data.frame. Optional.
 #' Alternative disturbance_matrix_association table with columns
@@ -109,11 +109,11 @@ spuDistMatch <- function(distTable, nearMatches = TRUE, identical = !ask, ask = 
 #' @importFrom data.table as.data.table
 #' @importFrom RSQLite dbConnect dbDisconnect dbDriver dbListTables dbReadTable
 spuDistList <- function(EXN = TRUE, spuIDs = NULL,
-                        dbPath = NULL, disturbance_matrix_association = NULL,
+                        cbm_defaults_db = NULL, disturbance_matrix_association = NULL,
                         localeID = 1){
 
-  if (is.null(dbPath)) stop("'dbPath' input required")
-  if (length(dbPath) != 1) stop("length(dbPath) must == 1")
+  if (is.null(cbm_defaults_db)) stop("'cbm_defaults_db' input required")
+  if (length(cbm_defaults_db) != 1) stop("length(cbm_defaults_db) must == 1")
 
   if (EXN){
 
@@ -133,7 +133,7 @@ spuDistList <- function(EXN = TRUE, spuIDs = NULL,
   }
 
   # Connect to database
-  cbmDBcon <- dbConnect(dbDriver("SQLite"), dbname = dbPath)
+  cbmDBcon <- dbConnect(dbDriver("SQLite"), dbname = cbm_defaults_db)
   on.exit(dbDisconnect(cbmDBcon))
 
   # Read database tables
@@ -211,7 +211,7 @@ spuHistDist <- function(spuIDs, localeID = 1, ask = FALSE, ...) {
 #'
 #' @param EXN logical. Use CBM-EXN CBM-CFS3 equivalent model data.
 #' @param matrixIDs character. Optional. Subset disturbances by disturbance_matrix_id
-#' @param dbPath Path to CBM-CFS3 SQLite database file.
+#' @param cbm_defaults_db Path to CBM-CFS3 SQLite database file.
 #' Required if EXN = FALSE
 #' @param disturbance_matrix_value disturbance_matrix_value table from CBM-EXN
 #' Required if EXN = TRUE
@@ -222,7 +222,7 @@ spuHistDist <- function(spuIDs, localeID = 1, ask = FALSE, ...) {
 #' @importFrom data.table as.data.table
 #' @importFrom RSQLite dbConnect dbDisconnect dbDriver dbReadTable
 seeDist <- function(EXN = TRUE, matrixIDs = NULL,
-                    dbPath = NULL, disturbance_matrix_value = NULL){
+                    cbm_defaults_db = NULL, disturbance_matrix_value = NULL){
 
   if (EXN){
 
@@ -242,12 +242,12 @@ seeDist <- function(EXN = TRUE, matrixIDs = NULL,
 
   }else{
 
-    if (is.null(dbPath)) stop(
-      "'dbPath' input required if EXN = FALSE")
-    if (length(dbPath) != 1) stop("length(dbPath) must == 1")
+    if (is.null(cbm_defaults_db)) stop(
+      "'cbm_defaults_db' input required if EXN = FALSE")
+    if (length(cbm_defaults_db) != 1) stop("length(cbm_defaults_db) must == 1")
 
     # Connect to database
-    cbmDBcon <- dbConnect(dbDriver("SQLite"), dbname = dbPath)
+    cbmDBcon <- dbConnect(dbDriver("SQLite"), dbname = cbm_defaults_db)
     on.exit(dbDisconnect(cbmDBcon))
 
     cbmDBM <- {
@@ -297,7 +297,7 @@ simDist <- function(simCBM) {
   DMID <- unique(simCBM@.envir$disturbanceMeta[, 6])
 
   # Getting all disturbance tables from seeDist
-  allDist <- seeDist(EXN = FALSE, dbPath = simCBM@.envir$dbPath)
+  allDist <- seeDist(EXN = FALSE, cbm_defaults_db = simCBM@.envir$cbm_defaults_db)
   # Subsetting table list to only those relevant to study area
   subsetDist <- allDist[names(allDist) %in% DMID$disturbance_matrix_id]
 

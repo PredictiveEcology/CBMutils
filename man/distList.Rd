@@ -4,10 +4,10 @@
 \alias{distList}
 \title{CBM-CFS3 Disturbance types}
 \usage{
-distList(dbPath, localeID = 1)
+distList(cbm_defaults_db, localeID = 1)
 }
 \arguments{
-\item{dbPath}{Path to CBM-CFS3 SQLite database file.}
+\item{cbm_defaults_db}{Path to CBM-CFS3 SQLite database file.}
 
 \item{localeID}{CBM-CFS3 locale_id}
 }

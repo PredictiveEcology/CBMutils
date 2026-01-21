@@ -7,7 +7,7 @@
 spuDistList(
   EXN = TRUE,
   spuIDs = NULL,
-  dbPath = NULL,
+  cbm_defaults_db = NULL,
   disturbance_matrix_association = NULL,
   localeID = 1
 )
@@ -17,7 +17,7 @@ spuDistList(
 
 \item{spuIDs}{Optional. Subset by spatial unit ID(s)}
 
-\item{dbPath}{Path to CBM-CFS3 SQLite database file.
+\item{cbm_defaults_db}{Path to CBM-CFS3 SQLite database file.
 Required if EXN = TRUE or EXN = FALSE.}
 
 \item{disturbance_matrix_association}{data.frame. Optional.
