@@ -93,10 +93,7 @@ spuDistMatch <- function(distTable, nearMatches = TRUE, identical = !ask, ask = 
 #' @param EXN logical. Use CBM-EXN CBM-CFS3 equivalent model data.
 #' @param spuIDs Optional. Subset by spatial unit ID(s)
 #' @template cbm_defaults_db
-#' @param disturbance_matrix_association data.frame. Optional.
-#' Alternative disturbance_matrix_association table with columns
-#' "spatial_unit_id", "disturbance_type_id", and "disturbance_matrix_id".
-#' Required if EXN = TRUE.
+#' @template cbm_exn_dir
 #' @param localeID CBM-CFS3 locale_id
 #'
 #' @return \code{data.table} with 'disturbance_type_tr' columns
@@ -105,25 +102,19 @@ spuDistMatch <- function(distTable, nearMatches = TRUE, identical = !ask, ask = 
 #' 'spatial_unit_id' and 'disturbance_matrix_id'
 #'
 #' @export
-#' @importFrom data.table as.data.table
+#' @importFrom data.table as.data.table fread
 #' @importFrom RSQLite dbConnect dbDisconnect dbDriver dbListTables dbReadTable
 spuDistList <- function(EXN = TRUE, spuIDs = NULL,
-                        cbm_defaults_db = NULL, disturbance_matrix_association = NULL,
-                        localeID = 1){
+                        cbm_defaults_db = NULL, cbm_exn_dir = NULL, localeID = 1){
 
   if (is.null(cbm_defaults_db)) stop("'cbm_defaults_db' input required")
   if (length(cbm_defaults_db) != 1) stop("length(cbm_defaults_db) must == 1")
 
   if (EXN){
 
-    if (is.null(disturbance_matrix_association)) stop(
-      "'disturbance_matrix_association' input required if EXN = TRUE")
+    if (is.null(cbm_exn_dir)) stop("'cbm_exn_dir' required if EXN = TRUE")
 
-   disturbance_matrix_association <- tryCatch(
-      as.data.table(disturbance_matrix_association),
-      error = function(e) stop(
-        "disturbance_matrix_association failed to convert to data.table: ",
-        e$message, call. = FALSE))
+    disturbance_matrix_association <- fread(file.path(cbm_exn_dir, "disturbance_matrix_association.csv"))
 
     reqCols <- c("spatial_unit_id", "disturbance_type_id", "disturbance_matrix_id")
     if (!all(reqCols %in% names(disturbance_matrix_association))) stop(
@@ -211,27 +202,21 @@ spuHistDist <- function(spuIDs, localeID = 1, ask = FALSE, ...) {
 #' @param EXN logical. Use CBM-EXN CBM-CFS3 equivalent model data.
 #' @param matrixIDs character. Optional. Subset disturbances by disturbance_matrix_id
 #' @template cbm_defaults_db
-#' @param disturbance_matrix_value disturbance_matrix_value table from CBM-EXN
-#' Required if EXN = TRUE
+#' @template cbm_exn_dir
 #'
 #' @return List of `data.frame` named by disturbance_matrix_id
 #'
 #' @export
-#' @importFrom data.table as.data.table
+#' @importFrom data.table as.data.table fread
 #' @importFrom RSQLite dbConnect dbDisconnect dbDriver dbReadTable
 seeDist <- function(EXN = TRUE, matrixIDs = NULL,
-                    cbm_defaults_db = NULL, disturbance_matrix_value = NULL){
+                    cbm_defaults_db = NULL, cbm_exn_dir = NULL){
 
   if (EXN){
 
-    if (is.null(disturbance_matrix_value)) stop(
-      "'disturbance_matrix_value' input required if EXN = TRUE")
+    if (is.null(cbm_exn_dir)) stop("'cbm_exn_dir' required if EXN = TRUE")
 
-    disturbance_matrix_value <- tryCatch(
-      as.data.table(disturbance_matrix_value),
-      error = function(e) stop(
-        "disturbance_matrix_value failed to convert to data.table: ",
-        e$message, call. = FALSE))
+    disturbance_matrix_value <- fread(file.path(cbm_exn_dir, "disturbance_matrix_value.csv"))
 
     reqCols <- c("disturbance_matrix_id", "source_pool", "sink_pool", "proportion")
     if (!all(reqCols %in% names(disturbance_matrix_value))) stop(

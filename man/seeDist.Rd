@@ -8,7 +8,7 @@ seeDist(
   EXN = TRUE,
   matrixIDs = NULL,
   cbm_defaults_db = NULL,
-  disturbance_matrix_value = NULL
+  cbm_exn_dir = NULL
 )
 }
 \arguments{
@@ -18,8 +18,7 @@ seeDist(
 
 \item{cbm_defaults_db}{Path to CBM defaults SQLite database.}
 
-\item{disturbance_matrix_value}{disturbance_matrix_value table from CBM-EXN
-Required if EXN = TRUE}
+\item{cbm_exn_dir}{Path to CBM-EXN parameters directory.}
 }
 \value{
 List of \code{data.frame} named by disturbance_matrix_id

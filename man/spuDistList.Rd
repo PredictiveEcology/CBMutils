@@ -8,7 +8,7 @@ spuDistList(
   EXN = TRUE,
   spuIDs = NULL,
   cbm_defaults_db = NULL,
-  disturbance_matrix_association = NULL,
+  cbm_exn_dir = NULL,
   localeID = 1
 )
 }
@@ -19,10 +19,7 @@ spuDistList(
 
 \item{cbm_defaults_db}{Path to CBM defaults SQLite database.}
 
-\item{disturbance_matrix_association}{data.frame. Optional.
-Alternative disturbance_matrix_association table with columns
-"spatial_unit_id", "disturbance_type_id", and "disturbance_matrix_id".
-Required if EXN = TRUE.}
+\item{cbm_exn_dir}{Path to CBM-EXN parameters directory.}
 
 \item{localeID}{CBM-CFS3 locale_id}
 }

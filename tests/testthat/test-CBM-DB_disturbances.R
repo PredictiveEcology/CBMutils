@@ -1,23 +1,24 @@
 
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-# Download CBM reources
+# Download CBM resources
 cbm_defaults_db <- {
-  url = "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.9300.391.db"
+  url <- "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_defaults_db/cbm_defaults_v1.2.9300.391.db"
   destfile <- file.path(testDirs$temp$inputs, basename(url))
   if (!file.exists(destfile)) download.file(url = url, destfile = destfile, mode = "wb", quiet = TRUE)
   destfile
 }
 cbm_exn_dir <- {
+  url <- "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_exn"
+  destDir <- file.path(testDirs$temp$inputs, basename(url))
+  dir.create(destDir, recursive = TRUE, showWarnings = FALSE)
   csvNames <- c("disturbance_matrix_association", "disturbance_matrix_value")
-  lapply(setNames(csvNames, csvNames), function(csvName){
-    url = file.path(
-      "https://raw.githubusercontent.com/cat-cfs/libcbm_py/main/libcbm/resources/cbm_exn",
-      paste0(csvName, ".csv"))
-    destfile <- file.path(testDirs$temp$inputs, basename(url))
-    if (!file.exists(destfile)) download.file(url = url, destfile = destfile, quiet = TRUE)
-    read.csv(destfile, stringsAsFactors = FALSE, row.names = NULL)
-  })
+  for (csvName in csvNames){
+    csvURL <- file.path(url, paste0(csvName, ".csv"))
+    destfile <- file.path(destDir, basename(csvURL))
+    if (!file.exists(destfile)) download.file(url = csvURL, destfile = destfile, quiet = TRUE)
+  }
+  destDir
 }
 
 test_that("distList", {
@@ -56,8 +57,7 @@ test_that("spuDistList", {
 
   ## Expect error: cbm_defaults_db missing
   expect_error(
-    spuDistList(spuIDs = 27, EXN = FALSE, cbm_defaults_db = NULL,
-            disturbance_matrix_association = cbm_exn_dir[["disturbance_matrix_association"]]),
+    spuDistList(spuIDs = 27, EXN = FALSE, cbm_defaults_db = NULL, cbm_exn_dir = cbm_exn_dir),
     "cbm_defaults_db"
   )
 
@@ -78,22 +78,19 @@ test_that("spuDistList", {
 
   ## Expect error: cbm_defaults_db missing
   expect_error(
-    spuDistList(spuIDs = 27, EXN = TRUE, cbm_defaults_db = NULL,
-            disturbance_matrix_association = cbm_exn_dir[["disturbance_matrix_association"]]),
+    spuDistList(spuIDs = 27, EXN = TRUE, cbm_defaults_db = NULL, cbm_exn_dir = cbm_exn_dir),
     'cbm_defaults_db'
   )
 
-  ## Expect error: disturbance_matrix_association missing
+  ## Expect error: cbm_exn_dir missing
   expect_error(
-    spuDistList(spuIDs = 27, EXN = TRUE, cbm_defaults_db = cbm_defaults_db,
-            disturbance_matrix_association = NULL),
-    'disturbance_matrix_association'
+    spuDistList(spuIDs = 27, EXN = TRUE, cbm_defaults_db = cbm_defaults_db, cbm_exn_dir = NULL),
+    'cbm_exn_dir'
   )
 
   ## Expect success
   listDist <- spuDistList(
-    spuIDs = 27, EXN = TRUE, cbm_defaults_db = cbm_defaults_db,
-    disturbance_matrix_association = cbm_exn_dir[["disturbance_matrix_association"]])
+    spuIDs = 27, EXN = TRUE, cbm_defaults_db = cbm_defaults_db, cbm_exn_dir = cbm_exn_dir)
   expect_true(all(listDist$spatial_unit_id == 27))
   expect_true(nrow(listDist) == 266)
 
@@ -170,26 +167,23 @@ test_that("spuDistMatch", {
   expect_error(
     spuDistMatch(
       distTable = cbind(spatial_unit_id = 28, distTypes),
-      EXN = TRUE, ask = FALSE, cbm_defaults_db = NULL,
-      disturbance_matrix_association = cbm_exn_dir[["disturbance_matrix_association"]]),
+      EXN = TRUE, ask = FALSE, cbm_defaults_db = NULL, cbm_exn_dir = cbm_exn_dir),
     "cbm_defaults_db"
   )
 
-  ## Expect error: disturbance_matrix_association missing
+  ## Expect error: cbm_exn_dir missing
   expect_error(
     spuDistMatch(
       distTable = cbind(spatial_unit_id = 28, distTypes),
-      EXN = TRUE, ask = FALSE, cbm_defaults_db = cbm_defaults_db,
-      disturbance_matrix_association = NULL),
-    "disturbance_matrix_association"
+      EXN = TRUE, ask = FALSE, cbm_defaults_db = cbm_defaults_db, cbm_exn_dir = NULL),
+    "cbm_exn_dir"
   )
 
   ## Test 2 spuIDs
   listDist <- spuDistMatch(
     distTable = rbind(cbind(spatial_unit_id = 27, distTypes),
                       cbind(spatial_unit_id = 28, distTypes)),
-    EXN = TRUE, ask = FALSE, cbm_defaults_db = cbm_defaults_db,
-    disturbance_matrix_association = cbm_exn_dir[["disturbance_matrix_association"]])
+    EXN = TRUE, ask = FALSE, cbm_defaults_db = cbm_defaults_db, cbm_exn_dir = cbm_exn_dir)
 
   expect_true(inherits(listDist, "data.table"))
   expect_true(all(c(
@@ -205,8 +199,7 @@ test_that("spuDistMatch", {
   expect_error(
     spuDistMatch(
       distTable = data.frame(spatial_unit_id = 27, name = "clearcut"),
-      EXN = TRUE, ask = FALSE, cbm_defaults_db = cbm_defaults_db,
-      disturbance_matrix_association = cbm_exn_dir[["disturbance_matrix_association"]])
+      EXN = TRUE, ask = FALSE, cbm_defaults_db = cbm_defaults_db, cbm_exn_dir = cbm_exn_dir)
   )
 })
 
@@ -244,15 +237,14 @@ test_that("spuHistDist", {
     "cbm_defaults_db"
   )
 
-  ## Expect error: disturbance_matrix_association missing
+  ## Expect error: cbm_exn_dir missing
   expect_error(
-    spuHistDist(spuIDs = 27, EXN = TRUE, cbm_defaults_db = cbm_defaults_db),
-    "disturbance_matrix_association"
+    spuHistDist(spuIDs = 27, EXN = TRUE, cbm_defaults_db = cbm_defaults_db, cbm_exn_dir = NULL),
+    "cbm_exn_dir"
   )
 
   listDist <- spuHistDist(
-    spuIDs = 27, EXN = TRUE, cbm_defaults_db = cbm_defaults_db,
-    disturbance_matrix_association = cbm_exn_dir[["disturbance_matrix_association"]])
+    spuIDs = 27, EXN = TRUE, cbm_defaults_db = cbm_defaults_db, cbm_exn_dir = cbm_exn_dir)
 
   expect_true(inherits(listDist, "data.table"))
 
@@ -304,13 +296,13 @@ test_that("seeDist", {
 
   # EXN = TRUE
 
-  ## Expect error: disturbance_matrix_value missing
+  ## Expect error: cbm_exn_dir missing
   expect_error(
     seeDist(EXN = TRUE, cbm_defaults_db = NULL),
-    "disturbance_matrix_value"
+    "cbm_exn_dir"
   )
 
-  distVals <- seeDist(EXN = TRUE, disturbance_matrix_value = cbm_exn_dir[["disturbance_matrix_value"]])
+  distVals <- seeDist(EXN = TRUE, cbm_exn_dir = cbm_exn_dir)
 
   expect_true(inherits(distVals, "list"))
   expect_true(inherits(distVals[[1]], "data.table"))
@@ -320,7 +312,7 @@ test_that("seeDist", {
   ) %in% names(distVals[[1]])))
 
   ## Test providing a matrix ID
-  distVals <- seeDist(matrixIDs = 2, EXN = TRUE, disturbance_matrix_value = cbm_exn_dir[["disturbance_matrix_value"]])
+  distVals <- seeDist(matrixIDs = 2, EXN = TRUE, cbm_exn_dir = cbm_exn_dir)
 
   expect_true(inherits(distVals, "list"))
   expect_true(inherits(distVals[[1]], "data.table"))
