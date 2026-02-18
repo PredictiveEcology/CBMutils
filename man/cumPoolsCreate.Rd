@@ -13,7 +13,8 @@ cumPoolsCreate(
   stable5,
   stable6,
   stable7,
-  thisAdmin
+  thisAdmin,
+  biomassToCarbonRate = 0.5
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ cumPoolsCreate(
 \item{stable7}{Boudewyn et al. 2007 stem wood biomass model parameters table for caps on proportion models}
 
 \item{thisAdmin}{Ecozone and spatial unit information table for the study area}
+
+\item{biomassToCarbonRate}{Conversion factor of biomass to carbon}
 }
 \value{
 \code{cumPools} data.table

@@ -34,12 +34,15 @@ utils::globalVariables(
 #'
 #' @param pixGroupCol the name of the column in `allInfoAGBin` serving as the pixel group
 #' identifier.
-
+#'
+#' @param biomassToCarbonRate Conversion factor of biomass to carbon
+#'
 #' @return biomass (\eqn{T/ha}) in each above ground pool for each cohort per pixel group.
 #'
 #' @export
 #' @importFrom data.table rbindlist setnames
-cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, tableMerchantability, pixGroupCol){
+cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, tableMerchantability, pixGroupCol,
+                              biomassToCarbonRate = 0.5){
 
   # 1. Input validation
   expectedColumns <- c("canfi_species", "juris_id", "ecozone", "age", "B", "speciesCode", pixGroupCol)
@@ -65,11 +68,10 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, tableMerchantability
   biomassPools <- convertAGB2pools(AGB, allParams)
 
   # 5. Convert biomass to carbon mass
-  biom2carbonConversionFactor <- 0.5
   biomassPools[, `:=`(
-    merch = merch * biom2carbonConversionFactor,
-    foliage = foliage * biom2carbonConversionFactor,
-    other = other * biom2carbonConversionFactor
+    merch = merch * biomassToCarbonRate,
+    foliage = foliage * biomassToCarbonRate,
+    other = other * biomassToCarbonRate
   )]
 
 
