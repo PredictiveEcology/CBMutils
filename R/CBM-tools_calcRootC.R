@@ -15,6 +15,7 @@ utils::globalVariables(c(
 #' @param b_hw "b" value for hardwood root biomass
 #' @param a_frp "a" value for fine root proportion
 #' @param b_frp "b" value for fine root proportion
+#' @param biomassToCarbonRate Conversion factor of biomass to carbon
 #'
 #' @references
 #' Li, Z., Kurz, W. A., Apps, M. J., & Beukema, S. J. (2003). Belowground biomass
@@ -28,7 +29,8 @@ utils::globalVariables(c(
 calcRootC <- function(aboveGroundC, sw_hw,
                       a_sw = 0.222, b_sw = 1,
                       a_hw = 1.576, b_hw = 0.615,
-                      a_frp = 0.072, b_frp = 0.354){
+                      a_frp = 0.072, b_frp = 0.354,
+                      biomassToCarbonRate = 0.5){
 
   aboveGroundColumns <- c("Merch", "Foliage", "Other")
 
@@ -63,7 +65,7 @@ calcRootC <- function(aboveGroundC, sw_hw,
   )
 
   # Reconvert into tonnes/ha of carbon
-  rootC <- rootBiom * 0.5
+  rootC <- rootBiom * biomassToCarbonRate
 
   return(rootC)
 

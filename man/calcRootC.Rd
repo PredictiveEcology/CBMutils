@@ -12,7 +12,8 @@ calcRootC(
   a_hw = 1.576,
   b_hw = 0.615,
   a_frp = 0.072,
-  b_frp = 0.354
+  b_frp = 0.354,
+  biomassToCarbonRate = 0.5
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ calcRootC(
 \item{a_frp}{"a" value for fine root proportion}
 
 \item{b_frp}{"b" value for fine root proportion}
+
+\item{biomassToCarbonRate}{Conversion factor of biomass to carbon}
 }
 \value{
 data.table with mass of carbon (tonnes/ha) in coarseRoots and fineRoots pools.

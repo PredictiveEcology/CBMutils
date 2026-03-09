@@ -9,7 +9,8 @@ cumPoolsCreateAGB(
   table6,
   table7,
   tableMerchantability,
-  pixGroupCol
+  pixGroupCol,
+  biomassToCarbonRate = 0.5
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ biomass and nonmerchfactor predicted by equation 2 of Boudewyn et al., 2007.}
 
 \item{pixGroupCol}{the name of the column in \code{allInfoAGBin} serving as the pixel group
 identifier.}
+
+\item{biomassToCarbonRate}{Conversion factor of biomass to carbon}
 }
 \value{
 biomass (\eqn{T/ha}) in each above ground pool for each cohort per pixel group.
