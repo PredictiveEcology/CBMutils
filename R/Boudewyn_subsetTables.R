@@ -1,0 +1,110 @@
+utils::globalVariables(c(
+  "EcoBoundaryID", "i.EcoBoundaryNew", "i.abreviationNew"
+))
+
+#' Subset Boudewyn tables to fit study area
+#'
+#' @param table Boudewyn table to subset
+#' @param thisAdmin study area attributes
+#' @param eco ecozones in study area
+#'
+#' @return `smallTable` data.table
+#'
+#' @export
+#' @importFrom data.table data.table
+boudewynSubsetTables <- function(table, thisAdmin, eco) {
+  # not all ecozones are in tables 3-7. There may be some mismatch here.
+  # these are the ecozones in the tables
+  # id               name
+  # 4       Taiga Plains
+  # 5  Taiga Shield West
+  # 6 Boreal Shield West
+  # 7  Atlantic Maritime
+  # 9      Boreal Plains
+  # 10  Subhumid Prairies
+  # 12  Boreal Cordillera
+  # 13   Pacific Maritime
+  # 14 Montane Cordillera
+  # these are the ones that are not.
+  # id               name
+  # 8   Mixedwood Plains  - 7  Atlantic Maritime
+  # 11   Taiga Cordillera - 4 taiga plains
+  # 15      Hudson Plains - 6 Boreal Shield West
+  # 16  Taiga Shield East - 5  Taiga Shield West
+  # 17 Boreal Shield East - 6 Boreal Shield West
+  # 18  Semiarid Prairies - 10  Subhumid Prairies
+  ecoNotInT <- c(8, 11, 15, 16, 17, 18)
+  EcoBoundaryReplace <- c(7, 4, 6, 5, 6, 10)
+
+  ecoReplace <- data.table(
+    EcoBoundaryID = ecoNotInT,
+    EcoBoundaryNew = EcoBoundaryReplace)
+  # these are the provinces available: AB BC NB NL NT
+  # for the non match these would be the equivalent
+  # "PE" - NB
+  # "QC" - NL/NB
+  # "ON" - NL/NB
+  # "MB" - AB
+  # "SK" - AB
+  # "YK" - NT/BC
+  # "NU" - NT/NL
+  # "NS" - NB
+  abreviation <- c("PE", "MB", "SK", "NS")
+  tabreviation <- c("NB", "AB", "AB", "NB")
+
+  abreviationReplace <- data.table(
+    abreviation = abreviation,
+    abreviationNew = tabreviation)
+
+  thisAdmin <- as.data.table(thisAdmin)
+
+  # Replaces ecozones not in table with its appropriate replacement
+  thisAdmin[ecoReplace, on = .(EcoBoundaryID),
+            EcoBoundaryID := i.EcoBoundaryNew]
+
+  # Replaces QC and ON with appropriate replacements depending on ecozone
+  if (thisAdmin[abreviation %in% c("QC", "ON") & EcoBoundaryID %in% c(5, 6), .N] > 0  && !any(c("QC", "ON") %in% table$juris_id)) {
+    thisAdmin[abreviation %in% c("QC", "ON") & EcoBoundaryID %in% c(5, 6),
+              abreviation := "NL"]
+  }
+
+  if (thisAdmin[abreviation %in% c("QC", "ON") & EcoBoundaryID == 7, .N] > 0 && !any(c("QC", "ON") %in% table$juris_id)) {
+    thisAdmin[abreviation %in% c("QC", "ON") & EcoBoundaryID == 7,
+              abreviation := "NB"]
+  }
+
+  if (thisAdmin[abreviation %in% c("NU") & EcoBoundaryID == 5, .N] > 0 && !"NU" %in% table$juris_id) {
+    thisAdmin[abreviation %in% c("NU") & EcoBoundaryID == 5,
+              abreviation := "NT"]
+  }
+
+  if (thisAdmin[abreviation %in% "NU" & EcoBoundaryID == 6, .N] > 0 && !"NU" %in% table$juris_id) {
+    thisAdmin[abreviation %in% c("NU") & EcoBoundaryID == 6,
+              abreviation := "NL"]
+  }
+
+  if (thisAdmin[abreviation %in% "YK" & EcoBoundaryID %in% c(4, 12), .N] > 0 && !"YK" %in% table$juris_id) {
+    thisAdmin[abreviation %in% c("YK") & EcoBoundaryID %in% c(4, 12),
+              abreviation := "NT"]
+  }
+
+  if (thisAdmin[abreviation %in% c("YK") & EcoBoundaryID == 13, .N] > 0 && !"YK" %in% table$juris_id) {
+    thisAdmin[abreviation %in% c("YK") & EcoBoundaryID == 13,
+              abreviation := "BC"]
+  }
+
+  # Replaces abreviation not in table with appropriate replacement
+  if (any(thisAdmin$abreviation %in% abreviationReplace$abreviation) && !any(thisAdmin$abreviation %in% table$juris_id)) {
+    thisAdmin[abreviationReplace,
+              on = .(abreviation),
+              abreviation := i.abreviationNew]
+  }
+
+  # Subset table
+  table <- as.data.table(table)
+  smallTable <- table[
+    juris_id %in% thisAdmin$abreviation &
+      ecozone %in% thisAdmin$EcoBoundaryID]
+
+  return(smallTable)
+}

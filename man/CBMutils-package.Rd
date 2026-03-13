@@ -13,16 +13,15 @@ of the Canadian Forest Service v3 (CBM-CFS3).
 Useful links:
 \itemize{
   \item \url{https://github.com/PredictiveEcology/CBMutils}
-  \item \url{https://docs.google.com/spreadsheets/d/1SNHvHpr7SVIMfaxOdKENYElwiME75GK-jl3vaVQb6-w}
 }
 
 }
 \author{
-\strong{Maintainer}: Alex M Chubaty \email{achubaty@for-cast.ca} (\href{https://orcid.org/0000-0001-7146-8135}{ORCID})
+\strong{Maintainer}: Céline Boisvenue \email{celine.boisvenue@nrcan-rncan.gc.ca}
 
 Authors:
 \itemize{
-  \item Céline Boisvenue \email{celine.boisvenue@nrcan-rncan.gc.ca}
+  \item Alex M Chubaty \email{achubaty@for-cast.ca} (\href{https://orcid.org/0000-0001-7146-8135}{ORCID})
   \item Eliot McIntire \email{eliot.mcintire@nrcan-rncan.gc.ca}
 }
 
