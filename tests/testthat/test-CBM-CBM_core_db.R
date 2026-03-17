@@ -219,7 +219,7 @@ test_that("spadesCBMdbReadSummary", {
   expect_is(poolsByYear, "data.table")
   expect_identical(data.table::key(poolsByYear), "year")
   expect_equal(poolsByYear$year,  c(1985, 2011))
-  expect_equal(poolsByYear$Merch, c(43999508, 45595739))
+  expect_equal(poolsByYear$Merch, c(32.6519930, 33.8365548))
 })
 
 test_that("simCBMdbReadSummary", {
@@ -261,7 +261,7 @@ test_that("simCBMdbReadSummary", {
   expect_is(poolsByYear, "data.table")
   expect_identical(data.table::key(poolsByYear), "year")
   expect_equal(poolsByYear$year,  c(1985, 2011))
-  expect_equal(poolsByYear$Merch, c(43999508, 45595739))
+  expect_equal(poolsByYear$Merch, c(32.6519930, 33.8365548))
 })
 
 
