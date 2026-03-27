@@ -1,5 +1,5 @@
 utils::globalVariables(c(
-  ".BY", ".N", ".SD", "gcids", "override"
+  "gcids", "override"
 ))
 
 #' Smooth the `cumPools` `data.table`

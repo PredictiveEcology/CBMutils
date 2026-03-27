@@ -1,5 +1,5 @@
 utils::globalVariables(c(
-  "emission", "emissionType", "Products", "year"
+  "emission", "emissionType"
 ))
 
 #' `plotEmissionsProducts`

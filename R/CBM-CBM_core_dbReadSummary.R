@@ -1,4 +1,3 @@
-utils::globalVariables(c("cohortID", "pixelIndex", "row_idx"))
 
 #' simList: Read SpaDES CBM database summary
 #'
@@ -100,9 +99,6 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year =
 
     dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "flux")
 
-    # R CMD check note bypass
-    for (colName in setdiff(names(dbTable), ls())) assign(colName, NULL)
-
     dbTable <- dbTable[, .(row_idx, NPP = rowSums(dbTable[, .(
       DeltaBiomass_AG, DeltaBiomass_BG,
       TurnoverMerchLitterInput, TurnoverFolLitterInput,
@@ -113,9 +109,6 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year =
   if (summary == "poolTypes"){
 
     dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "pools")
-
-    # R CMD check note bypass
-    for (colName in setdiff(names(dbTable), ls())) assign(colName, NULL)
 
     dbTable <- dbTable[, .(
       Soil   = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
@@ -130,9 +123,6 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year =
   if (summary == "totalCarbon"){
 
     dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "pools")
-
-    # R CMD check note bypass
-    for (colName in setdiff(names(dbTable), ls())) assign(colName, NULL)
 
     dbTable <- dbTable[, .(row_idx, totalCarbon = rowSums(dbTable[, .(
       Merch, Foliage, Other, CoarseRoots, FineRoots,

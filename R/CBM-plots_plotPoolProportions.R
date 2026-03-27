@@ -1,8 +1,6 @@
 utils::globalVariables(c(
-  "AboveGroundFastSoil", "AboveGroundSlowSoil", "AboveGroundVeryFastSoil",
-  "BelowGroundFastSoil", "BelowGroundSlowSoil", "BelowGroundVeryFastSoil",
-  "BranchSnag", "CoarseRoots", "FineRoots", "Foliage", "MediumSoil", "Merch", "Other", "StemSnag",
-  "AGlive", "BGlive", "carbon", "cohortGroupID", "N", "pool", "simYear", "snags", "soil", "weight"
+  "carbon", "N", "pool",
+  "AGlive", "BGlive", "Snags", "Soil"
 ))
 
 #' `plotPoolProportions`

@@ -1,9 +1,5 @@
 utils::globalVariables(c(
-  "Merch", "Foliage", "Other", "CoarseRoots", "FineRoots",
-  "AboveGroundVeryFastSoil", "BelowGroundVeryFastSoil", "AboveGroundFastSoil",
-  "BelowGroundFastSoil", "MediumSoil", "AboveGroundSlowSoil", "BelowGroundSlowSoil",
-  "StemSnag", "BranchSnag",
-  "totalCarbon", "x", "y"
+  "totalCarbon"
 ))
 
 #' `mapTotalCarbon`
