@@ -168,7 +168,6 @@ extractToRast_vect <- function(input, templateRast, field = 1, crop = TRUE){
 
   # Reproject
   if (reproject){
-    geometry <- NULL # global variable binding
     sf::st_geometry(input) <- sf::st_transform(sf::st_geometry(input), sf::st_crs(templateRast))
   }
 

@@ -1,4 +1,3 @@
-utils::globalVariables(c("cohortID", "pixelIndex", "row_idx"))
 
 #' simList: Read SpaDES CBM database table
 #'

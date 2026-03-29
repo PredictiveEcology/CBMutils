@@ -1,4 +1,8 @@
 
+utils::globalVariables(c(
+  "Genus", "Latin_full", "EN_generic_full"
+))
+
 #' Species match
 #'
 #' Retrieve species metadata by matching species names or other identifiers with columns in \code{sppEquivalencies}.
@@ -37,8 +41,6 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
 
   # Create a "Genus" column from the latin name
   if ("Genus" %in% return & "Latin_full" %in% names(sppEquiv)){
-
-    Genus <- Latin_full <- EN_generic_full <- NULL
 
     sppEquiv[, Genus := toupper(
       sapply(strsplit(Latin_full, ""), function(x) ifelse(

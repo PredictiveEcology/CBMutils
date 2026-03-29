@@ -1,8 +1,5 @@
 utils::globalVariables(c(
-  "DeltaBiomass_AG", "DeltaBiomass_BG",
-  "TurnoverMerchLitterInput", "TurnoverFolLitterInput",
-  "TurnoverOthLitterInput", "TurnoverCoarseLitterInput", "TurnoverFineLitterInput",
-  "NPP", "x", "y"
+  "NPP"
 ))
 
 #' `mapNPP`
