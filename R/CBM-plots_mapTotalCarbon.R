@@ -23,41 +23,40 @@ utils::globalVariables(c(
 mapTotalCarbon <- function(pools, masterRaster, year = NULL){
 
   if (!"pixelIndex" %in% names(pools)) stop("pools requires column 'pixelIndex'")
+
   if (is.null(masterRaster)) stop("masterRaster not found")
+  masterRaster <- terra::unwrap(terra::rast(masterRaster))
 
   # Calculate total carbon for each pixel
   if (!identical(names(pools), c("pixelIndex", "totalCarbon"))){
 
     if (!is.data.table(pools)) pools <- as.data.table(pools)
     pools <- pools[, .(
-      totalCarbon = sum(
+      pixelIndex,
+      totalCarbon = rowSums(pools[, .(
         Merch, Foliage, Other, CoarseRoots, FineRoots,
         AboveGroundVeryFastSoil, BelowGroundVeryFastSoil, AboveGroundFastSoil,
         BelowGroundFastSoil, MediumSoil, AboveGroundSlowSoil, BelowGroundSlowSoil,
-        StemSnag, BranchSnag)
-    ), by = "pixelIndex"]
+        StemSnag, BranchSnag
+      )])
+    )][, lapply(.SD, sum), by = "pixelIndex"]
   }
 
   # Plot
   plotTitle <- "Total Carbon"
   if (!is.null(year)) plotTitle <- paste(plotTitle, "in", year)
 
-  masterRaster <- terra::unwrap(terra::rast(masterRaster))
-
   withr::local_envvar(tidyterra.quiet = TRUE)
 
+  plotRast <- terra::rast(
+    res  = 1,
+    xmin = 0, xmax = terra::ncol(masterRaster),
+    ymin = 0, ymax = terra::nrow(masterRaster)
+  )
+  terra::set.values(plotRast, pools$pixelIndex, round(pools$totalCarbon))
+
   ggplot() +
-    tidyterra::geom_spatraster(
-      data = terra::rast(
-        res  = 1,
-        xmin = 0, xmax = terra::ncol(masterRaster),
-        ymin = 0, ymax = terra::nrow(masterRaster),
-        vals = {
-          x <- rep(NA_real_, terra::ncell(masterRaster))
-          x[pools$pixelIndex] <- pools$totalCarbon
-          x
-        })
-    ) +
+    tidyterra::geom_spatraster(data = plotRast) +
     coord_sf() +
     theme_no_axes() +
     scale_x_continuous(expand = c(0, 0)) +

@@ -99,11 +99,14 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year =
 
     dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "flux")
 
-    dbTable <- dbTable[, .(row_idx, NPP = rowSums(dbTable[, .(
-      DeltaBiomass_AG, DeltaBiomass_BG,
-      TurnoverMerchLitterInput, TurnoverFolLitterInput,
-      TurnoverOthLitterInput, TurnoverCoarseLitterInput, TurnoverFineLitterInput
-    )]))]
+    dbTable <- dbTable[, .(
+      row_idx,
+      NPP = rowSums(dbTable[, .(
+        DeltaBiomass_AG, DeltaBiomass_BG,
+        TurnoverMerchLitterInput, TurnoverFolLitterInput,
+        TurnoverOthLitterInput, TurnoverCoarseLitterInput, TurnoverFineLitterInput
+      )])
+    )]
   }
 
   if (summary == "poolTypes"){
@@ -111,25 +114,31 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", year =
     dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "pools")
 
     dbTable <- dbTable[, .(
-      Soil   = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
-                   AboveGroundFastSoil, BelowGroundFastSoil,
-                   AboveGroundSlowSoil, BelowGroundSlowSoil, MediumSoil),
-      BGlive = sum(CoarseRoots, FineRoots),
-      AGlive = sum(Merch, Foliage, Other),
-      Snags  = sum(StemSnag, BranchSnag)
-    ), by = row_idx]
+      row_idx,
+      Soil = rowSums(dbTable[, .(
+        AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
+        AboveGroundFastSoil, BelowGroundFastSoil,
+        AboveGroundSlowSoil, BelowGroundSlowSoil, MediumSoil
+      )]),
+      BGlive = rowSums(dbTable[, .(CoarseRoots, FineRoots)]),
+      AGlive = rowSums(dbTable[, .(Merch, Foliage, Other)]),
+      Snags  = rowSums(dbTable[, .(StemSnag, BranchSnag)])
+    )]
   }
 
   if (summary == "totalCarbon"){
 
     dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "pools")
 
-    dbTable <- dbTable[, .(row_idx, totalCarbon = rowSums(dbTable[, .(
-      Merch, Foliage, Other, CoarseRoots, FineRoots,
-      AboveGroundVeryFastSoil, BelowGroundVeryFastSoil, AboveGroundFastSoil,
-      BelowGroundFastSoil, MediumSoil, AboveGroundSlowSoil, BelowGroundSlowSoil,
-      StemSnag, BranchSnag
-    )]))]
+    dbTable <- dbTable[, .(
+      row_idx,
+      totalCarbon = rowSums(dbTable[, .(
+        Merch, Foliage, Other, CoarseRoots, FineRoots,
+        AboveGroundVeryFastSoil, BelowGroundVeryFastSoil, AboveGroundFastSoil,
+        BelowGroundFastSoil, MediumSoil, AboveGroundSlowSoil, BelowGroundSlowSoil,
+        StemSnag, BranchSnag
+      )])
+    )]
   }
 
   if (missing(dbTable)) stop(
