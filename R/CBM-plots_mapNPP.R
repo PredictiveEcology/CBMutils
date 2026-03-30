@@ -23,40 +23,39 @@ utils::globalVariables(c(
 mapNPP <- function(flux, masterRaster, year = NULL) {
 
   if (!"pixelIndex" %in% names(flux)) stop("flux requires column 'pixelIndex'")
+
   if (is.null(masterRaster)) stop("masterRaster not found")
+  masterRaster <- terra::unwrap(terra::rast(masterRaster))
 
   # Calculate NPP
   if (!identical(names(flux), c("pixelIndex", "NPP"))){
 
     if (!is.data.table(flux)) flux <- as.data.table(flux)
     flux <- flux[, .(
-      NPP = sum(
+      pixelIndex,
+      NPP = rowSums(flux[, .(
         DeltaBiomass_AG, DeltaBiomass_BG,
         TurnoverMerchLitterInput, TurnoverFolLitterInput,
-        TurnoverOthLitterInput, TurnoverCoarseLitterInput, TurnoverFineLitterInput)
-    ), by = "pixelIndex"]
+        TurnoverOthLitterInput, TurnoverCoarseLitterInput, TurnoverFineLitterInput
+      )])
+    )][, lapply(.SD, sum), by = "pixelIndex"]
   }
 
   # Plot
   plotTitle <- "Net Primary Productivity (NPP)"
   if (!is.null(year)) plotTitle <- paste(plotTitle, "in", year)
 
-  masterRaster <- terra::unwrap(terra::rast(masterRaster))
-
   withr::local_envvar(tidyterra.quiet = TRUE)
 
+  plotRast <- terra::rast(
+    res  = 1,
+    xmin = 0, xmax = terra::ncol(masterRaster),
+    ymin = 0, ymax = terra::nrow(masterRaster)
+  )
+  terra::set.values(plotRast, flux$pixelIndex, round(flux$NPP))
+
   ggplot() +
-    tidyterra::geom_spatraster(
-      data = terra::rast(
-        res  = 1,
-        xmin = 0, xmax = terra::ncol(masterRaster),
-        ymin = 0, ymax = terra::nrow(masterRaster),
-        vals = {
-          x <- rep(NA_real_, terra::ncell(masterRaster))
-          x[flux$pixelIndex] <- flux$NPP
-          x
-        })
-    ) +
+    tidyterra::geom_spatraster(data = plotRast) +
     coord_sf() +
     theme_no_axes() +
     scale_x_continuous(expand = c(0, 0)) +
@@ -69,8 +68,8 @@ mapNPP <- function(flux, masterRaster, year = NULL) {
       na.value = "transparent",
       guide = "colorbar"
     ) +
-    labs(fill = "Carbon\n(MgC/ha)" ) +
-    ggtitle(paste0(plotTitle, "\n", "Landscape average: ", round(mean(flux$NPP), 3), " MgC/ha."))
+    labs(fill = "Carbon\n(t/ha)") +
+    ggtitle(paste0(plotTitle, "\n", "Landscape average: ", round(mean(flux$NPP), 3), " t/ha."))
 }
 
 
@@ -87,7 +86,7 @@ simMapNPP <- function(simCBM, year, useCache = TRUE){
 
   mapNPP(
     simCBMdbReadSummary(
-      simCBM, "NPP", by = "pixelIndex",
+      simCBM, "NPP", units = "t/ha", by = "pixelIndex",
       year = year, useCache = useCache),
     year = year,
     masterRaster = simCBM$masterRaster

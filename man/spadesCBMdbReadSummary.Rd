@@ -8,6 +8,7 @@ spadesCBMdbReadSummary(
   spadesCBMdb,
   summary,
   by = "cohortID",
+  units = "t/ha",
   year = NULL,
   years = NULL,
   useCache = TRUE
@@ -20,6 +21,8 @@ spadesCBMdbReadSummary(
 
 \item{by}{character. Name of field to summarize results by.
 Data can be summarized by 'cohortID', 'pixelIndex', or 'year'}
+
+\item{units}{character. 't/ha', 't', or 'Mt'.}
 
 \item{year}{numeric. Year of simulation results.
 Required if \verb{by = 'cohortID' or 'pixelIndex'}.}

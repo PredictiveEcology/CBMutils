@@ -25,16 +25,16 @@ plotEmissionsProducts <- function(emissionsProducts) {
                                           measure.vars = c("CO2", "CH4", "CO"),
                                           variable.name = "emissionType", value.name = "emission")
 
-  Emissions <- ggplot(data = outTable, aes(x = year, y = emission, fill = emissionType)) +
-    geom_bar(stat = "identity") +
-    labs(x = "Year", y = "Carbon in MgC") + theme_classic() + ggtitle("Yearly Emissions") +
-    guides(fill = guide_legend(title.position= "top", title ="Emission") ) +
+  Emissions <- ggplot(data = outTable, aes(x = year, y = as.numeric(emission), fill = emissionType)) +
+    geom_bar(stat = "identity") + theme_classic() +
+    labs(x = "Year", y = "Carbon (t)") + ggtitle("Emissions") +
+    guides(fill = guide_legend(title.position = "top", title = "Emissions")) +
     scale_y_continuous(expand = c(0,0)) +
     scale_fill_manual(values = c("#733958", "#5c538a", "#c3a44c"), labels = c('CO2', "CH4", "CO"))
 
-  Products <- ggplot(data = emissionsProducts, aes(x = year, y = Products)) +
-    geom_bar(stat = "identity", fill = "#4e88b9") +
-    labs(x = "Year", y = "Carbon in MgC") + theme_classic() + ggtitle("Yearly Products") +
+  Products <- ggplot(data = emissionsProducts, aes(x = year, y = as.numeric(Products))) +
+    geom_bar(stat = "identity", fill = "#4e88b9") + theme_classic() +
+    labs(x = "Year", y = "Carbon (t)") + ggtitle("Products") +
     scale_y_continuous(expand = c(0,0))
 
   plot_grid(Emissions, Products, ncol = 2)

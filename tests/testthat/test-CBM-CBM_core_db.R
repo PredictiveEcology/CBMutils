@@ -185,6 +185,7 @@ test_that("simCBMdbReadTable", {
 
 test_that("spadesCBMdbReadSummary", {
 
+  # By pixel: units t
   pools1985 <- spadesCBMdbReadSummary(
     spadesCBMdb,
     year     = 1985,
@@ -195,7 +196,7 @@ test_that("spadesCBMdbReadSummary", {
   expect_is(pools1985, "data.table")
   expect_identical(data.table::key(pools1985), "pixelIndex")
   expect_false("cohortID" %in% names(pools1985))
-  expect_false("row_idx"    %in% names(pools1985))
+  expect_false("row_idx"  %in% names(pools1985))
   expect_equal(nrow(pools1985), 1347529)
 
   expect_equal(
@@ -209,6 +210,7 @@ test_that("spadesCBMdbReadSummary", {
     pools1985,
     check.attributes = FALSE)
 
+  # By year: units t/ha
   poolsByYear <- spadesCBMdbReadSummary(
     spadesCBMdb,
     years    = c(1985, 2011),
@@ -220,6 +222,32 @@ test_that("spadesCBMdbReadSummary", {
   expect_identical(data.table::key(poolsByYear), "year")
   expect_equal(poolsByYear$year,  c(1985, 2011))
   expect_equal(poolsByYear$Merch, c(32.6519930, 33.8365548))
+
+  # By year: units t
+  expect_equal(
+    spadesCBMdbReadSummary(
+      spadesCBMdb,
+      years    = c(1985, 2011),
+      summary  = "pools",
+      by       = "year",
+      units    = "t",
+      useCache = FALSE
+    )[, -1],
+    poolsByYear[, -1][, lapply(.SD, function(x) x * 121277.61)]
+  )
+
+  # By year: units Mt
+  expect_equal(
+    spadesCBMdbReadSummary(
+      spadesCBMdb,
+      years    = c(1985, 2011),
+      summary  = "pools",
+      by       = "year",
+      units    = "Mt",
+      useCache = FALSE
+    )[, -1],
+    poolsByYear[, -1][, lapply(.SD, function(x) x * 121277.61 * 1/10^6)]
+  )
 })
 
 test_that("simCBMdbReadSummary", {
