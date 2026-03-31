@@ -4,14 +4,16 @@
 \alias{simMapNPP}
 \title{\code{simMapNPP}}
 \usage{
-simMapNPP(simCBM, year, useCache = TRUE)
+simMapNPP(simCBM, year, cbm4_results = NULL, useCache = TRUE)
 }
 \arguments{
 \item{simCBM}{SpaDES.core \code{\link[SpaDES.core]{simList}} for a CBM simulation including the \strong{CBM_core} module.}
 
-\item{year}{numeric. Year of simulation results.
-Required if \verb{by = 'cohortID' or 'pixelIndex'}.
-Defaults to the current simulation year.}
+\item{year}{numeric. Year of simulation results.}
+
+\item{cbm4_results}{character or \code{SQLResultsProcessor}.
+Path to CBM4 spatial datasets directory
+or a \code{SQLResultsProcessor} object created with \code{CBM4::cbm4_results_processor}.}
 
 \item{useCache}{logical. Cache database query result to the database's
 \code{cache} directory with \code{\link[reproducible]{Cache}}.}

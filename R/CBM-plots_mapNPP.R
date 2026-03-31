@@ -75,21 +75,58 @@ mapNPP <- function(flux, masterRaster, year = NULL) {
 
 #' `simMapNPP`
 #'
+#' @template simCBM
+#' @inheritParams cbm4MapNPP
 #' @inheritParams simCBMdbReadSummary
 #' @inherit mapNPP description return
 #' @export
-simMapNPP <- function(simCBM, year, useCache = TRUE){
+simMapNPP <- function(simCBM, year, cbm4_results = NULL, useCache = TRUE){
 
   if (missing(year)){
     year <- SpaDES.core::convertTimeunit(SpaDES.core::times(simCBM)$current, "year")
   }
 
-  mapNPP(
-    simCBMdbReadSummary(
-      simCBM, "NPP", units = "t/ha", by = "pixelIndex",
-      year = year, useCache = useCache),
-    year = year,
-    masterRaster = simCBM$masterRaster
-  )
+  if (!is.null(simCBM$CBM4data)){
+
+    cbm4MapNPP(
+      if (is.null(cbm4_results)) simCBM$CBM4data else cbm4_results,
+      year1 = SpaDES.core::start(simCBM),
+      year  = year
+    )
+
+  }else{
+
+    mapNPP(
+      simCBMdbReadSummary(
+        simCBM, "NPP", units = "t/ha", by = "pixelIndex",
+        year = year, useCache = useCache),
+      year = year,
+      masterRaster = simCBM$masterRaster
+    )
+  }
 }
+
+
+#' `cbm4MapNPP`
+#'
+#' @template cbm4_results
+#' @param year numeric. Year of simulation results.
+#' @param year1 integer. Simulation start year.
+#'
+#' @inherit mapNPP description return
+#' @export
+cbm4MapNPP <- function(cbm4_results, year, year1 = 1){
+
+  if (length(find.package("CBM4r", quiet = TRUE)) == 0) stop("CBM4r package required")
+
+  cbm4Summary <- CBM4r::cbm4_results_flux_by_pixel(
+    cbm4_results, units = "t/ha",
+    timestep = year - year1 + 1
+  )
+  data.table::setnames(cbm4Summary, "pixel_index", "pixelIndex")
+
+  mapNPP(cbm4Summary, masterRaster = CBM4r::cbm4_read_geo(cbm4_results), year = year)
+}
+
+
 

@@ -72,15 +72,54 @@ plotPoolProportions <- function(pools){
 
 #' `simPlotPoolProportions`
 #'
+#' @template simCBM
+#' @inheritParams cbm4PlotPoolProportions
 #' @inheritParams simCBMdbReadSummary
-#' @param years numeric. Simulation years to include in plot. Defaults to all simulation years.
 #' @inherit plotPoolProportions description return
 #' @export
-simPlotPoolProportions <- function(simCBM, years = NULL, useCache = TRUE){
+simPlotPoolProportions <- function(simCBM, years = NULL, cbm4_results = NULL, useCache = TRUE){
 
-  plotPoolProportions(
-    simCBMdbReadSummary(
-      simCBM, "poolTypes", units = "t/ha", by = "year",
-      years = years, useCache = useCache)
-  )
+  if (!is.null(simCBM$CBM4data)){
+
+    cbm4PlotPoolProportions(
+      if (is.null(cbm4_results)) simCBM$CBM4data else cbm4_results,
+      year1 = SpaDES.core::start(simCBM),
+      years = years
+    )
+
+  }else{
+
+    plotPoolProportions(
+      simCBMdbReadSummary(
+        simCBM, "poolTypes", units = "t/ha", by = "year",
+        years = years, useCache = useCache)
+    )
+  }
 }
+
+
+#' `cbm4PlotPoolProportions`
+#'
+#' @template cbm4_results
+#' @param years numeric. Simulation years to include in plot. Defaults to all simulation years.
+#' @param year1 integer. Simulation start year.
+#'
+#' @inherit plotPoolProportions description return
+#' @export
+cbm4PlotPoolProportions <- function(cbm4_results, years = NULL, year1 = 1){
+
+  if (length(find.package("CBM4r", quiet = TRUE)) == 0) stop("CBM4r package required")
+
+  cbm4Summary <- CBM4r::cbm4_results_pools_by_timestep(
+    cbm4_results, units = "t",
+    timesteps = if (!is.null(years)) years - year1 + 1
+  )
+  cbm4Summary[, year := as.integer(timestep + year1 - 1)]
+  data.table::setkey(cbm4Summary, year)
+  data.table::setcolorder(cbm4Summary)
+
+  plotPoolProportions(cbm4Summary)
+}
+
+
+

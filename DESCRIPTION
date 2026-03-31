@@ -37,6 +37,7 @@ Imports:
     tidyterra,
     withr
 Suggests:
+    CBM4r,
     covr,
     devtools,
     exactextractr,
