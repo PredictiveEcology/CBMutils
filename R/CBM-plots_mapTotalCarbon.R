@@ -69,7 +69,7 @@ mapTotalCarbon <- function(pools, masterRaster, year = NULL){
       na.value = "transparent",
       guide = "colorbar"
     ) +
-    labs(fill = "Carbon\n(MgC/ha)" ) +
+    labs(fill = "Carbon\n(t/ha)") +
     ggtitle(plotTitle)
 }
 
@@ -87,7 +87,7 @@ simMapTotalCarbon <- function(simCBM, year, useCache = TRUE){
 
   mapTotalCarbon(
     simCBMdbReadSummary(
-      simCBM, "totalCarbon", by = "pixelIndex",
+      simCBM, "totalCarbon", units = "t/ha", by = "pixelIndex",
       year = year, useCache = useCache),
     year = year,
     masterRaster = simCBM$masterRaster

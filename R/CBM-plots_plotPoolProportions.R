@@ -80,7 +80,7 @@ simPlotPoolProportions <- function(simCBM, years = NULL, useCache = TRUE){
 
   plotPoolProportions(
     simCBMdbReadSummary(
-      simCBM, "poolTypes", by = "year",
+      simCBM, "poolTypes", units = "t/ha", by = "year",
       years = years, useCache = useCache)
   )
 }

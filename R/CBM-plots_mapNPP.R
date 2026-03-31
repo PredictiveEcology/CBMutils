@@ -68,8 +68,8 @@ mapNPP <- function(flux, masterRaster, year = NULL) {
       na.value = "transparent",
       guide = "colorbar"
     ) +
-    labs(fill = "Carbon\n(MgC/ha)" ) +
-    ggtitle(paste0(plotTitle, "\n", "Landscape average: ", round(mean(flux$NPP), 3), " MgC/ha."))
+    labs(fill = "Carbon\n(t/ha)") +
+    ggtitle(paste0(plotTitle, "\n", "Landscape average: ", round(mean(flux$NPP), 3), " t/ha."))
 }
 
 
@@ -86,7 +86,7 @@ simMapNPP <- function(simCBM, year, useCache = TRUE){
 
   mapNPP(
     simCBMdbReadSummary(
-      simCBM, "NPP", by = "pixelIndex",
+      simCBM, "NPP", units = "t/ha", by = "pixelIndex",
       year = year, useCache = useCache),
     year = year,
     masterRaster = simCBM$masterRaster
