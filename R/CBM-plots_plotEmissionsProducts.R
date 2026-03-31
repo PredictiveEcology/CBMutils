@@ -43,10 +43,32 @@ plotEmissionsProducts <- function(emissionsProducts) {
 
 #' `simPlotEmissionsProducts`
 #'
-#' @template simCBM
+#' @inheritParams simCBMdbReadSummary
 #' @inherit plotEmissionsProducts description return
 #' @export
-simPlotEmissionsProducts <- function(simCBM){
-  plotEmissionsProducts(simCBM$emissionsProducts)
+simPlotEmissionsProducts <- function(simCBM, years = NULL, useCache = TRUE){
+
+  if ("emissionsProducts" %in% names(simCBM)){
+    emissionsProducts <- simCBM$emissionsProducts
+
+  }else{
+
+    emissionsProducts <- merge(
+      simCBMdbReadSummary(
+        simCBM, "products", by = "year", units = "t",
+        years = if (!is.null(years)) min(years):max(years), useCache = useCache),
+      simCBMdbReadSummary(
+        simCBM, "emissions", by = "year", units = "t",
+        years = if (!is.null(years)) min(years):max(years), useCache = useCache),
+      by = "year", all = TRUE)
+
+    # Summarize yearly (non-cumulative) products
+    for (i in setdiff(1:nrow(emissionsProducts), 1)){
+      emissionsProducts$Products[[i]] <- emissionsProducts$Products[[i]] - sum(emissionsProducts$Products[1:(i - 1)])
+    }
+  }
+
+  if (!is.null(years)) emissionsProducts <- subset(emissionsProducts, year %in% years)
+  plotEmissionsProducts(emissionsProducts)
 }
 

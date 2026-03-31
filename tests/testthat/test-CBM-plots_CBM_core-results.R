@@ -1,8 +1,6 @@
 
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-emissionsProducts <- qs2::qd_read(file.path(testDirs$testdata, "CBM_core_outputs/SK/emissionsProducts.qs2"))
-
 spadesCBMdb <- file.path(testDirs$temp$inputs, "CBM_core_outputs_SK", "spadesCBMdb")
 if (!file.exists(spadesCBMdb)){
   dir.create(dirname(spadesCBMdb))
@@ -15,10 +13,16 @@ masterRaster <- terra::rast(
   ncols = 1950, xmax = 1950 * 30,
   nrows = 1900, ymax = 1900 * 30)
 
-simCBM <- list(spadesCBMdb = spadesCBMdb, masterRaster = masterRaster, emissionsProducts = emissionsProducts)
+simCBM <- SpaDES.core::simInit(
+  times        = list(start = 1985, end = 2011),
+  spadesCBMdb  = spadesCBMdb,
+  masterRaster = masterRaster
+)
 
 
 test_that("plotEmissionsProducts", {
+
+  emissionsProducts <- qs2::qd_read(file.path(testDirs$testdata, "CBM_core_outputs/SK/emissionsProducts.qs2"))
 
   out <- plotEmissionsProducts(emissionsProducts)
   expect_is(out, "ggplot")
@@ -26,7 +30,7 @@ test_that("plotEmissionsProducts", {
 
 test_that("simPlotEmissionsProducts", {
 
-  out <- simPlotEmissionsProducts(simCBM)
+  out <- simPlotEmissionsProducts(simCBM, years = 1985)
   expect_is(out, "ggplot")
 })
 

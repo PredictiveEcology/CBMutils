@@ -101,6 +101,18 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", units 
     dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, summary)
   }
 
+  if (summary == "emissions"){
+
+    dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "flux")
+
+    dbTable <- dbTable[, .(
+      row_idx,
+      CO2 = rowSums(dbTable[, .(DisturbanceBioCO2Emission, DecayDOMCO2Emission, DisturbanceDOMCO2Emission)]),
+      CH4 = rowSums(dbTable[, .(DisturbanceBioCH4Emission, DisturbanceDOMCH4Emission)]),
+      CO  = rowSums(dbTable[, .(DisturbanceBioCOEmission,  DisturbanceDOMCOEmission)])
+    )]
+  }
+
   if (summary == "NPP"){
 
     dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "flux")
@@ -113,6 +125,28 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", units 
         TurnoverOthLitterInput, TurnoverCoarseLitterInput, TurnoverFineLitterInput
       )])
     )]
+  }
+
+  if (summary == "totalCarbon"){
+
+    dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "pools")
+
+    dbTable <- dbTable[, .(
+      row_idx,
+      totalCarbon = rowSums(dbTable[, .(
+        Merch, Foliage, Other, CoarseRoots, FineRoots,
+        AboveGroundVeryFastSoil, BelowGroundVeryFastSoil, AboveGroundFastSoil,
+        BelowGroundFastSoil, MediumSoil, AboveGroundSlowSoil, BelowGroundSlowSoil,
+        StemSnag, BranchSnag
+      )])
+    )]
+  }
+
+  if (summary == "products"){
+
+    dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "pools")
+
+    dbTable <- dbTable[, .(row_idx, Products)]
   }
 
   if (summary == "poolTypes"){
@@ -132,24 +166,9 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", units 
     )]
   }
 
-  if (summary == "totalCarbon"){
-
-    dbTable <- .spadesCBMdbReadRaw(spadesCBMdb, year, "pools")
-
-    dbTable <- dbTable[, .(
-      row_idx,
-      totalCarbon = rowSums(dbTable[, .(
-        Merch, Foliage, Other, CoarseRoots, FineRoots,
-        AboveGroundVeryFastSoil, BelowGroundVeryFastSoil, AboveGroundFastSoil,
-        BelowGroundFastSoil, MediumSoil, AboveGroundSlowSoil, BelowGroundSlowSoil,
-        StemSnag, BranchSnag
-      )])
-    )]
-  }
-
   if (missing(dbTable)) stop(
     "invalid summary selection: ", summary,
-    "Choose one of: 'flux', 'pools', 'NPP', 'poolTypes', 'totalCarbon'")
+    "Choose one of: 'flux', 'pools', 'emissions', 'NPP', 'totalCarbon', 'products', 'poolTypes'")
 
   if (units == "Mt"){
     cols <- setdiff(names(dbTable), "row_idx")

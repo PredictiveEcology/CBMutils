@@ -4,10 +4,17 @@
 \alias{simPlotEmissionsProducts}
 \title{\code{simPlotEmissionsProducts}}
 \usage{
-simPlotEmissionsProducts(simCBM)
+simPlotEmissionsProducts(simCBM, years = NULL, useCache = TRUE)
 }
 \arguments{
 \item{simCBM}{SpaDES.core \code{\link[SpaDES.core]{simList}} for a CBM simulation including the \strong{CBM_core} module.}
+
+\item{years}{numeric. Years of simulation results to summarize.
+Required if \code{by = 'year'}.
+Defaults to the full simulation time span.}
+
+\item{useCache}{logical. Cache database query result to the database's
+\code{cache} directory with \code{\link[reproducible]{Cache}}.}
 }
 \value{
 \code{ggplot}
