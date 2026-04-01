@@ -4,14 +4,21 @@
 \alias{simPlotEmissionsProducts}
 \title{\code{simPlotEmissionsProducts}}
 \usage{
-simPlotEmissionsProducts(simCBM, years = NULL, useCache = TRUE)
+simPlotEmissionsProducts(
+  simCBM,
+  years = NULL,
+  cbm4_results = NULL,
+  useCache = TRUE
+)
 }
 \arguments{
 \item{simCBM}{SpaDES.core \code{\link[SpaDES.core]{simList}} for a CBM simulation including the \strong{CBM_core} module.}
 
-\item{years}{numeric. Years of simulation results to summarize.
-Required if \code{by = 'year'}.
-Defaults to the full simulation time span.}
+\item{years}{numeric. Simulation years to include in plot. Defaults to all simulation years.}
+
+\item{cbm4_results}{character or \code{SQLResultsProcessor}.
+Path to CBM4 spatial datasets directory
+or a \code{SQLResultsProcessor} object created with \code{CBM4::cbm4_results_processor}.}
 
 \item{useCache}{logical. Cache database query result to the database's
 \code{cache} directory with \code{\link[reproducible]{Cache}}.}

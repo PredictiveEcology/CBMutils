@@ -43,32 +43,83 @@ plotEmissionsProducts <- function(emissionsProducts) {
 
 #' `simPlotEmissionsProducts`
 #'
+#' @template simCBM
+#' @inheritParams cbm4PlotPoolProportions
 #' @inheritParams simCBMdbReadSummary
 #' @inherit plotEmissionsProducts description return
 #' @export
-simPlotEmissionsProducts <- function(simCBM, years = NULL, useCache = TRUE){
+simPlotEmissionsProducts <- function(simCBM, years = NULL, cbm4_results = NULL, useCache = TRUE){
 
-  if ("emissionsProducts" %in% names(simCBM)){
-    emissionsProducts <- simCBM$emissionsProducts
+  if (!is.null(simCBM$CBM4data)){
 
+    cbm4PlotEmissionsProducts(
+      if (is.null(cbm4_results)) simCBM$CBM4data else cbm4_results,
+      year1 = SpaDES.core::start(simCBM),
+      years = years
+    )
   }else{
 
-    emissionsProducts <- merge(
-      simCBMdbReadSummary(
-        simCBM, "products", by = "year", units = "t",
-        years = if (!is.null(years)) min(years):max(years), useCache = useCache),
-      simCBMdbReadSummary(
-        simCBM, "emissions", by = "year", units = "t",
-        years = if (!is.null(years)) min(years):max(years), useCache = useCache),
-      by = "year", all = TRUE)
+    if ("emissionsProducts" %in% names(simCBM)){
+      emissionsProducts <- simCBM$emissionsProducts
 
-    # Summarize yearly (non-cumulative) products
-    for (i in setdiff(1:nrow(emissionsProducts), 1)){
-      emissionsProducts$Products[[i]] <- emissionsProducts$Products[[i]] - sum(emissionsProducts$Products[1:(i - 1)])
+    }else{
+
+      emissionsProducts <- merge(
+        simCBMdbReadSummary(
+          simCBM, "products", by = "year", units = "t",
+          years = if (!is.null(years)) min(years):max(years), useCache = useCache),
+        simCBMdbReadSummary(
+          simCBM, "emissions", by = "year", units = "t",
+          years = if (!is.null(years)) min(years):max(years), useCache = useCache),
+        by = "year", all = TRUE)
+
+      # Summarize yearly (non-cumulative) products
+      for (i in setdiff(1:nrow(emissionsProducts), 1)){
+        emissionsProducts$Products[[i]] <- emissionsProducts$Products[[i]] - sum(emissionsProducts$Products[1:(i - 1)])
+      }
     }
-  }
 
-  if (!is.null(years)) emissionsProducts <- subset(emissionsProducts, year %in% years)
-  plotEmissionsProducts(emissionsProducts)
+    if (!is.null(years)) emissionsProducts <- subset(emissionsProducts, year %in% years)
+    plotEmissionsProducts(emissionsProducts)
+  }
 }
+
+
+#' `cbm4PlotEmissionsProducts`
+#'
+#' @template cbm4_results
+#' @param years numeric. Simulation years to include in plot. Defaults to all simulation years.
+#' @param year1 integer. Simulation start year.
+#'
+#' @inherit plotEmissionsProducts description return
+#' @export
+cbm4PlotEmissionsProducts <- function(cbm4_results, years = NULL, year1 = 1){
+
+  if (length(find.package("CBM4r", quiet = TRUE)) == 0) stop("CBM4r package required")
+
+  timesteps <- if (!is.null(years)) years - year1 + 1
+
+  emissions <- CBM4r::cbm4_results_emissions_by_timestep(cbm4_results, units = "t", timesteps = timesteps)
+
+  products  <- CBM4r::cbm4_results_pools_by_timestep(
+    cbm4_results, units = "t",
+    timesteps = if (!is.null(timesteps)) min(timesteps):max(timesteps)
+  )[timestep > 0, .(timestep, Products)]
+
+  for (i in setdiff(1:nrow(products), 1)){
+    products$Products[[i]] <- products$Products[[i]] - products$Products[[i - 1]]
+  }
+  if (!is.null(timesteps)) products <- products[timestep %in% timesteps,]
+
+  cbm4Summary <- merge(emissions, products, by = "timestep", all = TRUE)
+  cbm4Summary[is.na(cbm4Summary)] <- 0
+
+  cbm4Summary[, year := as.integer(timestep + year1 - 1)]
+  data.table::setkey(cbm4Summary, year)
+  data.table::setcolorder(cbm4Summary)
+
+  plotEmissionsProducts(cbm4Summary)
+}
+
+
 
