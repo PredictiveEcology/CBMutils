@@ -33,17 +33,14 @@ cumPoolsSmooth <- function(cumPoolsRaw, colsToUse = c("totMerch", "fol", "other"
   cpr <- cumPoolsRaw # no copy -- just convenience
   cpr[, (colsToUse) := lapply(.SD, as.numeric), .SDcols = colsToUse]
 
-  outInd <- character()
+  i <- 0
+  nIDs <- length(unique(cpr[["gcids"]]))
 
-  outerInd <- 0
-  ## debugging tools
-  #cpr <- cpr[gcids %in% unique(cpr$gcids)[(198)]]
-  #message("REMOVE PREVIOUS LINE TO GET BACK ALL GCIDS")
-  lenUniqueID_ecozone <- length(unique(cpr[["gcids"]]))
   cpr[, (colsToUseNew) := {
-    outerInd <<- outerInd + 1
-    outInd <<- .BY
-    print(paste0(outerInd, " of ", lenUniqueID_ecozone, ": ", outInd))
+
+    i <<- i + 1
+    gcID <- .BY[[1]]
+    message(i, " of ", nIDs, ": ", as.character(gcID))
 
     N <- .N
     ind <- seq(N)
@@ -77,7 +74,6 @@ cumPoolsSmooth <- function(cumPoolsRaw, colsToUse = c("totMerch", "fol", "other"
 
       for (chopitoff in 1:4) {
         # Gets rid of wiggles and huge peak
-        #if (outInd > 17) browser()
         if (length(firstInflection) > 0) {
           SD[, override := ind > firstInflection & ind < firstMin]
           SD[override == TRUE, (c2u) := NA]
@@ -145,13 +141,11 @@ cumPoolsSmooth <- function(cumPoolsRaw, colsToUse = c("totMerch", "fol", "other"
           }
         }
       }
-      #browser()
+
       ind <- seq(N)
       if (is(nlsout, "try-error")) {
-      #   stop("This gcid ", .SD$gcids, " failed to converge while estimating Chapman Richards smoothing")
-        warning(c2u, " of gcid ", as.character(gcids), " (item ",outerInd,") failed to converge while estimating Chapman Richards smoothing; ",
+        warning(c2u, " of gcid ", as.character(gcID), " (item ", i, ") failed to converge while estimating Chapman Richards smoothing; ",
                 "Using original curve")
-        #if (outInd > 17) browser()
         newVals <- .SD[[c2u]]
       } else {
         fittedNew <- predict(nlsout, newdata = .SD)
