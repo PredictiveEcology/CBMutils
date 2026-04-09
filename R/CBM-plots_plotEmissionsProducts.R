@@ -50,33 +50,34 @@ plotEmissionsProducts <- function(emissionsProducts) {
 #' @export
 simPlotEmissionsProducts <- function(simCBM, years = NULL, cbm4_results = NULL, useCache = TRUE){
 
-  if (!is.null(simCBM$CBM4data)){
+  if ("emissionsProducts" %in% names(simCBM)){
+
+    emissionsProducts <- simCBM$emissionsProducts
+    if (!is.null(years)) emissionsProducts <- subset(emissionsProducts, year %in% years)
+    plotEmissionsProducts(emissionsProducts)
+
+  }else if (!is.null(simCBM$CBM4data)){
 
     cbm4PlotEmissionsProducts(
       if (is.null(cbm4_results)) simCBM$CBM4data else cbm4_results,
       year1 = SpaDES.core::start(simCBM),
       years = years
     )
+
   }else{
 
-    if ("emissionsProducts" %in% names(simCBM)){
-      emissionsProducts <- simCBM$emissionsProducts
+    emissionsProducts <- merge(
+      simCBMdbReadSummary(
+        simCBM, "products", by = "year", units = "t",
+        years = if (!is.null(years)) min(years):max(years), useCache = useCache),
+      simCBMdbReadSummary(
+        simCBM, "emissions", by = "year", units = "t",
+        years = if (!is.null(years)) min(years):max(years), useCache = useCache),
+      by = "year", all = TRUE)
 
-    }else{
-
-      emissionsProducts <- merge(
-        simCBMdbReadSummary(
-          simCBM, "products", by = "year", units = "t",
-          years = if (!is.null(years)) min(years):max(years), useCache = useCache),
-        simCBMdbReadSummary(
-          simCBM, "emissions", by = "year", units = "t",
-          years = if (!is.null(years)) min(years):max(years), useCache = useCache),
-        by = "year", all = TRUE)
-
-      # Summarize yearly (non-cumulative) products
-      for (i in setdiff(1:nrow(emissionsProducts), 1)){
-        emissionsProducts$Products[[i]] <- emissionsProducts$Products[[i]] - sum(emissionsProducts$Products[1:(i - 1)])
-      }
+    # Summarize yearly (non-cumulative) products
+    for (i in setdiff(nrow(emissionsProducts):1, 1)){
+      emissionsProducts$Products[[i]] <- emissionsProducts$Products[[i]] - sum(emissionsProducts$Products[1:(i - 1)])
     }
 
     if (!is.null(years)) emissionsProducts <- subset(emissionsProducts, year %in% years)
@@ -106,7 +107,7 @@ cbm4PlotEmissionsProducts <- function(cbm4_results, years = NULL, year1 = 1){
     timesteps = if (!is.null(timesteps)) min(timesteps):max(timesteps)
   )[timestep > 0, .(timestep, Products)]
 
-  for (i in setdiff(1:nrow(products), 1)){
+  for (i in setdiff(nrow(products):1, 1)){
     products$Products[[i]] <- products$Products[[i]] - products$Products[[i - 1]]
   }
   if (!is.null(timesteps)) products <- products[timestep %in% timesteps,]
