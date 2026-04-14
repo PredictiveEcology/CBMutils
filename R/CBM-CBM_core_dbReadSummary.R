@@ -65,22 +65,31 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", units 
   if (useCache) withr::local_options(c(reproducible.cachePath = file.path(spadesCBMdb, "cache")))
   cacheOrNot <- if (useCache) reproducible::Cache else eval
 
+  if (!units %in% c("t/ha", "t", "Mt")) stop("units must be 't/ha', 't', or 'Mt'")
+  unitsRead <- ifelse(units == "t/ha", units, "t")
+
   if (by == "year"){
 
     if (is.null(years)) stop("'years' argument required")
 
     sumTbl <- data.table::rbindlist(
       lapply(years, function(year){
-        .spadesCBMdbReadSummary(spadesCBMdb, year, summary, by, units, useCache) |> cacheOrNot()
+        .spadesCBMdbReadSummary(spadesCBMdb, year, summary, by, unitsRead, useCache) |> cacheOrNot()
       }),
       fill = TRUE)
     data.table::setkey(sumTbl, year)
-    sumTbl
 
   }else{
 
-    .spadesCBMdbReadSummary(spadesCBMdb, year, summary, by, units, useCache) |> cacheOrNot()
+    sumTbl <- .spadesCBMdbReadSummary(spadesCBMdb, year, summary, by, unitsRead, useCache) |> cacheOrNot()
   }
+
+  if (units == "Mt"){
+    cols <- setdiff(names(sumTbl), data.table::key(sumTbl))
+    sumTbl[, (cols) := lapply(.SD, function(x) x / 10^6), .SDcols = cols]
+  }
+
+  sumTbl
 }
 
 .spadesCBMdbReadSummary <- function(spadesCBMdb, year, summary, by = "cohortID", units = "t/ha", useCache = TRUE){
@@ -89,8 +98,7 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", units 
 
   if (!by %in% c("cohortID", "pixelIndex", "year")) stop(
     "data can be summarized by 'cohortID', 'pixelIndex', or 'year'")
-  if (!units %in% c("t/ha", "t", "Mt")) stop(
-    "data can be summarized by units 't/ha', 't', or 'Mt'")
+  if (!units %in% c("t/ha", "t", "Mt")) stop("units must be 't/ha' or 't'")
 
   if (useCache) withr::local_options(c(reproducible.cachePath = file.path(spadesCBMdb, "cache")))
   cacheOrNot <- if (useCache) reproducible::Cache else eval
@@ -170,12 +178,7 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", units 
     "invalid summary selection: ", summary,
     "Choose one of: 'flux', 'pools', 'emissions', 'NPP', 'totalCarbon', 'products', 'poolTypes'")
 
-  if (units == "Mt"){
-    cols <- setdiff(names(dbTable), "row_idx")
-    dbTable[, (cols) := lapply(.SD, function(x) x / 10^6), .SDcols = cols]
-  }
-
-  if (by == "year" & units != "t/ha"){
+  if (by == "year" & units == "t"){
 
     rowArea <- .spadesCBMdbReadRaw(spadesCBMdb, year, "state")$area
 
@@ -190,7 +193,7 @@ spadesCBMdbReadSummary <- function(spadesCBMdb, summary, by = "cohortID", units 
       dbTable, by = "row_idx")
     dbTable[, row_idx := NULL]
 
-    if (units != "t/ha"){
+    if (units == "t"){
 
       pixelAreas <- .spadesCBMdbReadPixelAreas(spadesCBMdb, year) |> cacheOrNot(verbose = FALSE)
       dbTable <- merge(dbTable, pixelAreas, by = "pixelIndex")
