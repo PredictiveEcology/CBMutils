@@ -189,25 +189,3 @@ extractToRast_vect <- function(input, templateRast, field = 1, crop = TRUE){
   alignVals
 }
 
-
-#' Write raster with values
-#'
-#' Replace the values in a `SpatRaster` before writing it to file.
-#'
-#' @param templateRast terra `SpatRaster` template defining raster geometry.
-#' @param values numeric or character. New raster values.
-#' @param filename character. Output filename.
-#' @param ... arguments to \code{\link[terra]{writeRaster}}
-#'
-#' @export
-writeRasterWithValues <- function(templateRast, values, filename, ...){
-
-  if (!is.numeric(values)) values <- factor(values)
-  terra::values(templateRast) <- values
-
-  dir.create(dirname(filename), recursive = TRUE, showWarnings = FALSE)
-  terra::writeRaster(templateRast, filename = filename, ...)
-
-  return(invisible())
-}
-

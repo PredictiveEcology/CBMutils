@@ -2,40 +2,11 @@
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
 tempDir <- file.path(testDirs$temp$outputs, "extractToRast")
+
 viewResults <- !testthat::is_testing()
 if (viewResults){
   file.copy(file.path(testDirs$testdata, "extractToRast"), testDirs$temp$outputs, recursive = TRUE, overwrite = TRUE)
 }else dir.create(tempDir, recursive = TRUE, showWarnings = FALSE)
-
-test_that("Function: writeRasterWithValues", {
-
-  templateRast <- terra::rast(
-    crs = file.path(testDirs$testdata, "extractToRast", "EPSG-32613.prj"),
-    res = 100, vals = 1,
-    ext = c(xmin =  456000,  xmax = 457000, ymin = 6105000, ymax = 6106000))
-
-  outPath <- file.path(tempDir, "writeRasterWithValues-numeric.tif")
-  writeRasterWithValues(
-    templateRast, values = c(rep(1, 50), rep(2, 50)),
-    filename = outPath, overwrite = TRUE)
-
-  rVals <- terra::rast(outPath)
-  expect_true(terra::compareGeom(rVals, templateRast, stopOnError = FALSE))
-  expect_equal(terra::values(rVals)[, 1], c(rep(1, 50), rep(2, 50)))
-  expect_true(is.null(terra::cats(rVals)[[1]]))
-
-  outPath <- file.path(tempDir, "writeRasterWithValues-text.tif")
-  writeRasterWithValues(
-    templateRast, values = c(rep("Hello 1", 50), rep("Goodbye 2", 50)),
-    filename = outPath, overwrite = TRUE)
-
-  rVals <- terra::rast(outPath)
-  expect_true(terra::compareGeom(rVals, templateRast, stopOnError = FALSE))
-  expect_equal(terra::values(rVals)[, 1], c(rep(2, 50), rep(1, 50)))
-  expect_equal(terra::cats(rVals)[[1]][[1]],  1:2)
-  expect_equal(terra::cats(rVals)[[1]][[2]],  c("Goodbye 2", "Hello 1"))
-
-})
 
 test_that("Function: extractToRast: raster upsampling", {
 
@@ -48,7 +19,7 @@ test_that("Function: extractToRast: raster upsampling", {
 
   alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-upsample.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, file.path(tempDir, "rast-upsample.tif"), values = alignVals, values = alignVals, overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
@@ -79,7 +50,7 @@ test_that("Function: extractToRast: raster upsampling with categories", {
 
   alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-upsample-cats.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, file.path(tempDir, "rast-upsample-cats.tif"), values = alignVals, overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
@@ -101,7 +72,7 @@ test_that("Function: extractToRast: raster downsampling", {
 
   alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-downsample.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, file.path(tempDir, "rast-downsample.tif"), values = alignVals, overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
@@ -123,7 +94,7 @@ test_that("Function: extractToRast: raster disaggregation", {
 
   alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-disagg.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, file.path(tempDir, "rast-disagg.tif"), values = alignVals, overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
@@ -146,7 +117,7 @@ test_that("Function: extractToRast: raster reprojecting", {
 
   alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-reproject.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, file.path(tempDir, "rast-reproject.tif"), values = alignVals, overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
@@ -168,7 +139,7 @@ test_that("Function: extractToRast: TIF file", {
 
   alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-TIF.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, file.path(tempDir, "rast-TIF.tif"), values = alignVals, overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
@@ -190,7 +161,7 @@ test_that("Function: extractToRast: TIF tiles", {
 
   alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "rast-TIF-tiles.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, file.path(tempDir, "rast-TIF-tiles.tif"), values = alignVals, overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_equal(
@@ -296,7 +267,7 @@ test_that("Function: extractToRast: sf polygons with numeric field", {
 
   alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "sf-numeric.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, file.path(tempDir, "sf-numeric.tif"), values = alignVals, overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_is(alignVals, "numeric")
@@ -356,7 +327,7 @@ test_that("Function: extractToRast: sf polygons with numeric field: reproject", 
 
   alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "sf-numeric-reproject.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, file.path(tempDir, "sf-numeric-reproject.tif"), values = alignVals, overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(templateRast))
   expect_is(alignVals, "numeric")
@@ -382,7 +353,7 @@ test_that("Function: extractToRast: sf polygons with text field: reproject", {
 
   alignVals <- extractToRast(input, templateRast)
 
-  if (viewResults) writeRasterWithValues(templateRast, alignVals, file.path(tempDir, "sf-text-reproject.tif"), overwrite = TRUE)
+  if (viewResults) writeRasterWithValues(templateRast, file.path(tempDir, "sf-text-reproject.tif"), values = alignVals, overwrite = TRUE)
 
   expect_equal(length(alignVals), terra::ncell(templateRast))
 
