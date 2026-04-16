@@ -7,7 +7,7 @@ test_that("Function: writeRasterWithValues", {
   dir.create(tempDir, recursive = TRUE, showWarnings = FALSE)
 
   templateRast <- terra::rast(
-    crs = file.path(testDirs$testdata, "writeRasterWithValues", "EPSG-32613.prj"),
+    crs = file.path(testDirs$testdata, "CRS", "EPSG-32613.prj"),
     res = 100, vals = 1,
     ext = c(xmin =  456000,  xmax = 457000, ymin = 6105000, ymax = 6106000))
 
