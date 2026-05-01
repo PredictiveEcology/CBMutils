@@ -18,5 +18,5 @@ simMapNPP(simCBM, year, useCache = TRUE)
 \code{ggplot}
 }
 \description{
-Map net primary productivity (NPP) across a study area.
+Map Net Primary Productivity (NPP) across a study area.
 }
