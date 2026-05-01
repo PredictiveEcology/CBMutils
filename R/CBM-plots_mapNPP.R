@@ -75,21 +75,44 @@ mapNPP <- function(flux, masterRaster, year = NULL) {
 
 #' `simMapNPP`
 #'
-#' @inheritParams simCBMdbReadSummary
+#' @template simCBM
+#' @inheritParams spadesCBMdbReadSummary
+#' @param year numeric. Year of simulation results. Defaults to the current simulation year.
 #' @inherit mapNPP description return
 #' @export
 simMapNPP <- function(simCBM, year, useCache = TRUE){
 
-  if (missing(year)){
+  if (is.null(year)){
     year <- SpaDES.core::convertTimeunit(SpaDES.core::times(simCBM)$current, "year")
   }
 
-  mapNPP(
-    simCBMdbReadSummary(
-      simCBM, "NPP", units = "t/ha", by = "pixelIndex",
-      year = year, useCache = useCache),
-    year = year,
-    masterRaster = simCBM$masterRaster
+  spadesCBMdbMapNPP(
+    simCBM$spadesCBMdb,
+    masterRaster = simCBM$masterRaster,
+    year         = year,
+    useCache     = useCache
   )
 }
+
+#' spadesCBMdb: `mapNPP`
+#'
+#' @inheritParams spadesCBMdbReadSummary
+#' @template masterRaster
+#' @param year numeric. Year of simulation results.
+#' @inherit mapNPP description return
+#' @export
+spadesCBMdbMapNPP <- function(spadesCBMdb, masterRaster, year, useCache = TRUE){
+
+  mapNPP(
+    spadesCBMdbReadSummary(
+      spadesCBMdb, "NPP", by = "pixelIndex",
+      year = year, useCache = useCache),
+    masterRaster = masterRaster,
+    year = year
+  )
+}
+
+
+
+
 

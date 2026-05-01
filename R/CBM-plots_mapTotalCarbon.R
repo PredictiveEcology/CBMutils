@@ -76,21 +76,44 @@ mapTotalCarbon <- function(pools, masterRaster, year = NULL){
 
 #' `simMapTotalCarbon`
 #'
+#' @template simCBM
 #' @inheritParams simCBMdbReadSummary
+#' @param year numeric. Year of simulation results. Defaults to the current simulation year.
 #' @inherit mapTotalCarbon description return
 #' @export
-simMapTotalCarbon <- function(simCBM, year, useCache = TRUE){
+simMapTotalCarbon <- function(simCBM, year = NULL, useCache = TRUE){
 
-  if (missing(year)){
+  if (is.null(year)){
     year <- SpaDES.core::convertTimeunit(SpaDES.core::times(simCBM)$current, "year")
   }
 
-  mapTotalCarbon(
-    simCBMdbReadSummary(
-      simCBM, "totalCarbon", units = "t/ha", by = "pixelIndex",
-      year = year, useCache = useCache),
-    year = year,
-    masterRaster = simCBM$masterRaster
+  spadesCBMdbMapTotalCarbon(
+    simCBM$spadesCBMdb,
+    masterRaster = simCBM$masterRaster,
+    year         = year,
+    useCache     = useCache
   )
 }
+
+
+#' spadesCBMdb `simMapTotalCarbon`
+#'
+#' @inheritParams spadesCBMdbReadSummary
+#' @template masterRaster
+#' @param year numeric. Year of simulation results.
+#' @inherit mapTotalCarbon description return
+#' @export
+spadesCBMdbMapTotalCarbon <- function(spadesCBMdb, masterRaster, year, useCache = TRUE){
+
+  mapTotalCarbon(
+    spadesCBMdbReadSummary(
+      spadesCBMdb, "totalCarbon", units = "t/ha", by = "pixelIndex",
+      year = year, useCache = useCache),
+    masterRaster = masterRaster,
+    year = year
+  )
+}
+
+
+
 

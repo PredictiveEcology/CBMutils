@@ -72,15 +72,38 @@ plotPoolProportions <- function(pools){
 
 #' `simPlotPoolProportions`
 #'
-#' @inheritParams simCBMdbReadSummary
+#' @template simCBM
 #' @param years numeric. Simulation years to include in plot. Defaults to all simulation years.
+#' @inheritParams spadesCBMdbReadSummary
 #' @inherit plotPoolProportions description return
 #' @export
 simPlotPoolProportions <- function(simCBM, years = NULL, useCache = TRUE){
 
-  plotPoolProportions(
-    simCBMdbReadSummary(
-      simCBM, "poolTypes", units = "t/ha", by = "year",
-      years = years, useCache = useCache)
+  if (is.null(years)){
+    simTimes <- lapply(SpaDES.core::times(simCBM)[c("start", "end")], SpaDES.core::convertTimeunit, "year")
+    years <- c(0, simTimes$start:simTimes$end)
+  }
+
+  spadesCBMPlotPoolProportions(
+    simCBM$spadesCBMdb,
+    years    = years,
+    useCache = useCache
   )
 }
+
+#' spadesCBMdb `simPlotPoolProportions`
+#'
+#' @inheritParams spadesCBMdbReadSummary
+#' @param years numeric. Simulation years to include in plot.
+#' @inherit plotPoolProportions description return
+#' @export
+spadesCBMPlotPoolProportions <- function(spadesCBMdb, years, useCache = TRUE){
+
+  plotPoolProportions(
+    spadesCBMdbReadSummary(
+      spadesCBMdb, "poolTypes", units = "t/ha", by = "year",
+      years = years,
+      useCache = useCache)
+  )
+}
+
