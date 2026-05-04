@@ -5,17 +5,18 @@ test_that("CBMsourcePrepInputs", {
 
   inputPath <- file.path(testDirs$temp$outputs, "CBMsourcePrepInputs")
 
-  srcCBM <- CBMsourcePrepInputs("CanSIS-ecozone", inputPath = inputPath)
+  srcCBM <- CBMsourcePrepInputs("StatCan-admin", inputPath = inputPath)
   expect_is(srcCBM, "list")
-  expect_equal(srcCBM$attr, "ecozone")
   expect_is(srcCBM$source, "sf")
+  expect_equal(srcCBM$attr, "admin")
+  expect_true("admin" %in% names(srcCBM$source))
 
-  ## Backup test
-  # srcCBM <- CBMsourcePrepInputs("StatCan-admin", inputPath = inputPath)
+  ## Backup test: this source fails to download sometimes
+  # srcCBM <- CBMsourcePrepInputs("CanSIS-ecozone", inputPath = inputPath)
   # expect_is(srcCBM, "list")
-  # expect_equal(srcCBM$attr, "admin")
   # expect_is(srcCBM$source, "sf")
-  # expect_equal(names(srcCBM$source), c("admin", "geometry"))
+  # expect_equal(srcCBM$attr, "ecozone")
+  #  expect_true("ecozone" %in% names(srcCBM$source))
 })
 
 test_that("CBMsourceExtractToRast", {
