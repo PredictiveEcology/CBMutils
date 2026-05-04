@@ -59,17 +59,19 @@ CBMsourcePrepInputs <- function(sourceID,
   srcUq <- unique(srcItems[, .SD, .SDcols = c("targetFile", "url")])
   srcUq$path <- sapply(1:nrow(srcUq), function(i){
 
-    reproducible::prepInputs(
+    reproducible::preProcess(
       destinationPath = srcInfo$destinationPath,
       url             = srcUq[i,]$url,
       targetFile      = srcUq[i,]$targetFile,
       filename1       = if (tools::file_ext(srcUq[i,]$url) == "zip" &
                             tools::file_ext(srcUq[i,]$targetFile) != "zip") basename(srcUq[i,]$url),
       archive         = if (tools::file_ext(srcUq[i,]$targetFile) %in% c("zip", "tar", "rar")) NA,
+      mode            = "wb",
       alsoExtract     = "similar",
       fun             = NA,
       useCache        = FALSE,
-      ...) |> as.character()
+      ...
+    )$targetFilePath
   })
 
   # Read source
