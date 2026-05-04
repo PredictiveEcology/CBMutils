@@ -28,13 +28,10 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
 
   # Read species equivalencies table
   if (is.null(sppEquivalencies)){
-    if (length(find.package("LandR", quiet = TRUE)) == 0) stop("LandR package required")
-    sppEquivalencies <- LandR::sppEquivalencies_CA
+    sppEquiv <- data.table::fread("https://github.com/PredictiveEcology/LandR/raw/refs/heads/development/data-raw/sppEquivalencies_CA.csv")
+  }else{
+    sppEquiv <- data.table::as.data.table(sppEquivalencies)
   }
-  sppEquiv <- tryCatch(
-    as.data.table(sppEquivalencies),
-    error = function(e) stop(
-      "sppEquivalencies could not be converted to data.table: ", e$message, call. = FALSE))
 
   # Return 0 rows
   if (length(species) == 0) return(sppEquiv[0,])
