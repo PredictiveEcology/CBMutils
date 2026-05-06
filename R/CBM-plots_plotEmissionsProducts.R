@@ -41,6 +41,52 @@ plotEmissionsProducts <- function(emissionsProducts) {
 }
 
 
+#' CBM4: `plotEmissionsProducts`
+#'
+#' @template cbm4_results
+#' @param years integer. Year(s) of simulation results.
+#' @param yearStart integer. Simulation start year.
+#'
+#' @inherit mapTotalCarbon description return
+#' @export
+cbm4PlotEmissionsProducts <- function(cbm4_results, years = NULL, yearStart = 1){
+
+  if (length(find.package("CBM4r", quiet = TRUE)) == 0) stop("CBM4r package required")
+
+  timesteps <- if (!is.null(years)) years - yearStart + 1
+
+  cbm4_results <- CBM4r::cbm4_results_processor(cbm4_results)
+
+  cbm4_totals <- merge(
+    CBM4r::cbm4_results_totals(
+      cbm4_results,
+      timesteps    = timesteps,
+      view_name    = "composite_flux_indicators",
+      view_columns = c(
+        "CH4" = "Emissions - Emissions By Gas - Total CH4",
+        "CO"  = "Emissions - Emissions By Gas - Total CO",
+        "CO2" = "Emissions - Emissions By Gas - Total CO2"
+      )),
+    CBM4r::cbm4_results_totals(
+      cbm4_results,
+      timesteps    = timesteps,
+      view_name    = "composite_disturbance_indicators",
+      view_columns = c(
+        "Products" = "Ecosystem Transfers - Ecosystem to Forest Products - Total Harvest (Biomass + Snags)"
+      )),
+    all = TRUE)[, .(
+      year      = timestep + yearStart - 1,
+      Products  = data.table::fcoalesce(Products, 0),
+      Emissions = CO2 + CH4 + CO,
+      CO2       = CO2,
+      CH4       = CH4,
+      CO        = CO
+    )]
+
+  plotEmissionsProducts(cbm4_totals)
+}
+
+
 #' `simPlotEmissionsProducts`
 #'
 #' @template simCBM
@@ -51,9 +97,18 @@ plotEmissionsProducts <- function(emissionsProducts) {
 simPlotEmissionsProducts <- function(simCBM, years = NULL, useCache = TRUE){
 
   if ("emissionsProducts" %in% names(simCBM)){
+
     emissionsProducts <- simCBM$emissionsProducts
     if (!is.null(years)) emissionsProducts <- subset(emissionsProducts, year %in% years)
     plotEmissionsProducts(emissionsProducts)
+
+  }else if (!is.null(simCBM$CBM4data)){
+
+    cbm4PlotEmissionsProducts(
+      simCBM$CBM4data,
+      years     = years,
+      yearStart = SpaDES.core::start(simCBM)
+    )
 
   }else{
 

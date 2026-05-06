@@ -19,7 +19,7 @@ plotPoolProportions <- function(pools){
 
   if (!"year" %in% names(pools)) stop("pools requires column 'year'")
 
-  if (!identical(names(pools), c("year", "Soil", "BGlive", "AGlive", "Snags"))){
+  if (!all(c("Soil", "BGlive", "AGlive", "Snags") %in% names(pools))){
 
     if (!is.data.table(pools)) pools <- as.data.table(pools)
     pools <- pools[, .(
@@ -33,7 +33,8 @@ plotPoolProportions <- function(pools){
   }
 
   poolsSum <- data.table::melt.data.table(
-    pools, id.vars = "year", variable.name = "pool", value.name = "carbon")
+    pools, id.vars = "year", measure.vars = c("Soil", "BGlive", "AGlive", "Snags"),
+    variable.name = "pool", value.name = "carbon")
   poolsSum[, proportion := carbon / sum(carbon), by = "year"]
 
   startYear <- min(poolsSum$year[poolsSum$year != 0])
@@ -70,6 +71,42 @@ plotPoolProportions <- function(pools){
 }
 
 
+#' CBM4: `plotPoolProportions`
+#'
+#' @template cbm4_results
+#' @param years integer. Year(s) of simulation results.
+#' @param yearStart integer. Simulation start year.
+#'
+#' @inherit plotPoolProportions description return
+#' @export
+cbm4PlotPoolProportions <- function(cbm4_results, years = NULL, yearStart = 1){
+
+  if (length(find.package("CBM4r", quiet = TRUE)) == 0) stop("CBM4r package required")
+
+  timesteps <- if (!is.null(years)) years - yearStart + 1
+
+  cbm4_results <- CBM4r::cbm4_results_processor(cbm4_results)
+
+  cbm4_totals <- CBM4r::cbm4_results_totals(
+    cbm4_results,
+    timesteps    = timesteps,
+    view_name    = "pool_indicators")[, .(
+      year   = timestep + yearStart - 1,
+      Soil   = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
+                   AboveGroundFastSoil, BelowGroundFastSoil,
+                   AboveGroundSlowSoil, BelowGroundSlowSoil, MediumSoil),
+      BGlive = sum(SoftwoodCoarseRoots, SoftwoodFineRoots,
+                   HardwoodCoarseRoots, HardwoodFineRoots),
+      AGlive = sum(SoftwoodMerch, SoftwoodFoliage, SoftwoodOther,
+                   HardwoodMerch, HardwoodFoliage, HardwoodOther),
+      Snags  = sum(SoftwoodStemSnag, SoftwoodBranchSnag,
+                   HardwoodStemSnag, HardwoodBranchSnag)
+    ), by = "timestep"]
+
+  plotPoolProportions(cbm4_totals)
+}
+
+
 #' `simPlotPoolProportions`
 #'
 #' @template simCBM
@@ -79,13 +116,24 @@ plotPoolProportions <- function(pools){
 #' @export
 simPlotPoolProportions <- function(simCBM, years = NULL, useCache = TRUE){
 
-  if (is.null(years)) years <- c(0, SpaDES.core::start(simCBM):SpaDES.core::end(simCBM))
+  if (!is.null(simCBM$CBM4data)){
 
-  spadesCBMdbPlotPoolProportions(
-    simCBM$spadesCBMdb,
-    years    = years,
-    useCache = useCache
-  )
+    cbm4PlotPoolProportions(
+      simCBM$CBM4data,
+      years      = years,
+      yearStart = SpaDES.core::start(simCBM)
+    )
+
+  }else{
+
+    if (is.null(years)) years <- c(0, SpaDES.core::start(simCBM):SpaDES.core::end(simCBM))
+
+    spadesCBMdbPlotPoolProportions(
+      simCBM$spadesCBMdb,
+      years    = years,
+      useCache = useCache
+    )
+  }
 }
 
 

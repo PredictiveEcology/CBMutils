@@ -46,6 +46,34 @@ mapNPP <- function(rastNPP, year = NULL) {
 }
 
 
+#' CBM4: `mapNPP`
+#'
+#' @template cbm4_results
+#' @param years integer. Year(s) of simulation results.
+#' @param yearStart integer. Simulation start year.
+#'
+#' @inherit mapNPP description return
+#' @export
+cbm4MapNPP <- function(cbm4_results, years = NULL, yearStart = 1){
+
+  if (length(find.package("CBM4r", quiet = TRUE)) == 0) stop("CBM4r package required")
+
+  rastNPP <- CBM4r::cbm4_results_raster(
+    cbm4_results,
+    timesteps   = if (!is.null(years)) years - yearStart + 1,
+    view_name   = "spatial_composite_flux_indicators",
+    view_column = "Ecosystem Indicators - Productivity - Net Primary Productivity (NPP)"
+  )
+
+  if (is.null(years)) years <- as.numeric(names(rastNPP)) + yearStart - 1
+
+  names(rastNPP) <- years
+  plotList <- lapply(rastNPP, function(rastYear) mapNPP(rastYear, year = names(rastYear)))
+  names(plotList) <- years
+  plotList
+}
+
+
 #' `simMapNPP`
 #'
 #' @template simCBM
@@ -59,12 +87,23 @@ simMapNPP <- function(simCBM, year = NULL, useCache = TRUE){
     year <- SpaDES.core::convertTimeunit(SpaDES.core::times(simCBM)$current, "year")
   }
 
-  spadesCBMdbMapNPP(
-    simCBM$spadesCBMdb,
-    masterRaster = simCBM$masterRaster,
-    year         = year,
-    useCache     = useCache
-  )
+  if (!is.null(simCBM$CBM4data)){
+
+    cbm4MapNPP(
+      simCBM$CBM4data,
+      years     = year,
+      yearStart = SpaDES.core::start(simCBM)
+    )[[1]]
+
+  }else{
+
+    spadesCBMdbMapNPP(
+      simCBM$spadesCBMdb,
+      masterRaster = simCBM$masterRaster,
+      year         = year,
+      useCache     = useCache
+    )
+  }
 }
 
 

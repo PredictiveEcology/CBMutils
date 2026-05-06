@@ -64,4 +64,11 @@ utils::globalVariables(c(
   "StemSnag", "BranchSnag", "CO2", "CH4", "CO", "NO2", "Products"
 ))
 
+# CBM4 variables
+utils::globalVariables(c(
+  "timestep", "timesteps"
+))
+
+
+
 
