@@ -4,14 +4,12 @@
 \alias{simMapNPP}
 \title{\code{simMapNPP}}
 \usage{
-simMapNPP(simCBM, year, useCache = TRUE)
+simMapNPP(simCBM, year = NULL, useCache = TRUE)
 }
 \arguments{
 \item{simCBM}{SpaDES.core \code{\link[SpaDES.core]{simList}} for a CBM simulation including the \strong{CBM_core} module.}
 
-\item{year}{numeric. Year of simulation results.
-Required if \verb{by = 'cohortID' or 'pixelIndex'}.
-Defaults to the current simulation year.}
+\item{year}{numeric. Year of simulation results. Defaults to the current simulation year.}
 
 \item{useCache}{logical. Cache database query result to the database's
 \code{cache} directory with \code{\link[reproducible]{Cache}}.}
@@ -20,5 +18,5 @@ Defaults to the current simulation year.}
 \code{ggplot}
 }
 \description{
-Map net primary productivity (NPP) across a study area.
+Map Net Primary Productivity (NPP) across a study area.
 }

@@ -19,12 +19,9 @@ simCBM <- SpaDES.core::simInit(
   masterRaster = masterRaster
 )
 
+test_that("spadesCBMdbPlotEmissionsProducts", {
 
-test_that("plotEmissionsProducts", {
-
-  emissionsProducts <- qs2::qd_read(file.path(testDirs$testdata, "CBM_core_outputs/SK/emissionsProducts.qs2"))
-
-  out <- plotEmissionsProducts(emissionsProducts)
+  out <- spadesCBMdbPlotEmissionsProducts(spadesCBMdb, years = 1985)
   expect_is(out, "ggplot")
 })
 
@@ -34,20 +31,9 @@ test_that("simPlotEmissionsProducts", {
   expect_is(out, "ggplot")
 })
 
-test_that("plotPoolProportions", {
+test_that("spadesCBMdbPlotPoolProportions", {
 
-  pools <- rbind(
-    cbind(year = 1985, merge(
-      qs2::qd_read(file.path(spadesCBMdb, "data", "1985_key.qs2")),
-      qs2::qd_read(file.path(spadesCBMdb, "data", "1985_pools.qs2")),
-      by = "row_idx")),
-    cbind(year = 2011, merge(
-      qs2::qd_read(file.path(spadesCBMdb, "data", "2011_key.qs2")),
-      qs2::qd_read(file.path(spadesCBMdb, "data", "2011_pools.qs2")),
-      by = "row_idx"))
-  )
-
-  out <- plotPoolProportions(pools)
+  out <- spadesCBMdbPlotPoolProportions(spadesCBMdb, years = c(1985, 2011))
 
   expect_is(out, "ggplot")
   expect_equal(subset(out$data, pool == "Soil"  )[order(year)]$proportion, c(0.7658, 0.7667),
@@ -62,9 +48,7 @@ test_that("plotPoolProportions", {
 
 test_that("simPlotPoolProportions", {
 
-  out <- simPlotPoolProportions(
-    simCBM = simCBM, years = c(1985, 2011)
-  )
+  out <- simPlotPoolProportions(simCBM, years = c(1985, 2011))
 
   expect_is(out, "ggplot")
   expect_equal(subset(out$data, pool == "Soil"  )[order(year)]$proportion, c(0.7658, 0.7667),
@@ -77,14 +61,9 @@ test_that("simPlotPoolProportions", {
                tolerance = 0.0001, scale = 1)
 })
 
-test_that("mapTotalCarbon", {
+test_that("spadesCBMdbMapTotalCarbon", {
 
-  pools1985 <- merge(
-    qs2::qd_read(file.path(spadesCBMdb, "data", "1985_key.qs2")),
-    qs2::qd_read(file.path(spadesCBMdb, "data", "1985_pools.qs2")),
-    by = "row_idx")
-
-  out <- mapTotalCarbon(pools = pools1985, masterRaster = masterRaster, year = 1985)
+  out <- spadesCBMdbMapTotalCarbon(spadesCBMdb, masterRaster = masterRaster, year = 1985, useCache = FALSE)
   expect_is(out, "ggplot")
   expect_match(out$labels$title, "Total Carbon in 1985", fixed = TRUE)
   expect_equal(
@@ -102,14 +81,9 @@ test_that("simMapTotalCarbon", {
     313.4, tolerance = 0.1, scale = 1)
 })
 
-test_that("mapNPP", {
+test_that("spadesCBMdbMapNPP", {
 
-  flux1985 <- merge(
-    qs2::qd_read(file.path(spadesCBMdb, "data", "1985_key.qs2")),
-    qs2::qd_read(file.path(spadesCBMdb, "data", "1985_flux.qs2")),
-    by = "row_idx")
-
-  out <- mapNPP(flux = flux1985, masterRaster = masterRaster, year = 1985)
+  out <- spadesCBMdbMapNPP(spadesCBMdb, masterRaster = masterRaster, year = 1985, useCache = FALSE)
   expect_is(out, "ggplot")
   expect_match(out$labels$title, "Net Primary Productivity (NPP) in 1985", fixed = TRUE)
   expect_match(out$labels$title, "5.804", fixed = TRUE)

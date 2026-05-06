@@ -9,9 +9,7 @@ simPlotEmissionsProducts(simCBM, years = NULL, useCache = TRUE)
 \arguments{
 \item{simCBM}{SpaDES.core \code{\link[SpaDES.core]{simList}} for a CBM simulation including the \strong{CBM_core} module.}
 
-\item{years}{numeric. Years of simulation results to summarize.
-Required if \code{by = 'year'}.
-Defaults to the full simulation time span.}
+\item{years}{numeric. Simulation years to include in plot. Defaults to all simulation years.}
 
 \item{useCache}{logical. Cache database query result to the database's
 \code{cache} directory with \code{\link[reproducible]{Cache}}.}
