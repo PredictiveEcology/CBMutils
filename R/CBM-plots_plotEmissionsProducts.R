@@ -43,32 +43,56 @@ plotEmissionsProducts <- function(emissionsProducts) {
 
 #' `simPlotEmissionsProducts`
 #'
-#' @inheritParams simCBMdbReadSummary
+#' @template simCBM
+#' @param years numeric. Simulation years to include in plot. Defaults to all simulation years.
+#' @inheritParams spadesCBMdbReadSummary
 #' @inherit plotEmissionsProducts description return
 #' @export
 simPlotEmissionsProducts <- function(simCBM, years = NULL, useCache = TRUE){
 
   if ("emissionsProducts" %in% names(simCBM)){
     emissionsProducts <- simCBM$emissionsProducts
+    if (!is.null(years)) emissionsProducts <- subset(emissionsProducts, year %in% years)
+    plotEmissionsProducts(emissionsProducts)
 
   }else{
 
-    emissionsProducts <- merge(
-      simCBMdbReadSummary(
-        simCBM, "products", by = "year", units = "t",
-        years = if (!is.null(years)) min(years):max(years), useCache = useCache),
-      simCBMdbReadSummary(
-        simCBM, "emissions", by = "year", units = "t",
-        years = if (!is.null(years)) min(years):max(years), useCache = useCache),
-      by = "year", all = TRUE)
+    if (is.null(years)) years <- SpaDES.core::start(simCBM):SpaDES.core::end(simCBM)
 
-    # Summarize yearly (non-cumulative) products
-    for (i in setdiff(1:nrow(emissionsProducts), 1)){
-      emissionsProducts$Products[[i]] <- emissionsProducts$Products[[i]] - sum(emissionsProducts$Products[1:(i - 1)])
-    }
+    spadesCBMdbPlotEmissionsProducts(
+      simCBM$spadesCBMdb,
+      years    = years,
+      useCache = useCache
+    )
   }
+}
 
-  if (!is.null(years)) emissionsProducts <- subset(emissionsProducts, year %in% years)
+
+#' spadesCBMdb `plotEmissionsProducts`
+#'
+#' @inheritParams spadesCBMdbReadSummary
+#' @param years numeric. Simulation years to include in plot.
+#' @inherit plotEmissionsProducts description return
+#' @export
+spadesCBMdbPlotEmissionsProducts <- function(spadesCBMdb, years, useCache = TRUE){
+
+  emissionsProducts <- merge(
+    spadesCBMdbReadSummary(
+      spadesCBMdb, "products", by = "year", units = "t",
+      years = min(years):max(years), useCache = useCache),
+    spadesCBMdbReadSummary(
+      spadesCBMdb, "emissions", by = "year", units = "t",
+      years = min(years):max(years), useCache = useCache),
+    by = "year", all = TRUE)
+
+  # Summarize yearly (non-cumulative) products
+  for (i in setdiff(1:nrow(emissionsProducts), 1)){
+    emissionsProducts$Products[[i]] <- emissionsProducts$Products[[i]] - sum(emissionsProducts$Products[1:(i - 1)])
+  }
+  emissionsProducts <- subset(emissionsProducts, year %in% years)
+
   plotEmissionsProducts(emissionsProducts)
 }
+
+
 
