@@ -13,9 +13,7 @@ utils::globalVariables(c(
 #' @export
 #' @importFrom cowplot plot_grid
 #' @importFrom data.table as.data.table is.data.table melt.data.table
-#' @importFrom ggplot2 aes element_text geom_bar geom_col geom_line ggplot
-#' guides guide_legend labs  scale_fill_manual scale_x_continuous scale_y_continuous
-#' sec_axis theme theme_classic xlab
+#' @importFrom ggplot2 aes element_text geom_bar geom_col geom_line ggplot guides guide_legend labs  scale_fill_manual scale_x_continuous scale_y_continuous sec_axis theme theme_classic xlab
 #' @importFrom scales pretty_breaks
 plotEmissionsProducts <- function(emissionsProducts) {
 
