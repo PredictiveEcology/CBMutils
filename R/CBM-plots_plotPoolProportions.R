@@ -12,8 +12,7 @@ utils::globalVariables(c(
 #'
 #' @export
 #' @importFrom data.table as.data.table is.data.table melt.data.table
-#' @importFrom ggplot2 aes element_text element_line geom_area ggplot ggtitle
-#' margin scale_x_continuous scale_y_continuous theme
+#' @importFrom ggplot2 aes element_text element_line geom_area ggplot ggtitle margin scale_x_continuous scale_y_continuous theme
 #' @importFrom scales percent
 plotPoolProportions <- function(pools){
 
