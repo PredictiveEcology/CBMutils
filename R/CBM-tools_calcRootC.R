@@ -43,7 +43,7 @@ calcRootC <- function(aboveGroundC, sw_hw,
   totAGC <- rowSums(aboveGroundC[, ..aboveGroundColumns])
 
   # Convert Mg/ha of Carbon to Mg/ha of biomass
-  totAGB <- totAGC * 2
+  totAGB <- totAGC / biomassToCarbonRate
 
   # Calculate root total biomass
   if(!all(sw_hw %in% c(1,0))) {
