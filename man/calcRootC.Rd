@@ -13,6 +13,7 @@ calcRootC(
   b_hw = 0.615,
   a_frp = 0.072,
   b_frp = 0.354,
+  c_frp = -0.060212,
   biomassToCarbonRate = 0.5
 )
 }
@@ -32,6 +33,8 @@ calcRootC(
 \item{a_frp}{"a" value for fine root proportion}
 
 \item{b_frp}{"b" value for fine root proportion}
+
+\item{c_frp}{"c" value for fine root proportion}
 
 \item{biomassToCarbonRate}{Conversion factor of biomass to carbon}
 }
