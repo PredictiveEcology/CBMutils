@@ -16,13 +16,9 @@
 simCBMdbReadSummary <- function(simCBM, summary, by = "cohortID", units = "t/ha",
                                 year = NULL, years = NULL, useCache = TRUE){
 
-  if (is.null(year) & by != "year"){
-    year <- SpaDES.core::convertTimeunit(SpaDES.core::times(simCBM)$current, "year")
-  }
-  if (is.null(years) & by == "year"){
-    simTimes <- lapply(SpaDES.core::times(simCBM)[c("start", "end")], SpaDES.core::convertTimeunit, "year")
-    years <- simTimes$start:simTimes$end
-  }
+  if (is.null(year)  & by != "year") year  <- simYears(simCBM)$current
+  if (is.null(years) & by == "year") years <- with(simYears(simCBM), start:end)
+
   spadesCBMdbReadSummary(
     simCBM$spadesCBMdb,
     summary  = summary,

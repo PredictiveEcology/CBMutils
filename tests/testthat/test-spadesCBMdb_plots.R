@@ -13,8 +13,7 @@ masterRaster <- terra::rast(
   ncols = 1950, xmax = 1950 * 30,
   nrows = 1900, ymax = 1900 * 30)
 
-simCBM <- SpaDES.core::simInit(
-  times        = list(start = 1985, end = 2011),
+simCBM <- list(
   spadesCBMdb  = spadesCBMdb,
   masterRaster = masterRaster
 )

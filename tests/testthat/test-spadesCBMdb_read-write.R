@@ -31,12 +31,13 @@ test_that("simCBMdbWrite", {
 
   spadesCBMdbTemp <- file.path(testDirs$temp$outputs, "spadesCBMdb", "simCBMdbWrite")
 
-  simCBM <- SpaDES.core::simInit(times = list(start = 1985, end = 2011))
-  simCBM$spadesCBMdb <- spadesCBMdbTemp
-  simCBM$cbm_vars <- list(key = "test", flux = "test", pools = "test")
+  simCBM <- list(
+    spadesCBMdb = spadesCBMdbTemp,
+    cbm_vars    = list(key = "test", flux = "test", pools = "test")
+  )
 
   simCBMdbWrite(
-    simCBM,
+    simCBM, year = 1985,
     parameters = FALSE,
     state      = FALSE,
     flux       = TRUE,
@@ -82,8 +83,9 @@ test_that("spadesCBMdbReadRaw", {
 
 test_that("simCBMdbReadRaw", {
 
-  simCBM <- SpaDES.core::simInit(times = list(start = 1985, end = 2011))
-  simCBM$spadesCBMdb <- spadesCBMdb
+  simCBM <- list(
+    spadesCBMdb = spadesCBMdb
+  )
 
   key2011 <- simCBMdbReadRaw(
     simCBM = simCBM,
@@ -98,6 +100,7 @@ test_that("simCBMdbReadRaw", {
 
   pools1985 <- simCBMdbReadRaw(
     simCBM = simCBM,
+    year   = 1985,
     table  = "pools"
   )
   expect_is(pools1985, "data.table")
@@ -150,11 +153,13 @@ test_that("spadesCBMdbReadTable", {
 
 test_that("simCBMdbReadTable", {
 
-  simCBM <- SpaDES.core::simInit(times = list(start = 1985, end = 2011))
-  simCBM$spadesCBMdb <- spadesCBMdb
+  simCBM <- list(
+    spadesCBMdb = spadesCBMdb
+  )
 
   pools1985 <- simCBMdbReadTable(
     simCBM   = simCBM,
+    year     = 1985,
     table    = "pools",
     useCache = FALSE
   )
@@ -168,6 +173,7 @@ test_that("simCBMdbReadTable", {
   expect_equal(
     simCBMdbReadTable(
       simCBM   = simCBM,
+      year     = 1985,
       table    = "pools",
       useCache = TRUE
     ),
@@ -252,8 +258,9 @@ test_that("spadesCBMdbReadSummary", {
 
 test_that("simCBMdbReadSummary", {
 
-  simCBM <- SpaDES.core::simInit(times = list(start = 1985, end = 2011))
-  simCBM$spadesCBMdb <- spadesCBMdb
+  simCBM <- list(
+    spadesCBMdb = spadesCBMdb
+  )
 
   pools1985 <- simCBMdbReadSummary(
     simCBM   = simCBM,

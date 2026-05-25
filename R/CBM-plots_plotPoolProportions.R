@@ -119,13 +119,13 @@ simPlotPoolProportions <- function(simCBM, years = NULL, useCache = TRUE){
 
     cbm4PlotPoolProportions(
       simCBM$CBM4data,
-      years      = years,
-      yearStart = SpaDES.core::start(simCBM)
+      years     = years,
+      yearStart = simYears(simCBM)$start
     )
 
   }else{
 
-    if (is.null(years)) years <- c(0, SpaDES.core::start(simCBM):SpaDES.core::end(simCBM))
+    if (is.null(years)) years <- c(0, with(simYears(simCBM), start:end))
 
     spadesCBMdbPlotPoolProportions(
       simCBM$spadesCBMdb,

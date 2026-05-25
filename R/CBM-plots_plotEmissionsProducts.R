@@ -105,12 +105,12 @@ simPlotEmissionsProducts <- function(simCBM, years = NULL, useCache = TRUE){
     cbm4PlotEmissionsProducts(
       simCBM$CBM4data,
       years     = years,
-      yearStart = SpaDES.core::start(simCBM)
+      yearStart = simYears(simCBM)$start
     )
 
   }else{
 
-    if (is.null(years)) years <- SpaDES.core::start(simCBM):SpaDES.core::end(simCBM)
+    if (is.null(years)) years <- with(simYears(simCBM), start:end)
 
     spadesCBMdbPlotEmissionsProducts(
       simCBM$spadesCBMdb,

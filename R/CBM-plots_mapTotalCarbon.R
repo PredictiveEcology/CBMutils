@@ -81,16 +81,14 @@ cbm4MapTotalCarbon <- function(cbm4_results, years = NULL, yearStart = 1){
 #' @export
 simMapTotalCarbon <- function(simCBM, year = NULL, useCache = TRUE){
 
-  if (is.null(year)){
-    year <- SpaDES.core::convertTimeunit(SpaDES.core::times(simCBM)$current, "year")
-  }
+  if (is.null(year)) year <- simYears(simCBM)$current
 
   if (!is.null(simCBM$CBM4data)){
 
     cbm4MapTotalCarbon(
       simCBM$CBM4data,
       years     = year,
-      yearStart = SpaDES.core::start(simCBM)
+      yearStart = simYears(simCBM)$start
     )[[1]]
 
   }else{
