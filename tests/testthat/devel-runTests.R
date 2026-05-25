@@ -7,8 +7,10 @@ testthat::test_local(filter = "Boudewyn")
 testthat::test_local(filter = "CBM-DB")
 testthat::test_local(filter = "CBM-plots")
 testthat::test_local(filter = "CBM-tools")
+testthat::test_local(filter = "Data")
 testthat::test_local(filter = "Misc")
 testthat::test_local(filter = "Python")
+testthat::test_local(filter = "spadesCBMdb")
 
 # Run individual tests
 testthat::test_local(filter = "Boudewyn_cumPoolsCreate")
