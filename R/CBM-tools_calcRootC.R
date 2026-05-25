@@ -15,6 +15,7 @@ utils::globalVariables(c(
 #' @param b_hw "b" value for hardwood root biomass
 #' @param a_frp "a" value for fine root proportion
 #' @param b_frp "b" value for fine root proportion
+#' @param c_frp "c" value for fine root proportion
 #' @param biomassToCarbonRate Conversion factor of biomass to carbon
 #'
 #' @references
@@ -29,7 +30,7 @@ utils::globalVariables(c(
 calcRootC <- function(aboveGroundC, sw_hw,
                       a_sw = 0.222, b_sw = 1,
                       a_hw = 1.576, b_hw = 0.615,
-                      a_frp = 0.072, b_frp = 0.354,
+                      a_frp = 0.072, b_frp = 0.354, c_frp = -0.060212,
                       biomassToCarbonRate = 0.5){
 
   aboveGroundColumns <- c("Merch", "Foliage", "Other")
@@ -43,7 +44,7 @@ calcRootC <- function(aboveGroundC, sw_hw,
   totAGC <- rowSums(aboveGroundC[, ..aboveGroundColumns])
 
   # Convert Mg/ha of Carbon to Mg/ha of biomass
-  totAGB <- totAGC * 2
+  totAGB <- totAGC / biomassToCarbonRate
 
   # Calculate root total biomass
   if(!all(sw_hw %in% c(1,0))) {
@@ -55,7 +56,7 @@ calcRootC <- function(aboveGroundC, sw_hw,
                         a_hw * totAGB^b_hw)
 
   # Calculate the proportion of fine roots
-  fineRootProp <- a_frp + b_frp * exp(-0.060212 * rootTotBiom)
+  fineRootProp <- a_frp + b_frp * exp(c_frp * rootTotBiom)
 
 
   # Calculate the proportion of fine roots
