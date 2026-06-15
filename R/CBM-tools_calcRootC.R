@@ -1,6 +1,7 @@
 
 utils::globalVariables(c(
-  "..aboveGroundColumns"
+  "sw", "AG", "SoftwoodAG", "HardwoodAG", "SoftwoodAGB", "HardwoodAGB",
+  "SoftwoodRootB", "HardwoodRootB", "SoftwoodRootProp", "HardwoodRootProp"
 ))
 
 #' `calcRootC`
