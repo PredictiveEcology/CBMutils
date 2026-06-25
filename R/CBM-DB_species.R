@@ -5,17 +5,17 @@ utils::globalVariables(c(
 
 #' Species match
 #'
-#' Retrieve species metadata by matching species names or other identifiers with columns in \code{sppEquivalencies}.
+#' Retrieve species metadata by matching species names or other identifiers with columns in \code{sppEquiv}.
 #'
 #' @param species Species identifiers.
-#' @param match character. \code{sppEquivalencies} column(s) to match \code{species} with.
+#' @param match character. \code{sppEquiv} column(s) to match \code{species} with.
 #' @param otherNames list. A list of alternative species identified to allow in matching.
 #' Item names must match `species` and item contents must be vectors of additional allowable matches.
-#' @param return character. \code{sppEquivalencies} columns to return.
+#' @param return character. \code{sppEquiv} columns to return.
 #' All columns will be returned by default.
 #' @param checkNA logical. Check for NA values in the returned columns.
 #' Defaults to TRUE if the \code{return} argument is used; otherwise FALSE.
-#' @param sppEquivalencies data.table. Table of species identifiers and metadata.
+#' @param sppEquiv data.table. Table of species identifiers and metadata.
 #' Defaults to \code{LandR::sppEquivalencies_CA}.
 #'
 #' @return data.table. Subset of \code{sppEquivalencies} with 1 row per species.
@@ -24,13 +24,13 @@ utils::globalVariables(c(
 #' @importFrom data.table as.data.table
 sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short", "EN_generic_full"),
                      otherNames = NULL, return = NULL, checkNA = !is.null(return),
-                     sppEquivalencies = NULL){
+                     sppEquiv = NULL){
 
   # Read species equivalencies table
-  if (is.null(sppEquivalencies)){
+  if (is.null(sppEquiv)){
     sppEquiv <- data.table::fread("https://github.com/PredictiveEcology/LandR/raw/refs/heads/development/data-raw/sppEquivalencies_CA.csv")
   }else{
-    sppEquiv <- data.table::as.data.table(sppEquivalencies)
+    sppEquiv <- data.table::data.table(sppEquiv)
   }
 
   # Return 0 rows
@@ -52,7 +52,7 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
   # Check matching columns
   colExists <- c(match, return) %in% names(sppEquiv)
   if (!all(colExists)) stop(
-    "column(s) not found in sppEquivalencies: ",
+    "column(s) not found in sppEquiv: ",
     paste(shQuote(c(match, return)[!colExists]), collapse = ", "))
 
   if (!is.null(return)){
@@ -126,11 +126,11 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
   })
 
   if (any(sapply(matchIdx, length) > 1)) stop(
-    "specie(s) with multiple matches in sppEquivalencies: ",
+    "specie(s) with multiple matches in sppEquiv: ",
     paste(shQuote(unique(speciesUQ[sapply(matchIdx, length) > 1])), collapse = ", "))
 
   if (any(sapply(matchIdx, length) == 0)) stop(
-    "specie(s) not found in sppEquivalencies: ",
+    "specie(s) not found in sppEquiv: ",
     paste(shQuote(unique(speciesUQ[sapply(matchIdx, length) == 0])), collapse = ", "))
 
   # Set table to return
@@ -143,7 +143,7 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
     colNA <- is.na(sppEquiv)
 
     if (any(colNA)) stop(
-      "NA(s) found in sppEquivalencies table:\n",
+      "NA(s) found in sppEquiv table:\n",
       "Species   : ", paste(shQuote(unique(species[apply(colNA, 1, any)])), collapse = ", "), "\n",
       "Column(s) : ", paste(shQuote(return[ apply(colNA, 2, any)]), collapse = ", "))
   }
