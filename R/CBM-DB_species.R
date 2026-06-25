@@ -55,18 +55,9 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
     "column(s) not found in sppEquiv: ",
     paste(shQuote(c(match, return)[!colExists]), collapse = ", "))
 
+  # Allow duplicate matches if there is a single unique set of return values
   if (!is.null(return)){
-
-    # Allow duplicate matches if there is a single unique set of return rows
-    ## Create secondary matches from duplicated rows
-    sppEquivUQ <- sppEquiv[, lapply(.SD, function(x) list(list(x))), by = return]
-
-    sppEquiv  <- sppEquivUQ[, .SD, .SDcols = c(match, return)]
-    sppExtras <- sppEquivUQ[, .SD, .SDcols = setdiff(names(sppEquiv), c(match, return))]
-    if (ncol(sppExtras) == 0) sppExtras <- NULL
-
-  }else{
-    sppExtras <- NULL
+    sppEquiv <- unique(sppEquiv[, .SD, .SDcols = unique(c(match, return))])
   }
 
   # Set function for matching character columns
@@ -113,7 +104,6 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
       inputs      = speciesUQ,
       choices     = choices,
       choiceTable = sppEquiv,
-      choiceTableExtra = sppExtras,
       identical   = TRUE,
       funSimplify = .chSimple,
       nearMatches = nearMatches,

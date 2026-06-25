@@ -173,6 +173,16 @@ test_that("sppMatch to a chosen column", {
     ))
   expect_equal(sppTable$CBM_speciesID, c(28, 122))
 
+  sppTable <- sppMatch(
+    species = c(301, 2201),
+    match   = "CanfiCode",
+    return  = "Broadleaf",
+    sppEquiv = rbind(
+      sppEquiv,
+      sppEquiv[sppEquiv$CanfiCode %in% 301,]
+    ))
+  expect_equal(sppTable$Broadleaf, c(FALSE, TRUE))
+
   # Expect error: NAs in input
   expect_error(
     sppMatch(
