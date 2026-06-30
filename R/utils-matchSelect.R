@@ -5,6 +5,7 @@
 #' @param choices character. Match choices
 #' @param allowNA logical. Return NA when no match is found.
 #' Otherwise an error will be thrown if any input cannot be matched.
+#' @param allowMulti logical. Allow multiple matches for each choice.
 #' @param identical logical. Require identical matches.
 #' @param nearMatches list. A list of near matches to allow.
 #' Item names must match `inputs` and item contents must be vectors of additional allowable matches.
@@ -19,14 +20,14 @@
 #' @param choiceTable data.frame. If `ask`, include a table of input attributes
 #' to print to the user during the selection prompt.
 #'
-#' @return integer. Match indexes
+#' @return list. Match indexes
 #'
 #' @rdname matchSelect
 #' @keywords internal
 #' @importFrom crayon yellow
 #' @importFrom knitr kable
-.matchSelect <- function(inputs, choices, allowNA = FALSE,
-                         identical = TRUE, nearMatches = list(),
+.matchSelect <- function(inputs, choices, allowNA = FALSE, allowMulti = FALSE,
+                         identical = TRUE, nearMatches = NULL,
                          funSimplify = function(x) trimws(tolower(unname(as.character(x)))),
                          ask = !identical & interactive(),
                          inputTable = NULL, choiceTable = NULL, choiceTableExtra = NULL){
@@ -40,6 +41,7 @@
 
   # Set matching choices
   chMatch <- funSimplify(choices)
+  if (is.null(nearMatches)) nearMatches <- list()
   names(nearMatches) <- funSimplify(names(nearMatches))
 
   # Select matches
@@ -64,65 +66,48 @@
     "0 matches found for: ",
     paste(shQuote(inputs[sapply(matchIdx, length) == 0]), collapse = ", "))
 
-  if (!isTRUE(ask) & any(sapply(matchIdx, length) > 1)) stop(
-    "Multiple matches found for: ",
-    paste(shQuote(inputs[sapply(matchIdx, length) > 1]), collapse = ", "),
-    if (!isTRUE(ask)) "\nRun with ask = TRUE to select matches")
+  if (!allowMulti & any(sapply(matchIdx, length) > 1)){
 
-  if (isTRUE(ask)) matchIdx <- lapply(1:length(inputs), function(i){
+    if (!isTRUE(ask)) stop(
+      "Multiple matches found for: ",
+      paste(shQuote(inputs[sapply(matchIdx, length) > 1]), collapse = ", "),
+      if (!isTRUE(ask)) "\nRun with ask = TRUE to select matches, or allowMulti = TRUE")
 
-    chMatch <- matchIdx[[i]]
+    matchIdx <- lapply(1:length(inputs), function(i){
 
-    if (all(is.na(chMatch))) return(chMatch)
+      chMatch <- matchIdx[[i]]
 
-    inPrint <- data.frame(input = inputs[[i]])
-    if (!is.null(inputTable)){
-      inPrint <- cbind(inPrint, inputTable[i,])
-      whichCol <- sapply(inPrint[, 2:ncol(inPrint)], identical, inPrint$input)
-      if (sum(whichCol) == 1){
-        inPrint[[which(whichCol) + 1]] <- NULL
-        names(inPrint)[[1]] <- names(whichCol)[whichCol]
+      if (all(is.na(chMatch))) return(chMatch)
+
+      inPrint <- data.frame(input = inputs[[i]])
+      if (!is.null(inputTable)){
+        inPrint <- cbind(inPrint, inputTable[i,])
+        whichCol <- sapply(inPrint[, 2:ncol(inPrint)], identical, inPrint$input)
+        if (sum(whichCol) == 1){
+          inPrint[[which(whichCol) + 1]] <- NULL
+          names(inPrint)[[1]] <- names(whichCol)[whichCol]
+        }
       }
-    }
 
-    chPrint <- data.frame(
-      rowID = 1:length(chMatch),
-      match = choices[chMatch]
-    )
-    if (!is.null(choiceTable)){
-      chPrint  <- cbind(chPrint, choiceTable[chMatch,])
-      whichCol <- sapply(chPrint[, 3:ncol(chPrint)], identical, chPrint$match)
-      if (sum(whichCol) == 1){
-        chPrint[[which(whichCol) + 2]] <- NULL
-        names(chPrint)[[2]] <- names(whichCol)[whichCol]
+      chPrint <- data.frame(
+        rowID = 1:length(chMatch),
+        match = choices[chMatch]
+      )
+      if (!is.null(choiceTable)){
+        chPrint  <- cbind(chPrint, choiceTable[chMatch,])
+        whichCol <- sapply(chPrint[, 3:ncol(chPrint)], identical, chPrint$match)
+        if (sum(whichCol) == 1){
+          chPrint[[which(whichCol) + 2]] <- NULL
+          names(chPrint)[[2]] <- names(whichCol)[whichCol]
+        }
+        for (col in which(sapply(chPrint, is.list))){
+          chPrint[[col]] <- sapply(chPrint[[col]], function(x){
+            paste(unique(unlist(x)), collapse = "; ")
+          })
+        }
       }
-      for (col in which(sapply(chPrint, is.list))){
-        chPrint[[col]] <- sapply(chPrint[[col]], function(x){
-          paste(unique(unlist(x)), collapse = "; ")
-        })
-      }
-    }
 
-    repeat{
-
-      ans <- readline(cat(paste(c(
-        "INPUT TO MATCH:",
-        paste(sprintf(paste0("%-", max(nchar(names(inPrint))), "s : %s"),
-                      names(inPrint), inPrint),
-              collapse = "\n"),
-        "",
-        "MATCH OPTIONS:",
-        knitr::kable(chPrint, format = "simple"),
-        "",
-        crayon::yellow(paste0(
-          "Enter the row ID of the correct match",
-          if (!is.null(choiceTableExtra)){
-            " or \"more\" to view more information about the choices"
-          },
-          ": "))
-      ), collapse = "\n")))
-
-      if (!is.null(choiceTableExtra) & identical(trimws(tolower(ans)), "more")){
+      repeat{
 
         ans <- readline(cat(paste(c(
           "INPUT TO MATCH:",
@@ -131,18 +116,38 @@
                 collapse = "\n"),
           "",
           "MATCH OPTIONS:",
-          knitr::kable(cbind(chPrint, choiceTableExtra[chMatch,]), format = "simple"),
+          knitr::kable(chPrint, format = "simple"),
           "",
-          crayon::yellow("Enter the row ID of the correct match: ")
+          crayon::yellow(paste0(
+            "Enter the row ID of the correct match",
+            if (!is.null(choiceTableExtra)){
+              " or \"more\" to view more information about the choices"
+            },
+            ": "))
         ), collapse = "\n")))
+
+        if (!is.null(choiceTableExtra) & identical(trimws(tolower(ans)), "more")){
+
+          ans <- readline(cat(paste(c(
+            "INPUT TO MATCH:",
+            paste(sprintf(paste0("%-", max(nchar(names(inPrint))), "s : %s"),
+                          names(inPrint), inPrint),
+                  collapse = "\n"),
+            "",
+            "MATCH OPTIONS:",
+            knitr::kable(cbind(chPrint, choiceTableExtra[chMatch,]), format = "simple"),
+            "",
+            crayon::yellow("Enter the row ID of the correct match: ")
+          ), collapse = "\n")))
+        }
+        cat("\n")
+
+        selectID <- suppressWarnings(tryCatch(as.numeric(trimws(ans)), error = function(e) NULL))
+        if (isTRUE(selectID %in% chPrint$rowID)) return(chMatch[[selectID]])
       }
-      cat("\n")
+    })
+  }
 
-      selectID <- suppressWarnings(tryCatch(as.numeric(trimws(ans)), error = function(e) NULL))
-      if (isTRUE(selectID %in% chPrint$rowID)) return(chMatch[[selectID]])
-    }
-  })
-
-  do.call(c, matchIdx)
+  return(matchIdx)
 }
 

@@ -86,7 +86,10 @@ test_that("sppMatch", {
       species = speciesNames,
       sppEquiv = rbind(
         sppEquiv,
-        sppEquiv[sppEquiv$CBM_speciesID %in% 35,]
+        data.table::data.table(
+          EN_generic_full = "Fir-Spruce", Broadleaf = TRUE
+        ),
+        fill = TRUE
       )),
     "Fir-Spruce")
 
@@ -174,6 +177,21 @@ test_that("sppMatch to a chosen column", {
   expect_equal(sppTable$CBM_speciesID, c(28, 122))
 
   sppTable <- sppMatch(
+    species = "Norway maple",
+    match   = c("EN_generic_short", "EN_generic_full"),
+    return  = "CanfiCode",
+    sppEquiv = rbind(
+      sppEquiv,
+      data.table::data.table(
+        EN_generic_short = "Nor map (#2)",
+        EN_generic_full  = "Norway maple",
+        CanfiCode        = 1400
+      ),
+      fill = TRUE
+    ))
+  expect_equal(sppTable$CanfiCode, 1400)
+
+  sppTable <- sppMatch(
     species = c(301, 2201),
     match   = "CanfiCode",
     return  = "Broadleaf",
@@ -217,7 +235,10 @@ test_that("sppMatch to a chosen column", {
       match   = "CanfiCode",
       sppEquiv = rbind(
         sppEquiv,
-        sppEquiv[sppEquiv$CanfiCode %in% 301,]
+        data.table::data.table(
+          CanfiCode = 301, Broadleaf = TRUE
+        ),
+        fill = TRUE
       )),
     "301")
 

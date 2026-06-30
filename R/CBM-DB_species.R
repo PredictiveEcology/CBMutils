@@ -55,10 +55,8 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
     "column(s) not found in sppEquiv: ",
     paste(shQuote(c(match, return)[!colExists]), collapse = ", "))
 
-  # Allow duplicate matches if there is a single unique set of return values
-  if (!is.null(return)){
-    sppEquiv <- unique(sppEquiv[, .SD, .SDcols = unique(c(match, return))])
-  }
+  # Select return columns
+  if (is.null(return)) return <- setdiff(names(sppEquiv), match)
 
   # Set function for matching character columns
   ## All character lower case
@@ -73,73 +71,60 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
   # Match allowing multiples
   speciesUQ <- unique(species)
 
-  matchIdx <- lapply(sppEquiv[, .SD, .SDcols = match], function(choiceCol){
+  matchIdx <- lapply(match, function(matchCol){
 
-    if (!is.list(choiceCol)){
-
-      choices <- choiceCol
-      nearMatches <- list()
-
-    }else{
-
-      chMatches <- lapply(choiceCol, function(ch){
-        ch <- unlist(ch)
-        ch <- ch[!is.na(ch)]
-        ch <- ch[ch != ""]
-        if (length(ch) > 0) ch else NA_character_
-      })
-
-      choices <- sapply(chMatches, `[[`, 1)
-
-      nearMatches <- chMatches
-      names(nearMatches) <- choices
-      nearMatches <- nearMatches[sapply(nearMatches, length) > 1]
-    }
-
-    nearMatchNm <- c(names(nearMatches), names(otherNames))
-    nearMatches <- lapply(nearMatchNm, function(nm) c(nearMatches[[nm]], otherNames[[nm]]))
-    names(nearMatches) <- nearMatchNm
-
-    .matchSelect(
+    matchIdxCol <- .matchSelect(
       inputs      = speciesUQ,
-      choices     = choices,
+      choices     = sppEquiv[[matchCol]],
       choiceTable = sppEquiv,
       identical   = TRUE,
       funSimplify = .chSimple,
-      nearMatches = nearMatches,
+      nearMatches = otherNames,
       allowNA     = TRUE,
-      ask         = "never"
+      allowMulti  = TRUE
     )
+    names(matchIdxCol) <- speciesUQ
+    matchIdxCol
   })
-  matchIdx <- lapply(1:length(speciesUQ), function(i){
-    unique(na.omit(do.call(c, lapply(matchIdx, `[[`, i))))
-  })
+  names(matchIdx) <- match
 
-  if (any(sapply(matchIdx, length) > 1)) stop(
-    "specie(s) with multiple matches in sppEquiv: ",
-    paste(shQuote(unique(speciesUQ[sapply(matchIdx, length) > 1])), collapse = ", "))
+  # Get match index by species
+  matchIdx <- lapply(speciesUQ, function(species){
+    na.omit(unique(do.call(c, lapply(matchIdx, `[[`, as.character(species)))))
+  })
+  names(matchIdx) <- as.character(speciesUQ)
 
   if (any(sapply(matchIdx, length) == 0)) stop(
     "specie(s) not found in sppEquiv: ",
-    paste(shQuote(unique(speciesUQ[sapply(matchIdx, length) == 0])), collapse = ", "))
+    paste(shQuote(speciesUQ[sapply(matchIdx, length) == 0]), collapse = ", "))
 
-  # Set table to return
-  sppEquiv <- sppEquiv[unlist(matchIdx)[match(species, speciesUQ)],]
-  if (!is.null(return)) sppEquiv <- sppEquiv[, .SD, .SDcols = return]
+  # Get return rows
+  ## Allow duplicate matches if there is a single unique set of return values
+  matchRows <- lapply(speciesUQ, function(species){
+    unique(sppEquiv[matchIdx[[as.character(species)]], .SD, .SDcols = return])
+  })
+
+  if (any(sapply(matchRows, nrow) > 1)) stop(
+    "specie(s) with multiple matches in sppEquiv: ",
+    paste(shQuote(speciesUQ[sapply(matchRows, nrow) > 1]), collapse = ", "))
+
+  matchTable <- cbind(species = speciesUQ, data.table::rbindlist(matchRows))
+  if (length(match) == 1) data.table::setnames(matchTable, 1, match)
 
   # Check for column NAs
   if (checkNA){
 
-    colNA <- is.na(sppEquiv)
+    colNA <- is.na(matchTable)
 
     if (any(colNA)) stop(
       "NA(s) found in sppEquiv table:\n",
       "Species   : ", paste(shQuote(unique(species[apply(colNA, 1, any)])), collapse = ", "), "\n",
-      "Column(s) : ", paste(shQuote(return[ apply(colNA, 2, any)]), collapse = ", "))
+      "Column(s) : ", paste(shQuote(return[apply(colNA, 2, any)[-1]]), collapse = ", "))
   }
 
-  # Return
-  return(sppEquiv)
+  # Return matches
+  idx <- match(species, speciesUQ)
+  matchTable[matchTable[, .I[idx]]]
 }
 
 

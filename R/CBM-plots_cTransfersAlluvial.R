@@ -44,7 +44,7 @@ cTransfersAlluvial <- function(cTransfers, distMatrixID = NULL,
     )
 
     distMatrixID <- cTransfersSelect$disturbance_matrix_id[
-      .matchSelect(
+      do.call(c, .matchSelect(
         inputs      = distName,
         choices     = cTransfersSelect$name,
         choiceTable = cTransfersSelect[, .(disturbance_matrix_id, name)],
@@ -53,7 +53,7 @@ cTransfersAlluvial <- function(cTransfers, distMatrixID = NULL,
         nearMatches = nearMatches,
         ask         = ask,
         ...
-      )]
+      ))]
   }
 
   #subset transfer table to only included needed disturbance

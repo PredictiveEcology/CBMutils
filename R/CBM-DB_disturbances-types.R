@@ -55,7 +55,7 @@ distMatch <- function(distNames, nearMatches = TRUE, identical = !ask, ask = int
   )
 
   # Return table of disturbance matches
-  matchTable <- listDist[matchIdx,]
+  matchTable <- listDist[do.call(c, matchIdx),]
   setkey(matchTable, NULL)
   matchTable
 }
