@@ -53,7 +53,7 @@ calcRootC <- function(aboveGroundC,
   aboveGroundC <- aboveGroundC[, .SD, .SDcols = AGcols]
 
   # Calculate the total above ground mass of carbon
-  if (whichCols == 1){
+  if (whichCols[[1]] == 1){
 
     aboveGroundC[, SoftwoodAG := rowSums(aboveGroundC[, .(SoftwoodMerch, SoftwoodFoliage, SoftwoodOther)])]
     aboveGroundC[, HardwoodAG := rowSums(aboveGroundC[, .(HardwoodMerch, HardwoodFoliage, HardwoodOther)])]
