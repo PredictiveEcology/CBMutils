@@ -1,22 +1,10 @@
 
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-table6vol <- reproducible::prepInputs(url = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv",
-                                      fun = "data.table::fread",
-                                      destinationPath = testDirs$temp$inputs,
-                                      filename2 = "appendix2_table6.csv")
-table7vol <- reproducible::prepInputs(url = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv",
-                                      fun = "data.table::fread",
-                                      destinationPath = testDirs$temp$inputs,
-                                      filename2 = "appendix2_table7.csv")
-table6AGB <- reproducible::prepInputs(url = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
-                                      fun = "data.table::fread",
-                                      destinationPath = testDirs$temp$inputs,
-                                      filename2 = "appendix2_table6_tb.csv")
-table7AGB <- reproducible::prepInputs(url = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv",
-                                      fun = "data.table::fread",
-                                      destinationPath = testDirs$temp$inputs,
-                                      filename2 = "appendix2_table7_tb.csv")
+table6vol <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv")
+table7vol <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv")
+table6AGB <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv")
+table7AGB <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv")
 
 test_that("biomProp", {
   params6 <- table6vol[juris_id == 'NS' & ecozone == 7 & canfi_species == 2804,][1] # Prunus virginiana
