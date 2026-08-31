@@ -1,14 +1,8 @@
 
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-table6AGB <- reproducible::prepInputs(url = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
-                                      fun = "data.table::fread",
-                                      destinationPath = testDirs$temp$inputs,
-                                      filename2 = "appendix2_table6_tb.csv")
-table7AGB <- reproducible::prepInputs(url = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv",
-                                      fun = "data.table::fread",
-                                      destinationPath = testDirs$temp$inputs,
-                                      filename2 = "appendix2_table7_tb.csv")
+table6AGB <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv")
+table7AGB <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv")
 tableMerchAGB <- data.table::fread(file.path(testDirs$testdata, "merchantabilityParams_subset.csv"))
 tableMerchAGB <- cbind(tableMerchAGB, minAge = 15)
 
