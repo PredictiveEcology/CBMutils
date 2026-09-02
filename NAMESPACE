@@ -54,77 +54,99 @@ export(spuDistMatch)
 export(spuHistDist)
 export(writeRasterWithValues)
 import(methods)
-importFrom(RSQLite,dbConnect)
-importFrom(RSQLite,dbDisconnect)
-importFrom(RSQLite,dbDriver)
-importFrom(RSQLite,dbListTables)
-importFrom(RSQLite,dbReadTable)
+importFrom(RSQLite,
+  dbConnect,
+  dbDisconnect,
+  dbDriver,
+  dbListTables,
+  dbReadTable
+)
 importFrom(cowplot,plot_grid)
-importFrom(crayon,red)
-importFrom(crayon,yellow)
-importFrom(data.table,as.data.table)
-importFrom(data.table,copy)
-importFrom(data.table,data.table)
-importFrom(data.table,fifelse)
-importFrom(data.table,fread)
-importFrom(data.table,is.data.table)
-importFrom(data.table,key)
-importFrom(data.table,melt)
-importFrom(data.table,melt.data.table)
-importFrom(data.table,rbindlist)
-importFrom(data.table,set)
-importFrom(data.table,setkey)
-importFrom(data.table,setkeyv)
-importFrom(data.table,setnames)
-importFrom(ggalluvial,geom_alluvium)
-importFrom(ggalluvial,geom_stratum)
-importFrom(ggforce,facet_wrap_paginate)
-importFrom(ggforce,theme_no_axes)
-importFrom(ggplot2,aes)
-importFrom(ggplot2,coord_sf)
-importFrom(ggplot2,element_blank)
-importFrom(ggplot2,element_line)
-importFrom(ggplot2,element_text)
-importFrom(ggplot2,geom_area)
-importFrom(ggplot2,geom_bar)
-importFrom(ggplot2,geom_col)
-importFrom(ggplot2,geom_line)
-importFrom(ggplot2,geom_text)
-importFrom(ggplot2,ggplot)
-importFrom(ggplot2,ggplot_build)
-importFrom(ggplot2,ggtitle)
-importFrom(ggplot2,guide_legend)
-importFrom(ggplot2,guides)
-importFrom(ggplot2,labs)
-importFrom(ggplot2,margin)
-importFrom(ggplot2,scale_fill_gradient2)
-importFrom(ggplot2,scale_fill_manual)
-importFrom(ggplot2,scale_x_continuous)
-importFrom(ggplot2,scale_x_discrete)
-importFrom(ggplot2,scale_y_continuous)
-importFrom(ggplot2,sec_axis)
-importFrom(ggplot2,theme)
-importFrom(ggplot2,theme_bw)
-importFrom(ggplot2,theme_classic)
-importFrom(ggplot2,theme_minimal)
-importFrom(ggplot2,xlab)
+importFrom(crayon,
+  red,
+  yellow
+)
+importFrom(data.table,
+  as.data.table,
+  copy,
+  data.table,
+  fifelse,
+  fread,
+  is.data.table,
+  key,
+  melt,
+  melt.data.table,
+  rbindlist,
+  set,
+  setkey,
+  setkeyv,
+  setnames
+)
+importFrom(ggalluvial,
+  geom_alluvium,
+  geom_stratum
+)
+importFrom(ggforce,
+  facet_wrap_paginate,
+  theme_no_axes
+)
+importFrom(ggplot2,
+  aes,
+  coord_sf,
+  element_blank,
+  element_line,
+  element_text,
+  geom_area,
+  geom_bar,
+  geom_col,
+  geom_line,
+  geom_text,
+  ggplot,
+  ggplot_build,
+  ggtitle,
+  guide_legend,
+  guides,
+  labs,
+  margin,
+  scale_fill_gradient2,
+  scale_fill_manual,
+  scale_x_continuous,
+  scale_x_discrete,
+  scale_y_continuous,
+  sec_axis,
+  theme,
+  theme_bw,
+  theme_classic,
+  theme_minimal,
+  xlab
+)
 importFrom(knitr,kable)
-importFrom(patchwork,plot_annotation)
-importFrom(patchwork,plot_layout)
-importFrom(patchwork,wrap_plots)
+importFrom(patchwork,
+  plot_annotation,
+  plot_layout,
+  wrap_plots
+)
 importFrom(robustbase,nlrob)
-importFrom(scales,percent)
-importFrom(scales,pretty_breaks)
-importFrom(stats,approx)
-importFrom(stats,as.formula)
-importFrom(stats,na.omit)
-importFrom(stats,predict)
-importFrom(stats,runif)
-importFrom(terra,rast)
-importFrom(terra,res)
-importFrom(terra,unwrap)
+importFrom(scales,
+  percent,
+  pretty_breaks
+)
+importFrom(stats,
+  approx,
+  as.formula,
+  na.omit,
+  predict,
+  runif
+)
+importFrom(terra,
+  rast,
+  res,
+  unwrap
+)
 importFrom(tidyterra,geom_spatraster)
 importFrom(tools,R_user_dir)
-importFrom(utils,download.file)
-importFrom(utils,tail)
-importFrom(utils,unzip)
+importFrom(utils,
+  download.file,
+  tail,
+  unzip
+)

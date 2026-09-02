@@ -10,7 +10,7 @@
 
 
 # data.table package common variables
-utils::globalVariables(c(".", ":=", ".BY", ".N", ".SD", ".GRP"))
+utils::globalVariables(c(".", ":=", ".SD", ".I", ".N", ".BY", ".GRP"))
 
 # Common spatial variables
 utils::globalVariables(c("x", "y", "z", "geometry", "area"))

@@ -40,7 +40,7 @@ utils::globalVariables(
 #' @return biomass (\eqn{T/ha}) in each above ground pool for each cohort per pixel group.
 #'
 #' @export
-#' @importFrom data.table rbindlist setnames
+#' @importFrom data.table as.data.table
 cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, tableMerchantability, pixGroupCol,
                               biomassToCarbonRate = 0.5){
 
@@ -105,8 +105,8 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, tableMerchantability
 #' @return three-column matrix with columns corresponding to biomass (\eqn{T/ha}) for
 #' total merchantable, foliage, and other wood.
 #'
-#'
 #' @export
+#' @importFrom data.table data.table
 convertAGB2pools <- function(AGB, allParams){
   AGBwithParams <- merge(AGB, allParams, by = c("canfi_species", "juris_id", "ecozone"), all.x = TRUE, sort = FALSE)
 
@@ -157,12 +157,13 @@ convertAGB2pools <- function(AGB, allParams){
 #'
 #' @return A single `data.table` containing a row for each curve with all required
 #' parameters from both `table6`, `table7`, and `tableMerchantability`.
+#'
+#' @importFrom data.table as.data.table copy setnames
 getParameters <- function(table6, table7, tableMerchantability, curves){
 
   table6_dt <- as.data.table(table6)
   table7_dt <- as.data.table(table7)
   tableMerchantability_dt <- as.data.table(tableMerchantability)
-
 
   # Some tables have canfi_spec instead of canfi_species as columns names
   if ("canfi_spec" %in% colnames(table6_dt)){
