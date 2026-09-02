@@ -71,22 +71,32 @@ test_that("cumPoolsCreateAGB", {
   # Test simple example
   dt <- data.table(
     expand.grid(canfi_species = c(204, 1201), # PINU_CON, POPU_TRE
-                age = c(3,15, 35),
+                age = c(0, 3, 15, 35),
                 ecozone = 4,
                 juris_id = "AB",
                 poolsPixelGroup = c(1,2)
     )
   )
-  dt$B <- round(runif(nrow(dt), 1, 100))
+  dt[age == 0, B := 0]
+  dt[age != 0, B := round(runif(sum(age != 0), 1, 100))]
   dt$speciesCode[dt$canfi_species == 204] <- "PINU_CON"
   dt$speciesCode[dt$canfi_species == 1201] <- "POPU_TRE"
   data.table::setorder(dt, speciesCode, age, poolsPixelGroup)
-  out2 <- cumPoolsCreateAGB(dt, table6 = table6AGB, table7 = table7AGB, tableMerchantability = tableMerchAGB, pixGroupCol ="poolsPixelGroup")
+  out <- cumPoolsCreateAGB(
+    data.table::copy(dt), pixGroupCol = "poolsPixelGroup",
+    table6 = table6AGB, table7 = table7AGB, tableMerchantability = tableMerchAGB)
 
-  expect_equal(rowSums(out2[,c("merch", "foliage", "other")]), dt$B/2)
-  expect_true(all(out2[dt$age < 15, "merch"] ==  0))
-  expect_equal(nrow(out2), nrow(dt))
-  expect_true(all(colnames(out2) == c("speciesCode", "age", "poolsPixelGroup", "merch", "foliage", "other")))
+  expect_equal(rowSums(out[,c("merch", "foliage", "other")]), dt$B/2)
+  expect_true(all(out[dt$age < 15, "merch"] ==  0))
+  expect_equal(nrow(out), nrow(dt))
+  expect_equal(names(out), c(names(dt), "merch", "foliage", "other"))
+
+  # Check for failure if age == 0 and B != 0
+  expect_error(
+    cumPoolsCreateAGB(
+      data.table::copy(dt)[age == 0][, B := 10], pixGroupCol = "poolsPixelGroup",
+      table6 = table6AGB, table7 = table7AGB, tableMerchantability = tableMerchAGB)
+  )
 
   # test with large data.table
   N <- 10^5
@@ -99,12 +109,13 @@ test_that("cumPoolsCreateAGB", {
     B = round(runif(N, 1, 100))
   )
   dt$speciesCode <- "as"
-  out <- cumPoolsCreateAGB(dt, table6 = table6AGB, table7 = table7AGB, tableMerchantability = tableMerchAGB, pixGroupCol ="poolsPixelGroup")
+  out <- cumPoolsCreateAGB(
+    data.table::copy(dt), pixGroupCol = "poolsPixelGroup",
+    table6 = table6AGB, table7 = table7AGB, tableMerchantability = tableMerchAGB)
   expect_equal(rowSums(out[,c("merch", "foliage", "other")]), dt$B/2)
   expect_true(all(out[dt$age < 15, "merch"] ==  0))
   expect_equal(nrow(out), nrow(dt))
-  expect_true(all(colnames(out) == c("speciesCode", "age", "poolsPixelGroup", "merch", "foliage", "other")))
-
+  expect_equal(names(out), c(names(dt), "merch", "foliage", "other"))
 
 })
 
