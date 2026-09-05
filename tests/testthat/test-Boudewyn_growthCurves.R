@@ -1,14 +1,9 @@
 
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-table6vol <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv")
-table7vol <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv")
-table6AGB <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv")
-table7AGB <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv")
-
 test_that("biomProp", {
-  params6 <- table6vol[juris_id == 'NS' & ecozone == 7 & canfi_species == 2804,][1] # Prunus virginiana
-  params7 <- table7vol[juris_id == 'NS' & ecozone == 7 & canfi_species == 2804,][1]
+  params6 <- bParams$table6[juris_id == 'NS' & ecozone == 7 & canfi_species == 2804,][1] # Prunus virginiana
+  params7 <- bParams$table7[juris_id == 'NS' & ecozone == 7 & canfi_species == 2804,][1]
   vol <- round(runif(10, 0, 800))
   vol[c(1:3)] <- c(0.1, 250, 750) # make sure to test eq, and under/over caps
 
@@ -31,8 +26,8 @@ test_that("biomProp", {
   expect_error(biomProp(params6, params7, vol, type = "notacorrectype"))
 
   # with AGB as input
-  params6 <- table6AGB[juris_id == 'BC' & ecozone == 9 & canfi_spec == 105,] # white spruce
-  params7 <- table7AGB[juris_id == 'BC' & ecozone == 9 & canfi_spec == 105,]
+  params6 <- bParams$table6tb[juris_id == 'BC' & ecozone == 9 & canfi_spec == 105,] # white spruce
+  params7 <- bParams$table7tb[juris_id == 'BC' & ecozone == 9 & canfi_spec == 105,]
   B <- round(runif(10, 0, 1000))
   B[c(1:3)] <- c(1, 100, 500) # make sure to test eq, and under/over caps
   expect_error(biomProp(params6, params7, B))
