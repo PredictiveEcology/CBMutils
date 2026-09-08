@@ -1,8 +1,6 @@
 
 if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
-table6AGB <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv")
-table7AGB <- data.table::fread("https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv")
 tableMerchAGB <- data.table::fread(file.path(testDirs$testdata, "merchantabilityParams_subset.csv"))
 tableMerchAGB <- cbind(tableMerchAGB, minAge = 15)
 
@@ -15,7 +13,7 @@ test_that("getParameters", {
   x <- data.table(canfi_species = c(101, 204, 204, 302),
                   ecozone = c(4, 6, -999, -999),
                   juris_id = c("BC", "NA", "BC", "NA"))
-  out <- getParameters(table6AGB, table7AGB, tableMerchAGB, x)
+  out <- getParameters(bParams$table6tb, bParams$table7tb, tableMerchAGB, x)
   expected_c2 <- c(0.0012709, 0.0027023, 0.0009288, -0.0038565)
   expected_p_sw_high <- c(0.757342072, 0.789843375, 0.817886188, 0.735608972)
   expected_cap <- c(0.11380327191837, 0.129567845, 0.179620977, 0.358827379)
@@ -33,7 +31,7 @@ test_that("getParameters", {
   expect_equal(out$cap, expected_cap)
 
   # Check that the function errors when there are no parameters for a species
-  expect_error(getParameters(table6AGB, table7AGB, tableMerchAGB, 1, 4, "BC"))
+  expect_error(getParameters(bParams$table6tb, bParams$table7tb, tableMerchAGB, 1, 4, "BC"))
 })
 
 test_that("convertAGB2pools", {
@@ -45,7 +43,7 @@ test_that("convertAGB2pools", {
     )
   )
   dt$B <- c(50, 100, 200)
-  params <- getParameters(table6AGB, table7AGB, tableMerchAGB, data.table(canfi_species = 204, ecozone = 4, juris_id = "AB"))
+  params <- getParameters(bParams$table6tb, bParams$table7tb, tableMerchAGB, data.table(canfi_species = 204, ecozone = 4, juris_id = "AB"))
 
   out <- convertAGB2pools(dt, params)
 
@@ -81,7 +79,7 @@ test_that("cumPoolsCreateAGB", {
   dt$speciesCode[dt$canfi_species == 204] <- "PINU_CON"
   dt$speciesCode[dt$canfi_species == 1201] <- "POPU_TRE"
   data.table::setorder(dt, speciesCode, age, poolsPixelGroup)
-  out2 <- cumPoolsCreateAGB(dt, table6 = table6AGB, table7 = table7AGB, tableMerchantability = tableMerchAGB, pixGroupCol ="poolsPixelGroup")
+  out2 <- cumPoolsCreateAGB(dt, table6 = bParams$table6tb, table7 = bParams$table7tb, tableMerchantability = tableMerchAGB, pixGroupCol ="poolsPixelGroup")
 
   expect_equal(rowSums(out2[,c("merch", "foliage", "other")]), dt$B/2)
   expect_true(all(out2[dt$age < 15, "merch"] ==  0))
@@ -92,14 +90,14 @@ test_that("cumPoolsCreateAGB", {
   N <- 10^5
   dt <- data.table(
     canfi_species = sample(tableMerchAGB$canfi_species, N, replace = T),
-    ecozone = sample(table6AGB$ecozone, N, replace = T),
-    juris_id = sample(table6AGB$juris_id, N, replace = T),
+    ecozone = sample(bParams$table6tb$ecozone, N, replace = T),
+    juris_id = sample(bParams$table6tb$juris_id, N, replace = T),
     poolsPixelGroup = sample(c(1:10), N, replace = T),
     age = sample(c(1:500), N, replace = T),
     B = round(runif(N, 1, 100))
   )
   dt$speciesCode <- "as"
-  out <- cumPoolsCreateAGB(dt, table6 = table6AGB, table7 = table7AGB, tableMerchantability = tableMerchAGB, pixGroupCol ="poolsPixelGroup")
+  out <- cumPoolsCreateAGB(dt, table6 = bParams$table6tb, table7 = bParams$table7tb, tableMerchantability = tableMerchAGB, pixGroupCol ="poolsPixelGroup")
   expect_equal(rowSums(out[,c("merch", "foliage", "other")]), dt$B/2)
   expect_true(all(out[dt$age < 15, "merch"] ==  0))
   expect_equal(nrow(out), nrow(dt))

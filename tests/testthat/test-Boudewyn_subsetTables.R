@@ -8,16 +8,6 @@ dbPath <- {
   destfile
 }
 
-# Download Boudewyn tables
-boudewynTables <- lapply(3:7, function(n){
-  url <- paste0("https://nfi.nfis.org/resources/biomass_models/appendix2_table", n, ".csv")
-  destfile <- file.path(testDirs$temp$inputs, basename(url))
-  if (!file.exists(destfile)) download.file(url = url, destfile = destfile, mode = "wb", quiet = TRUE)
-  data.table::fread(destfile)
-})
-names(boudewynTables) <- 3:7
-
-
 cbmDBcon <- RSQLite::dbConnect(RSQLite::dbDriver("SQLite"), dbPath)
 spatial_units <- RSQLite::dbReadTable(cbmDBcon, "spatial_unit") |>
   data.table::as.data.table()
@@ -42,11 +32,11 @@ for (i in 1:nrow(spatial_units)){
     thisAdmin <- spatial_units[i,]
     eco <- thisAdmin$EcoBoundaryID
 
-    expect_is(boudewynSubsetTables(table = boudewynTables[["3"]], thisAdmin = thisAdmin, eco = eco), "data.table")
-    expect_is(boudewynSubsetTables(table = boudewynTables[["4"]], thisAdmin = thisAdmin, eco = eco), "data.table")
-    expect_is(boudewynSubsetTables(table = boudewynTables[["5"]], thisAdmin = thisAdmin, eco = eco), "data.table")
-    expect_is(boudewynSubsetTables(table = boudewynTables[["6"]], thisAdmin = thisAdmin, eco = eco), "data.table")
-    expect_is(boudewynSubsetTables(table = boudewynTables[["7"]], thisAdmin = thisAdmin, eco = eco), "data.table")
+    expect_is(boudewynSubsetTables(table = bParams$table3, thisAdmin = thisAdmin, eco = eco), "data.table")
+    expect_is(boudewynSubsetTables(table = bParams$table4, thisAdmin = thisAdmin, eco = eco), "data.table")
+    expect_is(boudewynSubsetTables(table = bParams$table5, thisAdmin = thisAdmin, eco = eco), "data.table")
+    expect_is(boudewynSubsetTables(table = bParams$table6, thisAdmin = thisAdmin, eco = eco), "data.table")
+    expect_is(boudewynSubsetTables(table = bParams$table7, thisAdmin = thisAdmin, eco = eco), "data.table")
   })
 }
 
