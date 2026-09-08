@@ -8,13 +8,13 @@ cumPoolsCreate(
   fullSpecies,
   gcMeta,
   userGcM3,
-  stable3,
-  stable4,
-  stable5,
-  stable6,
-  stable7,
   thisAdmin,
-  biomassToCarbonRate = 0.5
+  bTable3 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv",
+  bTable4 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv",
+  bTable5 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table5.csv",
+  bTable6 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv",
+  bTable7 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv",
+  bRateBiomassToCarbon = 0.5
 )
 }
 \arguments{
@@ -24,19 +24,24 @@ cumPoolsCreate(
 
 \item{userGcM3}{Table of growth curve volume by age}
 
-\item{stable3}{Boudewyn et al. 2007 stem wood biomass model parameters table for merchantable-sized trees}
-
-\item{stable4}{Boudewyn et al. 2007 stem wood biomass model parameters table for non-merchantable-sized trees}
-
-\item{stable5}{Boudewyn et al. 2007 stem wood biomass model parameters table for sapling-sized trees}
-
-\item{stable6}{Boudewyn et al. 2007 stem wood biomass model parameters table for proportion model parameters}
-
-\item{stable7}{Boudewyn et al. 2007 stem wood biomass model parameters table for caps on proportion models}
-
 \item{thisAdmin}{Ecozone and spatial unit information table for the study area}
 
-\item{biomassToCarbonRate}{Conversion factor of biomass to carbon}
+\item{bTable3}{Boudewyn et al. (2007) stem wood biomass model parameters for merchantable-sized trees.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv}.}
+
+\item{bTable4}{Boudewyn et al. (2007) stem wood biomass model parameters for nonmerchantable-sized trees.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv}.}
+
+\item{bTable5}{Boudewyn et al. (2007) stem wood biomass model parameters for sapling-sized trees.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table5.csv}.}
+
+\item{bTable6}{Boudewyn et al. (2007) proportion model parameters.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv}.}
+
+\item{bTable7}{Boudewyn et al. (2007) caps on proportion models.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv}.}
+
+\item{bRateBiomassToCarbon}{numeric. Conversion factor of biomass to carbon.}
 }
 \value{
 \code{cumPools} data.table

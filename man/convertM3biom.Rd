@@ -9,11 +9,11 @@ convertM3biom(
   gCvalues,
   spsMatch,
   ecozones,
-  params3,
-  params4,
-  params5,
-  params6,
-  params7
+  bTable3 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv",
+  bTable4 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv",
+  bTable5 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table5.csv",
+  bTable6 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv",
+  bTable7 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv"
 )
 }
 \arguments{
@@ -25,20 +25,20 @@ convertM3biom(
 
 \item{ecozones}{Ecozone associated with the growth curve}
 
-\item{params3}{\code{data.frame} corresponding to Table 3 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv}.}
+\item{bTable3}{Boudewyn et al. (2007) stem wood biomass model parameters for merchantable-sized trees.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv}.}
 
-\item{params4}{\code{data.frame} corresponding to Table 4 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv}.}
+\item{bTable4}{Boudewyn et al. (2007) stem wood biomass model parameters for nonmerchantable-sized trees.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv}.}
 
-\item{params5}{\code{data.frame} corresponding to Table 5 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table5.csv}.}
+\item{bTable5}{Boudewyn et al. (2007) stem wood biomass model parameters for sapling-sized trees.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table5.csv}.}
 
-\item{params6}{\code{data.frame} corresponding to Table 6 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv}.}
+\item{bTable6}{Boudewyn et al. (2007) proportion model parameters.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv}.}
 
-\item{params7}{\code{data.frame} corresponding to Table 7 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv}.}
+\item{bTable7}{Boudewyn et al. (2007) caps on proportion models.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv}.}
 }
 \value{
 three-column matrix with columns corresponding to biomass (\eqn{T/ha}) for

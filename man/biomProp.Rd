@@ -4,24 +4,38 @@
 \alias{biomProp}
 \title{Proportions of total tree biomass in stemwood, bark, branches, and foliage}
 \usage{
-biomProp(table6, table7, x, type = "volume")
+biomProp(
+  x,
+  type = "volume",
+  bTable6 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv",
+  bTable7 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv",
+  bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
+  bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv"
+)
 }
 \arguments{
-\item{table6}{\code{data.frame} corresponding to Table 6 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv}.
-The alternative table 6 for equations using total biomass as independent variable
-is available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv}.}
-
-\item{table7}{\code{data.frame} corresponding to Table 7 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv}.
-The alternative table 7 for equations using total biomass as independent variable
-is available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
-
 \item{x}{\code{vector} gross merchantable volume per hectare (\eqn{m^3/ha}) or
 total biomass (\eqn{tonnes/ha})}
 
 \item{type}{\code{character} specifies if the \code{x} represents gross merchantable
 volume per hectare ("volume") or total biomass ("biomass").}
+
+\item{bTable6}{Boudewyn et al. (2007) proportion model parameters.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv}.}
+
+\item{bTable7}{Boudewyn et al. (2007) caps on proportion models.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv}.}
+
+\item{bTable6tb}{Boudewyn et al. (2007) an alternative set of proportion model parameters
+to use when total biomass per hectare in tonnes (tb = stem wood + stem bark + branches + foliage)
+is the independent variable instead of gross merchantable volume per hectare.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv}.}
+
+\item{bTable7tb}{Boudewyn et al. (2007) an alternative set of caps on proportion models
+to use in conjunction with the alternative set of proportion models
+when total biomass per hectare in tonnes (tb = stem wood + stem bark + branches + foliage)
+is the independent variable instead of gross merchantable volume per hectare.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
 }
 \value{
 four-column matrix will columns corresponding to \eqn{p_{stemwood}}, \eqn{p_{bark}},
@@ -31,8 +45,8 @@ four-column matrix will columns corresponding to \eqn{p_{stemwood}}, \eqn{p_{bar
 Implements equations 4-7 of Boudewyn et al. (2007), used to determine the proportions
 of total tree biomass in stemwood, bark, branches, and foliage
 (\eqn{p_{stemwood}}, \eqn{p_{bark}}, \eqn{p_{branches}}, \eqn{p_{foliage}}, respectively),
-using parameters \eqn{a}, \eqn{b} from Table 6 (\code{table6}) and volume-proportion caps
-from Table 7 (\code{table7}).
+using parameters \eqn{a}, \eqn{b} from Table 6 and volume-proportion caps
+from Table 7.
 }
 \details{
 TODO: will eventually add species, ecozone

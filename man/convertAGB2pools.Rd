@@ -11,7 +11,7 @@ convertAGB2pools(AGB, allParams)
 \code{ecozone}, \code{juris_id}, and \code{B}.}
 
 \item{allParams}{\code{data.frame} containing a row for each curve with all required
-parameters of both \code{table6} and \code{table7} from Boudewyn et al. (2007) and parameters
+parameters of both \code{bTable6tb} and \code{bTable7tb} from Boudewyn et al. (2007) and parameters
 on merchantability of stemwood.}
 }
 \value{

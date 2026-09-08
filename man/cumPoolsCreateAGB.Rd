@@ -6,31 +6,37 @@
 \usage{
 cumPoolsCreateAGB(
   allInfoAGBin,
-  table6,
-  table7,
-  tableMerchantability,
   pixGroupCol,
-  biomassToCarbonRate = 0.5
+  bTable14tb,
+  bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
+  bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv",
+  bRateBiomassToCarbon = 0.5
 )
 }
 \arguments{
 \item{allInfoAGBin}{\code{data.frame} with at least six following columns: \code{canfi_species},
 \code{speciesCode}, \code{ecozone}, \code{juris_id}, \code{age}, \code{B} and a column for pixel group identifier.}
 
-\item{table6}{\code{data.frame} corresponding to Table 3 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv}.}
-
-\item{table7}{\code{data.frame} corresponding to Table 4 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
-
-\item{tableMerchantability}{\code{data.frame} Parameters to estimate the proportion
-of stemwood that is merchantable, approximates the relationship between stemwood
-biomass and nonmerchfactor predicted by equation 2 of Boudewyn et al., 2007.}
-
 \item{pixGroupCol}{the name of the column in \code{allInfoAGBin} serving as the pixel group
 identifier.}
 
-\item{biomassToCarbonRate}{Conversion factor of biomass to carbon}
+\item{bTable14tb}{Total biomass to gross merchantable volume conversion.
+An alternate table to use instead of Boudewyn et al. (2007) table 14
+when total biomass per hectare in tonnes (tb = stem wood + stem bark + branches + foliage)
+is the independent variable instead of gross merchantable volume per hectare.}
+
+\item{bTable6tb}{Boudewyn et al. (2007) an alternative set of proportion model parameters
+to use when total biomass per hectare in tonnes (tb = stem wood + stem bark + branches + foliage)
+is the independent variable instead of gross merchantable volume per hectare.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv}.}
+
+\item{bTable7tb}{Boudewyn et al. (2007) an alternative set of caps on proportion models
+to use in conjunction with the alternative set of proportion models
+when total biomass per hectare in tonnes (tb = stem wood + stem bark + branches + foliage)
+is the independent variable instead of gross merchantable volume per hectare.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
+
+\item{bRateBiomassToCarbon}{numeric. Conversion factor of biomass to carbon.}
 }
 \value{
 biomass (\eqn{T/ha}) in each above ground pool for each cohort per pixel group.

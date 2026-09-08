@@ -4,7 +4,7 @@ utils::globalVariables(c(
 
 #' Subset Boudewyn tables to fit study area
 #'
-#' @param table Boudewyn table to subset
+#' @param bTable Boudewyn table to subset
 #' @param thisAdmin Table defining study area with columns
 #' `juris_id`: jurisdiction abbreviation(s); and
 #' `ecozone`: ecozone ID(s).
@@ -13,7 +13,7 @@ utils::globalVariables(c(
 #'
 #' @export
 #' @importFrom data.table data.table
-boudewynSubsetTables <- function(table, thisAdmin){
+boudewynSubsetTables <- function(bTable, thisAdmin){
 
   thisAdmin <- data.table(thisAdmin)
   if (!"juris_id" %in% names(thisAdmin)) stop("thisAdmin requires column 'juris_id'")
@@ -64,38 +64,38 @@ boudewynSubsetTables <- function(table, thisAdmin){
     juris_id_new = c("NB", "AB", "AB", "NB"))
 
   # Replaces QC and ON with appropriate replacements depending on ecozone
-  if (thisAdmin[juris_id %in% c("QC", "ON") & ecozone %in% c(5, 6), .N] > 0  && !any(c("QC", "ON") %in% table$juris_id)) {
+  if (thisAdmin[juris_id %in% c("QC", "ON") & ecozone %in% c(5, 6), .N] > 0  && !any(c("QC", "ON") %in% bTable$juris_id)) {
     thisAdmin[juris_id %in% c("QC", "ON") & ecozone %in% c(5, 6),
               juris_id := "NL"]
   }
 
-  if (thisAdmin[juris_id %in% c("QC", "ON") & ecozone == 7, .N] > 0 && !any(c("QC", "ON") %in% table$juris_id)) {
+  if (thisAdmin[juris_id %in% c("QC", "ON") & ecozone == 7, .N] > 0 && !any(c("QC", "ON") %in% bTable$juris_id)) {
     thisAdmin[juris_id %in% c("QC", "ON") & ecozone == 7,
               juris_id := "NB"]
   }
 
-  if (thisAdmin[juris_id %in% c("NU") & ecozone == 5, .N] > 0 && !"NU" %in% table$juris_id) {
+  if (thisAdmin[juris_id %in% c("NU") & ecozone == 5, .N] > 0 && !"NU" %in% bTable$juris_id) {
     thisAdmin[juris_id %in% c("NU") & ecozone == 5,
               juris_id := "NT"]
   }
 
-  if (thisAdmin[juris_id %in% "NU" & ecozone == 6, .N] > 0 && !"NU" %in% table$juris_id) {
+  if (thisAdmin[juris_id %in% "NU" & ecozone == 6, .N] > 0 && !"NU" %in% bTable$juris_id) {
     thisAdmin[juris_id %in% c("NU") & ecozone == 6,
               juris_id := "NL"]
   }
 
-  if (thisAdmin[juris_id %in% "YK" & ecozone %in% c(4, 12), .N] > 0 && !"YK" %in% table$juris_id) {
+  if (thisAdmin[juris_id %in% "YK" & ecozone %in% c(4, 12), .N] > 0 && !"YK" %in% bTable$juris_id) {
     thisAdmin[juris_id %in% c("YK") & ecozone %in% c(4, 12),
               juris_id := "NT"]
   }
 
-  if (thisAdmin[juris_id %in% c("YK") & ecozone == 13, .N] > 0 && !"YK" %in% table$juris_id) {
+  if (thisAdmin[juris_id %in% c("YK") & ecozone == 13, .N] > 0 && !"YK" %in% bTable$juris_id) {
     thisAdmin[juris_id %in% c("YK") & ecozone == 13,
               juris_id := "BC"]
   }
 
   # Replaces jursdiction not in table with appropriate replacement
-  if (any(thisAdmin$juris_id %in% jurisReplace$juris_id) && !any(thisAdmin$juris_id %in% table$juris_id)) {
+  if (any(thisAdmin$juris_id %in% jurisReplace$juris_id) && !any(thisAdmin$juris_id %in% bTable$juris_id)) {
     thisAdmin[jurisReplace,
               on = .(juris_id),
               juris_id := i.juris_id_new]
@@ -103,7 +103,7 @@ boudewynSubsetTables <- function(table, thisAdmin){
 
   # Subset table
   smallTable <- merge(
-    thisAdmin[, .(juris_id, ecozone)], data.table(table),
+    thisAdmin[, .(juris_id, ecozone)], data.table(bTable),
     by = c("juris_id", "ecozone"))
 
   return(smallTable)

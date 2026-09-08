@@ -13,7 +13,7 @@ calcRootC(
   a_frp = 0.072,
   b_frp = 0.354,
   c_frp = -0.060212,
-  biomassToCarbonRate = 0.5
+  bRateBiomassToCarbon = 0.5
 )
 }
 \arguments{
@@ -35,7 +35,7 @@ or \code{SoftwoodMerch}, \code{HardwoodMerch}, \code{SoftwoodFoliage}, \code{Har
 
 \item{c_frp}{"c" value for fine root proportion}
 
-\item{biomassToCarbonRate}{Conversion factor of biomass to carbon}
+\item{bRateBiomassToCarbon}{numeric. Conversion factor of biomass to carbon.}
 }
 \value{
 data.table with mass of carbon (tonnes/ha) in coarseRoots and fineRoots pools.
