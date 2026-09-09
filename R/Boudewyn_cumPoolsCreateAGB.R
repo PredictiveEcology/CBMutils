@@ -23,7 +23,7 @@ utils::globalVariables(
 #' `speciesCode`, `ecozone`, `juris_id`, `age`, `B` and a column for pixel group identifier.
 #' @param pixGroupCol the name of the column in `allInfoAGBin` serving as the pixel group
 #' identifier.
-#' @template bTable14tb
+#' @inheritParams propMerch tableMerch
 #' @template bTable6tb
 #' @template bTable7tb
 #' @template bRateBiomassToCarbon
@@ -33,7 +33,7 @@ utils::globalVariables(
 #' @importFrom data.table as.data.table fread is.data.table
 #' @export
 cumPoolsCreateAGB <- function(allInfoAGBin, pixGroupCol,
-                              bTable14tb,
+                              tableMerch,
                               bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
                               bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv",
                               bRateBiomassToCarbon = 0.5){
@@ -41,7 +41,7 @@ cumPoolsCreateAGB <- function(allInfoAGBin, pixGroupCol,
   # Read Boudewyn parameters
   if (!is.data.table(bTable6tb))  bTable6tb  <- ifelse(is.data.frame(bTable6tb),  as.data.table(bTable6tb),  fread(bTable6tb))
   if (!is.data.table(bTable7tb))  bTable7tb  <- ifelse(is.data.frame(bTable7tb),  as.data.table(bTable7tb),  fread(bTable7tb))
-  if (!is.data.table(bTable14tb)) bTable14tb <- ifelse(is.data.frame(bTable14tb), as.data.table(bTable14tb), fread(bTable14tb))
+  if (!is.data.table(tableMerch)) tableMerch <- ifelse(is.data.frame(tableMerch), as.data.table(tableMerch), fread(tableMerch))
 
   # 1. Input validation
   expectedColumns <- c("canfi_species", "juris_id", "ecozone", "age", "B", "speciesCode", pixGroupCol)
@@ -55,7 +55,7 @@ cumPoolsCreateAGB <- function(allInfoAGBin, pixGroupCol,
   curves <- unique(AGB[, .(canfi_species, juris_id, ecozone)])
 
   # Get the parameters for each curve
-  allParams <- getParameters(curves, bTable6tb = bTable6tb, bTable7tb = bTable7tb, bTable14tb = bTable14tb)
+  allParams <- getParameters(curves, tableMerch = tableMerch, bTable6tb = bTable6tb, bTable7tb = bTable7tb)
 
   # 3. Split biomass into pools
 
@@ -143,42 +143,42 @@ convertAGB2pools <- function(AGB, allParams){
 #' Pacific Forestry Centre. <https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/27434.pdf>
 #'
 #' @param curves A `data.table` with unique combinations of `canfi_species`, `ecozone`, `juris_id`.
-#' @template bTable14tb
+#' @inheritParams propMerch tableMerch
 #' @template bTable6tb
 #' @template bTable7tb
 #'
 #' @return A single `data.table` containing a row for each curve with all required
-#' parameters from `bTable6tb`, `bTable7tb`, and `bTable14tb`.
+#' parameters from `bTable6tb`, `bTable7tb`, and `tableMerch`.
 #'
 #' @importFrom data.table as.data.table copy fread is.data.table setnames
 getParameters <- function(curves,
-                          bTable14tb,
+                          tableMerch,
                           bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
                           bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv"){
 
   # Read Boudewyn parameters
   if (!is.data.table(bTable6tb))  bTable6tb  <- ifelse(is.data.frame(bTable6tb),  as.data.table(bTable6tb),  fread(bTable6tb))
   if (!is.data.table(bTable7tb))  bTable7tb  <- ifelse(is.data.frame(bTable7tb),  as.data.table(bTable7tb),  fread(bTable7tb))
-  if (!is.data.table(bTable14tb)) bTable14tb <- ifelse(is.data.frame(bTable14tb), as.data.table(bTable14tb), fread(bTable14tb))
+  if (!is.data.table(tableMerch)) tableMerch <- ifelse(is.data.frame(tableMerch), as.data.table(tableMerch), fread(tableMerch))
 
-  table6_dt  <- copy(bTable6tb)
-  table7_dt  <- copy(bTable7tb)
-  table14_dt <- copy(bTable14tb)
+  table6_dt <- copy(bTable6tb)
+  table7_dt <- copy(bTable7tb)
+  tableM_dt <- copy(tableMerch)
 
   # Some tables have canfi_spec instead of canfi_species as columns names
-  setnames(table6_dt,  old = "canfi_spec", new = "canfi_species", skip_absent = TRUE)
-  setnames(table7_dt,  old = "canfi_spec", new = "canfi_species", skip_absent = TRUE)
-  setnames(table14_dt, old = "canfi_spec", new = "canfi_species", skip_absent = TRUE)
+  setnames(table6_dt, old = "canfi_spec", new = "canfi_species", skip_absent = TRUE)
+  setnames(table7_dt, old = "canfi_spec", new = "canfi_species", skip_absent = TRUE)
+  setnames(tableM_dt, old = "canfi_spec", new = "canfi_species", skip_absent = TRUE)
 
   if (!all(
     curves$canfi_species %in% table6_dt$canfi_species &
     curves$canfi_species %in% table7_dt$canfi_species &
-    curves$canfi_species %in% table14_dt$canfi_species
+    curves$canfi_species %in% tableM_dt$canfi_species
   )) {
     missing_spp <- unique(curves$canfi_species[!(
       curves$canfi_species %in% table6_dt$canfi_species &
         curves$canfi_species %in% table7_dt$canfi_species &
-        curves$canfi_species %in% table14_dt$canfi_species
+        curves$canfi_species %in% tableM_dt$canfi_species
     )])
     stop("There are no parameters available for species: ",
          paste(missing_spp, collapse = ", "))
@@ -188,12 +188,12 @@ getParameters <- function(curves,
   p6_cols <- c("a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3")
   p7_cols <- c("biom_min", "biom_max", "p_sw_low", "p_sb_low", "p_br_low", "p_fl_low",
                "p_sw_high", "p_sb_high", "p_br_high", "p_fl_high")
-  p14_cols <- c("a", "b", "k", "cap", "minAge")
+  pM_cols <- c("a", "b", "k", "cap", "minAge")
 
   # Copy to avoid modifying the original 'curves' object
-  params6  <- copy(curves)
-  params7  <- copy(curves)
-  params14 <- copy(curves)
+  params6 <- copy(curves)
+  params7 <- copy(curves)
+  paramsM <- copy(curves)
 
   # Merge parameters using a cascading join approach (from most to least specific)
   # Level 1: Exact match (species, ecozone, jurisdiction)
@@ -203,9 +203,9 @@ getParameters <- function(curves,
   params7[table7_dt,
           on = .(canfi_species, ecozone, juris_id),
           (p7_cols) := mget(paste0("i.", p7_cols))]
-  params14[table14_dt,
-           on = .(canfi_species, ecozone, juris_id),
-           (p14_cols) := mget(paste0("i.", p14_cols))]
+  paramsM[tableM_dt,
+          on = .(canfi_species, ecozone, juris_id),
+          (pM_cols) := mget(paste0("i.", pM_cols))]
 
   # Find alternative set of parameters for combination without exact match
   if(any(is.na(params6))){
@@ -216,12 +216,12 @@ getParameters <- function(curves,
     params7 <- alternativeParams(params7, table7_dt, p7_cols)
   }
 
-  if(any(is.na(params14))){
-    params14 <- alternativeParams(params14, table14_dt, p14_cols)
+  if(any(is.na(paramsM))){
+    paramsM <- alternativeParams(paramsM, tableM_dt, pM_cols)
   }
 
   allParams <- merge(params6, params7, by = c("canfi_species", "ecozone", "juris_id"), sort = FALSE)
-  allParams <- merge(allParams, params14, by = c("canfi_species", "ecozone", "juris_id"), sort = FALSE)
+  allParams <- merge(allParams, paramsM, by = c("canfi_species", "ecozone", "juris_id"), sort = FALSE)
   return(allParams)
 }
 
@@ -239,7 +239,7 @@ getParameters <- function(curves,
 #' @param cols `vector` of parameter column names.
 #'
 #' @returns A single `data.table` containing a row for each curve with all required
-#' parameters from `bTable6tb`, `bTable7tb`, and `bTable14tb`.
+#' parameters from `bTable6tb`, `bTable7tb`, and `tableMerch`.
 alternativeParams <- function(params, table, cols){
   # If merchantability, cap is the only parameters absolutely
   if("cap" %in% cols){
@@ -328,21 +328,28 @@ biomPropAGB <- function(AGBwithParams) {
 }
 
 
-
-#' Calculates the proportion of total stemwood considered merchantable.
+#' propMerch
 #'
-#' @param totalStemWood `numeric` Total Stemwood vector.
-#' @param age `numeric` Age of the cohort.
-#' @param params `data.table` Parameters to calculate propotion of merchantable stemwood.
+#' Calculate the proportion of total stemwood considered merchantable.
+#'
+#' @param b_nm numeric. Vector of total stemwood biomass in live trees.
+#' @param age numeric. Vector of cohort ages.
+#' @param tableMerch data.table with one row per `b_nm`.
+#' Parameters to estimate the proportion of stemwood biomass that is merchantable
+#' where `b_m/b_nm = k - exp(-a * (b_nm - b))`
+#' when `b_nm` is the total stemwood biomass and `b_m` is the total merchantable stemwood biomass.
+#' Available from <https://drive.google.com/file/d/1wa2QMd7Eo-bPpfigchdpPPPxo7NVpPiC>.
+#' Parameters were estimated by approximating the relationship between stemwood biomass and
+#' nonmerchfactor predicted by equation 2 of Boudewyn et al. (2007).
 #'
 #' @returns `numeric` Vector of the proportion of stemwood that is merchantable.
-propMerch <- function(totalStemWood, age, params){
+propMerch <- function(b_nm, age, tableMerch){
 
-  pMerch <- with(params, {
+  pMerch <- with(tableMerch, {
     if (any(is.na(cap))){
       stop("Missing some parameters to calculate merchantable propotions.")
     }
-    pMerch <- k - exp(-a*(totalStemWood - b))
+    pMerch <- k - exp(-a*(b_nm - b))
     pMerch[is.na(pMerch)] <- cap[is.na(pMerch)]
     pMerch[pMerch < cap] <- cap[pMerch < cap]
     pMerch[age < minAge] <- 0
@@ -355,3 +362,4 @@ propMerch <- function(totalStemWood, age, params){
 
   return(pMerch)
 }
+
