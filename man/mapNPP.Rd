@@ -4,13 +4,10 @@
 \alias{mapNPP}
 \title{\code{mapNPP}}
 \usage{
-mapNPP(flux, masterRaster, year = NULL)
+mapNPP(rastNPP, year = NULL)
 }
 \arguments{
-\item{flux}{data.table. Table of flux for each cohort or for each pixel.
-Must include the 'pixelIndex' column.}
-
-\item{masterRaster}{\code{\link[terra]{SpatRaster}} template defining the study area.}
+\item{rastNPP}{SpatRaster. Pixel values represent NPP (t/ha).}
 
 \item{year}{numeric. Year that the map represents.
 If provided, it will be included in the plot title.}
@@ -19,5 +16,5 @@ If provided, it will be included in the plot title.}
 \code{ggplot}
 }
 \description{
-Map net primary productivity (NPP) across a study area.
+Map Net Primary Productivity (NPP) across a study area.
 }

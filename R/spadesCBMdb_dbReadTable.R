@@ -1,4 +1,3 @@
-utils::globalVariables(c("cohortID", "pixelIndex", "row_idx"))
 
 #' simList: Read SpaDES CBM database table
 #'
@@ -12,9 +11,7 @@ utils::globalVariables(c("cohortID", "pixelIndex", "row_idx"))
 #' @export
 simCBMdbReadTable <- function(simCBM, year, table, useCache = TRUE){
 
-  if (missing(year)){
-    year <- SpaDES.core::convertTimeunit(SpaDES.core::times(simCBM)$current, "year")
-  }
+  if (missing(year)) year <- simYears(simCBM)$current
 
   spadesCBMdbReadTable(simCBM$spadesCBMdb, year = year, table = table, useCache = useCache)
 }

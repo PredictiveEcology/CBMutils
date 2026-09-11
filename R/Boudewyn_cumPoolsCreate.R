@@ -9,13 +9,15 @@
 #' @param stable6 Boudewyn et al. 2007 stem wood biomass model parameters table for proportion model parameters
 #' @param stable7 Boudewyn et al. 2007 stem wood biomass model parameters table for caps on proportion models
 #' @param thisAdmin Ecozone and spatial unit information table for the study area
+#' @param biomassToCarbonRate Conversion factor of biomass to carbon
 #'
 #' @return `cumPools` data.table
 #'
 #' @export
 #' @importFrom data.table data.table rbindlist
 cumPoolsCreate <- function(fullSpecies, gcMeta, userGcM3,
-                           stable3, stable4, stable5, stable6, stable7, thisAdmin) {
+                           stable3, stable4, stable5, stable6, stable7, thisAdmin,
+                           biomassToCarbonRate = 0.5){
 
   counter <- 0L
   cumBiomList <- list()
@@ -41,7 +43,7 @@ cumPoolsCreate <- function(fullSpecies, gcMeta, userGcM3,
       ))
 
       # going from tonnes of biomass/ha to tonnes of carbon/ha here
-      cumBiom <- cumBiom * 0.5 ## this value is in sim$cbmData@biomassToCarbonRate
+      cumBiom <- cumBiom * biomassToCarbonRate
       # calculating the increments per year for each of the three pools (merch,
       # foliage and other (SW or HW))
       # inc <- diff(cumBiom)

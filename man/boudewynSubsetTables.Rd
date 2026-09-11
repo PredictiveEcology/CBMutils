@@ -4,14 +4,14 @@
 \alias{boudewynSubsetTables}
 \title{Subset Boudewyn tables to fit study area}
 \usage{
-boudewynSubsetTables(table, thisAdmin, eco)
+boudewynSubsetTables(table, thisAdmin)
 }
 \arguments{
 \item{table}{Boudewyn table to subset}
 
-\item{thisAdmin}{study area attributes}
-
-\item{eco}{ecozones in study area}
+\item{thisAdmin}{Table defining study area with columns
+\code{juris_id}: jurisdiction abbreviation(s); and
+\code{ecozone}: ecozone ID(s).}
 }
 \value{
 \code{smallTable} data.table

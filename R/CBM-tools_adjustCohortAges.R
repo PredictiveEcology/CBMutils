@@ -1,6 +1,6 @@
 
 utils::globalVariables(c(
-  "age", "ageCalc", "ageDist", "id", "prev", "year"
+  "ageCalc", "ageDist", "prev"
 ))
 
 #' Adjust cohort ages

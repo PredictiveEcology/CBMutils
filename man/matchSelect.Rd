@@ -8,8 +8,9 @@
   inputs,
   choices,
   allowNA = FALSE,
+  allowMulti = FALSE,
   identical = TRUE,
-  nearMatches = list(),
+  nearMatches = NULL,
   funSimplify = function(x) trimws(tolower(unname(as.character(x)))),
   ask = !identical & interactive(),
   inputTable = NULL,
@@ -24,6 +25,8 @@
 
 \item{allowNA}{logical. Return NA when no match is found.
 Otherwise an error will be thrown if any input cannot be matched.}
+
+\item{allowMulti}{logical. Allow multiple matches for each choice.}
 
 \item{identical}{logical. Require identical matches.}
 
@@ -45,7 +48,7 @@ to print to the user during the selection prompt.}
 to print to the user during the selection prompt.}
 }
 \value{
-integer. Match indexes
+list. Match indexes
 }
 \description{
 Match select

@@ -1,5 +1,5 @@
 utils::globalVariables(c(
-  ".BY", ".N", ".SD", "gcids", "override"
+  "gcids", "override"
 ))
 
 #' Smooth the `cumPools` `data.table`
@@ -14,14 +14,15 @@ utils::globalVariables(c(
 #'
 #' @author Celine Boisvenue and Eliot McIntire
 #' @export
-#' @importFrom crayon red
+#' @importFrom cli col_red
 #' @importFrom data.table copy
 #' @importFrom robustbase nlrob
 #' @importFrom stats approx as.formula na.omit predict runif
 #' @importFrom utils tail
 cumPoolsSmooth <- function(cumPoolsRaw, colsToUse = c("totMerch", "fol", "other"),
-                           colsToUseNew = paste0(colsToUse, "_New"))  {
-  message(crayon::red(
+                           colsToUseNew = paste0(colsToUse, "_New")){
+
+  message(col_red(
     "The translation of m3/ha using the Boudewyn et al. stand level translation, ",
     "often results in some curves having peaks and/or swiggles. ",
     "We have built-in an automatic smoothing algorithm that uses a Chapman-Richards ",
@@ -30,20 +31,18 @@ cumPoolsSmooth <- function(cumPoolsRaw, colsToUse = c("totMerch", "fol", "other"
     " the original curve is used. It is the users' responsibility to inspect curves. ",
     "This process is highly likely to require user intervention."
   ))
+
   cpr <- cumPoolsRaw # no copy -- just convenience
   cpr[, (colsToUse) := lapply(.SD, as.numeric), .SDcols = colsToUse]
 
-  outInd <- character()
+  i <- 0
+  nIDs <- length(unique(cpr[["gcids"]]))
 
-  outerInd <- 0
-  ## debugging tools
-  #cpr <- cpr[gcids %in% unique(cpr$gcids)[(198)]]
-  #message("REMOVE PREVIOUS LINE TO GET BACK ALL GCIDS")
-  lenUniqueID_ecozone <- length(unique(cpr[["gcids"]]))
   cpr[, (colsToUseNew) := {
-    outerInd <<- outerInd + 1
-    outInd <<- .BY
-    print(paste0(outerInd, " of ", lenUniqueID_ecozone, ": ", outInd))
+
+    i <<- i + 1
+    gcID <- .BY[[1]]
+    message(i, " of ", nIDs, ": ", as.character(gcID))
 
     N <- .N
     ind <- seq(N)
@@ -77,7 +76,6 @@ cumPoolsSmooth <- function(cumPoolsRaw, colsToUse = c("totMerch", "fol", "other"
 
       for (chopitoff in 1:4) {
         # Gets rid of wiggles and huge peak
-        #if (outInd > 17) browser()
         if (length(firstInflection) > 0) {
           SD[, override := ind > firstInflection & ind < firstMin]
           SD[override == TRUE, (c2u) := NA]
@@ -145,13 +143,11 @@ cumPoolsSmooth <- function(cumPoolsRaw, colsToUse = c("totMerch", "fol", "other"
           }
         }
       }
-      #browser()
+
       ind <- seq(N)
       if (is(nlsout, "try-error")) {
-      #   stop("This gcid ", .SD$gcids, " failed to converge while estimating Chapman Richards smoothing")
-        warning(c2u, " of gcid ", as.character(gcids), " (item ",outerInd,") failed to converge while estimating Chapman Richards smoothing; ",
+        warning(c2u, " of gcid ", as.character(gcID), " (item ", i, ") failed to converge while estimating Chapman Richards smoothing; ",
                 "Using original curve")
-        #if (outInd > 17) browser()
         newVals <- .SD[[c2u]]
       } else {
         fittedNew <- predict(nlsout, newdata = .SD)

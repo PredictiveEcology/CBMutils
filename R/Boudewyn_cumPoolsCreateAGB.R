@@ -1,6 +1,6 @@
 utils::globalVariables(
   c("..colToCheck",
-    "canfi_species", "juris_id", "ecozone", "age", "B", "speciesCode", "pixGroupCol",
+    "age", "B", "speciesCode", "pixGroupCol",
     "merch", "foliage", "other",
     "a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3", "biom_min", "biom_max",
     "p_sw_low", "p_sb_low", "p_br_low", "p_fl_low", "p_sw_high", "p_sb_high",
@@ -19,8 +19,10 @@ utils::globalVariables(
 #' conversion for forested and vegetated land in Canada (BC-X-411). Natural Resource Canada,
 #' Pacific Forestry Centre. <https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/27434.pdf>
 #'
-#' @param allInfoAGBin `data.frame` with at least six following columns: `canfi_species`,
-#' `speciesCode`, `ecozone`, `juris_id`, `age`, `B` and a column for pixel group identifier.
+#' @param AGB `data.frame` with the following columns:
+#' `juris_id`, `ecozone`, `canfi_species`, `age`, `B` and a column for pixel group identifier.
+#'
+#' @param pixGroupCol the name of the column in `AGB` serving as the pixel group identifier.
 #'
 #' @param table6 `data.frame` corresponding to Table 3 from Boudewyn et al. (2007),
 #' available from <https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv>.
@@ -32,21 +34,22 @@ utils::globalVariables(
 #' of stemwood that is merchantable, approximates the relationship between stemwood
 #' biomass and nonmerchfactor predicted by equation 2 of Boudewyn et al., 2007.
 #'
-#' @param pixGroupCol the name of the column in `allInfoAGBin` serving as the pixel group
-#' identifier.
-
-#' @return biomass (\eqn{T/ha}) in each above ground pool for each cohort per pixel group.
+#' @param biomassToCarbonRate Conversion factor of biomass to carbon
+#'
+#' @return `AGB` table updated by reference with additional columns
+#' `merch`, `foliage`, and `other` with biomass (\eqn{T/ha}) in each above ground pool.
 #'
 #' @export
-#' @importFrom data.table rbindlist setnames
-cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, tableMerchantability, pixGroupCol){
+#' @importFrom data.table as.data.table is.data.table
+cumPoolsCreateAGB <- function(AGB, pixGroupCol,
+                              table6, table7, tableMerchantability, biomassToCarbonRate = 0.5){
 
   # 1. Input validation
-  expectedColumns <- c("canfi_species", "juris_id", "ecozone", "age", "B", "speciesCode", pixGroupCol)
-  if (any(!(expectedColumns %in% colnames(allInfoAGBin)))) {
+  expectedColumns <- c(pixGroupCol, "juris_id", "ecozone", "canfi_species", "age", "B")
+  if (any(!(expectedColumns %in% colnames(AGB)))) {
     stop("The AGB table needs the following columns ", paste(expectedColumns, collapse = " "))
   }
-  AGB <- as.data.table(allInfoAGBin, key = NULL)
+  if (!is.data.table(AGB)) AGB <- as.data.table(AGB)
 
   # 2. Get parameters for all curves
   # Identify all unique species/location combinations
@@ -55,31 +58,24 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, tableMerchantability
   # Get the parameters for each curve
   allParams <- getParameters(table6, table7, tableMerchantability, curves)
 
-  # 3. Split biomass into pools
+  # 3. Set pools to 0 where total biomass is 0
+  AGB[B == 0, c("merch", "foliage", "other") := 0]
 
-  ## IMPORTANT BOURDEWYN PARAMETERS FOR NOT HANDLE AGE 0 ##
-  AGB <- AGB[age > 0]
-
-  # Call convertAGB2pools
+  # 4. Split biomass into pools
+  # IMPORTANT: BOURDEWYN PARAMETERS FOR NOT HANDLE AGE 0
   # It returns a data.table with merch, foliage, and other biomass pools
-  biomassPools <- convertAGB2pools(AGB, allParams)
+  AGB[B != 0 & age > 0, c("merch", "foliage", "other") := convertAGB2pools(AGB[age > 0 & B != 0], allParams)]
+
+  if (anyNA(AGB$merch)) stop("Conversion of biomass to 'merch', 'foliage', and 'other' pools failed")
 
   # 5. Convert biomass to carbon mass
-  biom2carbonConversionFactor <- 0.5
-  biomassPools[, `:=`(
-    merch = merch * biom2carbonConversionFactor,
-    foliage = foliage * biom2carbonConversionFactor,
-    other = other * biom2carbonConversionFactor
+  AGB[, `:=`(
+    merch   = merch   * biomassToCarbonRate,
+    foliage = foliage * biomassToCarbonRate,
+    other   = other   * biomassToCarbonRate
   )]
 
-
-  # Combine identifier columns with the new carbon pools
-  finalPools <- cbind(
-    AGB[, .SD, .SDcols = c("speciesCode", "age", pixGroupCol)],
-    biomassPools
-  )
-
-  return(finalPools)
+  return(AGB)
 }
 
 #' Convert total above ground biomass into 3 pools (\eqn{T/ha}).
@@ -103,8 +99,8 @@ cumPoolsCreateAGB <- function(allInfoAGBin, table6, table7, tableMerchantability
 #' @return three-column matrix with columns corresponding to biomass (\eqn{T/ha}) for
 #' total merchantable, foliage, and other wood.
 #'
-#'
 #' @export
+#' @importFrom data.table data.table
 convertAGB2pools <- function(AGB, allParams){
   AGBwithParams <- merge(AGB, allParams, by = c("canfi_species", "juris_id", "ecozone"), all.x = TRUE, sort = FALSE)
 
@@ -155,12 +151,13 @@ convertAGB2pools <- function(AGB, allParams){
 #'
 #' @return A single `data.table` containing a row for each curve with all required
 #' parameters from both `table6`, `table7`, and `tableMerchantability`.
+#'
+#' @importFrom data.table as.data.table copy setnames
 getParameters <- function(table6, table7, tableMerchantability, curves){
 
   table6_dt <- as.data.table(table6)
   table7_dt <- as.data.table(table7)
   tableMerchantability_dt <- as.data.table(tableMerchantability)
-
 
   # Some tables have canfi_spec instead of canfi_species as columns names
   if ("canfi_spec" %in% colnames(table6_dt)){

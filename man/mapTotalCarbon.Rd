@@ -4,13 +4,10 @@
 \alias{mapTotalCarbon}
 \title{\code{mapTotalCarbon}}
 \usage{
-mapTotalCarbon(pools, masterRaster, year = NULL)
+mapTotalCarbon(rastTC, year = NULL)
 }
 \arguments{
-\item{pools}{data.table. Table of pools for each cohort or for each pixel.
-Must include the 'pixelIndex' column.}
-
-\item{masterRaster}{\code{\link[terra]{SpatRaster}} template defining the study area.}
+\item{rastTC}{SpatRaster. Pixel values represent total carbon (t/ha).}
 
 \item{year}{numeric. Year that the map represents.
 If provided, it will be included in the plot title.}

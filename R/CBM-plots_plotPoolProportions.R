@@ -1,8 +1,6 @@
 utils::globalVariables(c(
-  "AboveGroundFastSoil", "AboveGroundSlowSoil", "AboveGroundVeryFastSoil",
-  "BelowGroundFastSoil", "BelowGroundSlowSoil", "BelowGroundVeryFastSoil",
-  "BranchSnag", "CoarseRoots", "FineRoots", "Foliage", "MediumSoil", "Merch", "Other", "StemSnag",
-  "AGlive", "BGlive", "carbon", "cohortGroupID", "N", "pool", "simYear", "snags", "soil", "weight"
+  "carbon", "N", "pool",
+  "AGlive", "BGlive", "Snags", "Soil"
 ))
 
 #' `plotPoolProportions`
@@ -14,14 +12,13 @@ utils::globalVariables(c(
 #'
 #' @export
 #' @importFrom data.table as.data.table is.data.table melt.data.table
-#' @importFrom ggplot2 aes element_text element_line geom_area ggplot ggtitle
-#' margin scale_x_continuous scale_y_continuous theme
+#' @importFrom ggplot2 aes element_text element_line geom_area ggplot ggtitle margin scale_x_continuous scale_y_continuous theme
 #' @importFrom scales percent
 plotPoolProportions <- function(pools){
 
   if (!"year" %in% names(pools)) stop("pools requires column 'year'")
 
-  if (!identical(names(pools), c("year", "Soil", "BGlive", "AGlive", "Snags"))){
+  if (!all(c("Soil", "BGlive", "AGlive", "Snags") %in% names(pools))){
 
     if (!is.data.table(pools)) pools <- as.data.table(pools)
     pools <- pools[, .(
@@ -35,7 +32,8 @@ plotPoolProportions <- function(pools){
   }
 
   poolsSum <- data.table::melt.data.table(
-    pools, id.vars = "year", variable.name = "pool", value.name = "carbon")
+    pools, id.vars = "year", measure.vars = c("Soil", "BGlive", "AGlive", "Snags"),
+    variable.name = "pool", value.name = "carbon")
   poolsSum[, proportion := carbon / sum(carbon), by = "year"]
 
   startYear <- min(poolsSum$year[poolsSum$year != 0])
@@ -72,17 +70,87 @@ plotPoolProportions <- function(pools){
 }
 
 
+#' CBM4: `plotPoolProportions`
+#'
+#' @template cbm4_results
+#' @param years integer. Year(s) of simulation results.
+#' @param yearStart integer. Simulation start year.
+#'
+#' @inherit plotPoolProportions description return
+#' @export
+cbm4PlotPoolProportions <- function(cbm4_results, years = NULL, yearStart = 1){
+
+  if (length(find.package("CBM4r", quiet = TRUE)) == 0) stop("CBM4r package required")
+
+  timesteps <- if (!is.null(years)) years - yearStart + 1
+
+  cbm4_results <- CBM4r::cbm4_results_processor(cbm4_results)
+
+  cbm4_totals <- CBM4r::cbm4_results_totals(
+    cbm4_results,
+    timesteps    = timesteps,
+    view_name    = "pool_indicators")[, .(
+      year   = timestep + yearStart - 1,
+      Soil   = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
+                   AboveGroundFastSoil, BelowGroundFastSoil,
+                   AboveGroundSlowSoil, BelowGroundSlowSoil, MediumSoil),
+      BGlive = sum(SoftwoodCoarseRoots, SoftwoodFineRoots,
+                   HardwoodCoarseRoots, HardwoodFineRoots),
+      AGlive = sum(SoftwoodMerch, SoftwoodFoliage, SoftwoodOther,
+                   HardwoodMerch, HardwoodFoliage, HardwoodOther),
+      Snags  = sum(SoftwoodStemSnag, SoftwoodBranchSnag,
+                   HardwoodStemSnag, HardwoodBranchSnag)
+    ), by = "timestep"]
+
+  plotPoolProportions(cbm4_totals)
+}
+
+
 #' `simPlotPoolProportions`
 #'
-#' @inheritParams simCBMdbReadSummary
+#' @template simCBM
 #' @param years numeric. Simulation years to include in plot. Defaults to all simulation years.
+#' @inheritParams spadesCBMdbReadSummary
 #' @inherit plotPoolProportions description return
 #' @export
 simPlotPoolProportions <- function(simCBM, years = NULL, useCache = TRUE){
 
+  if (!is.null(simCBM$CBM4data)){
+
+    cbm4PlotPoolProportions(
+      simCBM$CBM4data,
+      years     = years,
+      yearStart = simYears(simCBM)$start
+    )
+
+  }else{
+
+    if (is.null(years)) years <- c(0, with(simYears(simCBM), start:end))
+
+    spadesCBMdbPlotPoolProportions(
+      simCBM$spadesCBMdb,
+      years    = years,
+      useCache = useCache
+    )
+  }
+}
+
+
+#' spadesCBMdb `simPlotPoolProportions`
+#'
+#' @inheritParams spadesCBMdbReadSummary
+#' @param years numeric. Simulation years to include in plot.
+#' @inherit plotPoolProportions description return
+#' @export
+spadesCBMdbPlotPoolProportions <- function(spadesCBMdb, years, useCache = TRUE){
+
   plotPoolProportions(
-    simCBMdbReadSummary(
-      simCBM, "poolTypes", by = "year",
-      years = years, useCache = useCache)
+    spadesCBMdbReadSummary(
+      spadesCBMdb, "poolTypes", units = "t/ha", by = "year",
+      years = years,
+      useCache = useCache)
   )
 }
+
+
+

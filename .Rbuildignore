@@ -1,6 +1,8 @@
 ^\.github$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.positai$
+^\.claude$
 ^codecov\.yml$
 ^man-roxygen$
 ^README\.md$

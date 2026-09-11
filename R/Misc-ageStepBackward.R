@@ -1,4 +1,6 @@
-utils::globalVariables(c("x", "y", "z"))
+utils::globalVariables(c(
+  "rep", "inp", "ch"
+))
 
 #' Age Step Backwards
 #'
@@ -201,8 +203,6 @@ idw_replace <- function(
   }
 
   if (verbose) message("idw_replace: Reading inputs")
-
-  rep <- inp <- ch <- NULL
 
   cxyz[, rep := c %in% cells]
   cxyz[, inp := !rep & !z %in% ignore]

@@ -10,29 +10,29 @@ sppMatch(
   otherNames = NULL,
   return = NULL,
   checkNA = !is.null(return),
-  sppEquivalencies = NULL
+  sppEquiv = NULL
 )
 }
 \arguments{
 \item{species}{Species identifiers.}
 
-\item{match}{character. \code{sppEquivalencies} column(s) to match \code{species} with.}
+\item{match}{character. \code{sppEquiv} column(s) to match \code{species} with.}
 
 \item{otherNames}{list. A list of alternative species identified to allow in matching.
 Item names must match \code{species} and item contents must be vectors of additional allowable matches.}
 
-\item{return}{character. \code{sppEquivalencies} columns to return.
+\item{return}{character. \code{sppEquiv} columns to return.
 All columns will be returned by default.}
 
 \item{checkNA}{logical. Check for NA values in the returned columns.
 Defaults to TRUE if the \code{return} argument is used; otherwise FALSE.}
 
-\item{sppEquivalencies}{data.table. Table of species identifiers and metadata.
+\item{sppEquiv}{data.table. Table of species identifiers and metadata.
 Defaults to \code{LandR::sppEquivalencies_CA}.}
 }
 \value{
 data.table. Subset of \code{sppEquivalencies} with 1 row per species.
 }
 \description{
-Retrieve species metadata by matching species names or other identifiers with columns in \code{sppEquivalencies}.
+Retrieve species metadata by matching species names or other identifiers with columns in \code{sppEquiv}.
 }

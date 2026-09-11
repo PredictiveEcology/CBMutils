@@ -6,19 +6,20 @@
 \usage{
 calcRootC(
   aboveGroundC,
-  sw_hw,
   a_sw = 0.222,
   b_sw = 1,
   a_hw = 1.576,
   b_hw = 0.615,
   a_frp = 0.072,
-  b_frp = 0.354
+  b_frp = 0.354,
+  c_frp = -0.060212,
+  biomassToCarbonRate = 0.5
 )
 }
 \arguments{
-\item{aboveGroundC}{data.table with mass of carbon (tonnes/ha) in the Merch, Foliage and Other pools}
-
-\item{sw_hw}{a boolean vector indicating if the cohort is softwood (0) or hardwood (1)}
+\item{aboveGroundC}{data.table of above ground biomass with the mass of carbon (tonnes/ha) in each pool.
+Columns can either be \code{sw} (Softwood = TRUE, hardwood = FALSE), \code{Merch}, \code{Foliage} and \code{Other},
+or \code{SoftwoodMerch}, \code{HardwoodMerch}, \code{SoftwoodFoliage}, \code{HardwoodFoliage}, \code{SoftwoodOther}, and \code{HardwoodOther}.}
 
 \item{a_sw}{"a" value for softwood root biomass}
 
@@ -31,6 +32,10 @@ calcRootC(
 \item{a_frp}{"a" value for fine root proportion}
 
 \item{b_frp}{"b" value for fine root proportion}
+
+\item{c_frp}{"c" value for fine root proportion}
+
+\item{biomassToCarbonRate}{Conversion factor of biomass to carbon}
 }
 \value{
 data.table with mass of carbon (tonnes/ha) in coarseRoots and fineRoots pools.

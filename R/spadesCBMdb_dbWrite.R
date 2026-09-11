@@ -10,9 +10,7 @@
 #' @export
 simCBMdbWrite <- function(simCBM, year, parameters = TRUE, state = TRUE, flux = TRUE, pools = TRUE){
 
-  if (missing(year)){
-    year <- SpaDES.core::convertTimeunit(SpaDES.core::times(simCBM)$current, "year")
-  }
+  if (missing(year)) year <- simYears(simCBM)$current
 
   spadesCBMdbWrite(
     simCBM$spadesCBMdb,
