@@ -3,6 +3,8 @@ if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
 test_that("ageStepBackward: without disturbances", {
 
+  skip_if_not_installed("FNN")
+
   ageRastTemplate <- terra::rast(
     crs  = "local",
     ext  = c(xmin = -681090, xmax = -681000, ymin = 711900, ymax = 711990),
@@ -45,6 +47,8 @@ test_that("ageStepBackward: without disturbances", {
 })
 
 test_that("ageStepBackward: with disturbances", {
+
+  skip_if_not_installed("FNN")
 
   ageRastTemplate <- terra::rast(
     crs  = "local",
