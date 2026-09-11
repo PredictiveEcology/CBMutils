@@ -10,6 +10,8 @@ if (!file.exists(spadesCBMdb)){
 
 test_that("spadesCBMdbWrite", {
 
+  skip_if_not_installed("qs2")
+
   spadesCBMdbTemp <- file.path(testDirs$temp$outputs, "spadesCBMdb", "spadesCBMdbWrite")
 
   spadesCBMdbWrite(
@@ -28,6 +30,8 @@ test_that("spadesCBMdbWrite", {
 })
 
 test_that("simCBMdbWrite", {
+
+  skip_if_not_installed("qs2")
 
   spadesCBMdbTemp <- file.path(testDirs$temp$outputs, "spadesCBMdb", "simCBMdbWrite")
 
@@ -50,6 +54,8 @@ test_that("simCBMdbWrite", {
 })
 
 test_that("spadesCBMdbReadRaw", {
+
+  skip_if_not_installed("qs2")
 
   key2011 <- spadesCBMdbReadRaw(
     spadesCBMdb,
@@ -82,6 +88,8 @@ test_that("spadesCBMdbReadRaw", {
 })
 
 test_that("simCBMdbReadRaw", {
+
+  skip_if_not_installed("qs2")
 
   simCBM <- list(
     spadesCBMdb = spadesCBMdb
@@ -119,6 +127,8 @@ test_that("simCBMdbReadRaw", {
 
 test_that("spadesCBMdbReadTable", {
 
+  skip_if_not_installed("qs2")
+
   pools1985 <- spadesCBMdbReadTable(
     spadesCBMdb,
     year  = 1985,
@@ -152,6 +162,8 @@ test_that("spadesCBMdbReadTable", {
 })
 
 test_that("simCBMdbReadTable", {
+
+  skip_if_not_installed("qs2")
 
   simCBM <- list(
     spadesCBMdb = spadesCBMdb
@@ -190,6 +202,8 @@ test_that("simCBMdbReadTable", {
 })
 
 test_that("spadesCBMdbReadSummary", {
+
+  skip_if_not_installed("qs2")
 
   # By pixel: units t
   pools1985 <- spadesCBMdbReadSummary(
@@ -257,6 +271,8 @@ test_that("spadesCBMdbReadSummary", {
 })
 
 test_that("simCBMdbReadSummary", {
+
+  skip_if_not_installed("qs2")
 
   simCBM <- list(
     spadesCBMdb = spadesCBMdb
