@@ -10,6 +10,8 @@ if (viewResults){
 
 test_that("Function: extractToRast: raster upsampling", {
 
+  skip_if_not_installed("exactextractr")
+
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
   templateRast <- terra::rast(
@@ -39,6 +41,8 @@ test_that("Function: extractToRast: raster upsampling", {
 
 test_that("Function: extractToRast: raster upsampling with categories", {
 
+  skip_if_not_installed("exactextractr")
+
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
   templateRast <- terra::rast(
@@ -63,6 +67,8 @@ test_that("Function: extractToRast: raster upsampling with categories", {
 
 test_that("Function: extractToRast: raster downsampling", {
 
+  skip_if_not_installed("exactextractr")
+
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "SaskDist_1987_crop.tif"))
 
   templateRast <- terra::rast(
@@ -85,6 +91,8 @@ test_that("Function: extractToRast: raster downsampling", {
 
 test_that("Function: extractToRast: raster disaggregation", {
 
+  skip_if_not_installed("exactextractr")
+
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "tile1.tif"))
 
   templateRast <- terra::rast(
@@ -106,6 +114,8 @@ test_that("Function: extractToRast: raster disaggregation", {
 })
 
 test_that("Function: extractToRast: raster reprojecting", {
+
+  skip_if_not_installed("exactextractr")
 
   input <- terra::rast(file.path(testDirs$testdata, "extractToRast", "tile1.tif"))
 
@@ -130,6 +140,8 @@ test_that("Function: extractToRast: raster reprojecting", {
 
 test_that("Function: extractToRast: TIF file", {
 
+  skip_if_not_installed("exactextractr")
+
   input <- file.path(testDirs$testdata, "extractToRast", "tile1.tif")
 
   templateRast <- terra::rast(
@@ -152,6 +164,8 @@ test_that("Function: extractToRast: TIF file", {
 
 test_that("Function: extractToRast: TIF tiles", {
 
+  skip_if_not_installed("exactextractr")
+
   input <- file.path(testDirs$testdata, "extractToRast", c("tile1.tif", "tile2.tif"))
 
   templateRast <- terra::rast(
@@ -173,6 +187,8 @@ test_that("Function: extractToRast: TIF tiles", {
 })
 
 test_that("Function: extractToRast: coverage with NAs", {
+
+  skip_if_not_installed("exactextractr")
 
   # Test: without reprojection
   inputTemplate <- terra::rast(
@@ -254,6 +270,8 @@ test_that("Function: extractToRast: coverage with NAs", {
 
 test_that("Function: extractToRast: sf polygons with numeric field", {
 
+  skip_if_not_installed("exactextractr")
+
   input <- sf::st_read(
     file.path(testDirs$testdata, "extractToRast", "spuLocator.shp"), agr = "constant",
     quiet = TRUE)[, "id"]
@@ -280,6 +298,8 @@ test_that("Function: extractToRast: sf polygons with numeric field", {
 })
 
 test_that("Function: extractToRast: sf polygons with non-unique values", {
+
+  skip_if_not_installed("exactextractr")
 
   ## Check that the value assigned matches the value covering the greatest total area,
   ## not the value from individual polygon covering the greatest area.
@@ -313,6 +333,8 @@ test_that("Function: extractToRast: sf polygons with non-unique values", {
 
 test_that("Function: extractToRast: sf polygons with numeric field: reproject", {
 
+  skip_if_not_installed("exactextractr")
+
   input <- sf::st_read(
     file.path(testDirs$testdata, "extractToRast", "spuLocator.shp"), agr = "constant",
     quiet = TRUE)[, "id"]
@@ -340,6 +362,8 @@ test_that("Function: extractToRast: sf polygons with numeric field: reproject", 
 })
 
 test_that("Function: extractToRast: sf polygons with text field: reproject", {
+
+  skip_if_not_installed("exactextractr")
 
   input <- sf::st_read(
     file.path(testDirs$testdata, "extractToRast", "spuLocator.shp"), agr = "constant",
