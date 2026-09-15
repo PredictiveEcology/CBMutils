@@ -5,7 +5,7 @@
 \title{Convert total above ground biomass into 3 pools (\eqn{T/ha}).}
 \usage{
 cumPoolsCreateAGB(
-  allInfoAGBin,
+  AGB,
   pixGroupCol,
   tableMerch,
   bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
@@ -14,11 +14,10 @@ cumPoolsCreateAGB(
 )
 }
 \arguments{
-\item{allInfoAGBin}{\code{data.frame} with at least six following columns: \code{canfi_species},
-\code{speciesCode}, \code{ecozone}, \code{juris_id}, \code{age}, \code{B} and a column for pixel group identifier.}
+\item{AGB}{\code{data.frame} with the following columns:
+\code{juris_id}, \code{ecozone}, \code{canfi_species}, \code{age}, \code{B} and a column for pixel group identifier.}
 
-\item{pixGroupCol}{the name of the column in \code{allInfoAGBin} serving as the pixel group
-identifier.}
+\item{pixGroupCol}{the name of the column in \code{AGB} serving as the pixel group identifier.}
 
 \item{tableMerch}{data.table with one row per \code{b_nm}.
 Parameters to estimate the proportion of stemwood biomass that is merchantable
@@ -42,7 +41,8 @@ Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_tabl
 \item{bRateBiomassToCarbon}{numeric. Conversion factor of biomass to carbon.}
 }
 \value{
-biomass (\eqn{T/ha}) in each above ground pool for each cohort per pixel group.
+\code{AGB} table updated by reference with additional columns
+\code{merch}, \code{foliage}, and \code{other} with biomass (\eqn{T/ha}) in each above ground pool.
 }
 \description{
 Implements the flowchart from figure 3 of Boudewyn et al. (2007) using an alternative

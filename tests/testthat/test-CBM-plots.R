@@ -10,6 +10,8 @@ masterRaster <- terra::rast(
 
 test_that("plotEmissionsProducts", {
 
+  skip_if_not_installed("qs2")
+
   emissionsProducts <- qs2::qd_read(file.path(testDirs$testdata, "CBM_core_outputs/SK/emissionsProducts.qs2"))
 
   out <- plotEmissionsProducts(emissionsProducts)
@@ -17,6 +19,8 @@ test_that("plotEmissionsProducts", {
 })
 
 test_that("plotPoolProportions", {
+
+  skip_if_not_installed("qs2")
 
   pools <- rbind(
     cbind(year = 1985, merge(
@@ -43,6 +47,8 @@ test_that("plotPoolProportions", {
 })
 
 test_that("mapTotalCarbon", {
+
+  skip_if_not_installed("qs2")
 
   pools1985 <- merge(
     qs2::qd_read(file.path(spadesCBMdb, "data", "1985_key.qs2")),
@@ -72,6 +78,8 @@ test_that("mapTotalCarbon", {
 
 test_that("mapNPP", {
 
+  skip_if_not_installed("qs2")
+
   flux1985 <- merge(
     qs2::qd_read(file.path(spadesCBMdb, "data", "1985_key.qs2")),
     qs2::qd_read(file.path(spadesCBMdb, "data", "1985_flux.qs2")),
@@ -99,6 +107,8 @@ test_that("mapNPP", {
 })
 
 test_that("cTransfersAlluvial", {
+
+  skip_if_not_installed("qs2")
 
   cTransfers <- qs2::qd_read(file.path(testDirs$testdata, "cTransfers_SPU-27-28_wildfire.qs2"))
 

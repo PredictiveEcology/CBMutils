@@ -3,6 +3,8 @@ if (!testthat::is_testing()) source(testthat::test_path("setup.R"))
 
 test_that("CBMsourcePrepInputs", {
 
+  skip_if_not_installed("reproducible")
+
   inputPath <- file.path(testDirs$temp$outputs, "CBMsourcePrepInputs")
 
   srcCBM <- CBMsourcePrepInputs("CanSIS-ecozone", inputPath = inputPath)
@@ -19,6 +21,8 @@ test_that("CBMsourcePrepInputs", {
 })
 
 test_that("CBMsourceExtractToRast", {
+
+  skip_if_not_installed("reproducible")
 
   inputPath <- file.path(testDirs$temp$outputs, "CBMsourcePrepInputs")
 

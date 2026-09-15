@@ -18,8 +18,8 @@ Authors@R: c(
 License: GPL-3
 Depends: R (>= 4.2)
 Imports:
+    cli,
     cowplot,
-    crayon,
     data.table,
     dplyr,
     ggalluvial,

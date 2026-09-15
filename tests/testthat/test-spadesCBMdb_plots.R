@@ -20,17 +20,23 @@ simCBM <- list(
 
 test_that("spadesCBMdbPlotEmissionsProducts", {
 
+  skip_if_not_installed("qs2")
+
   out <- spadesCBMdbPlotEmissionsProducts(spadesCBMdb, years = 1985)
   expect_is(out, "ggplot")
 })
 
 test_that("simPlotEmissionsProducts", {
 
+  skip_if_not_installed("qs2")
+
   out <- simPlotEmissionsProducts(simCBM, years = 1985)
   expect_is(out, "ggplot")
 })
 
 test_that("spadesCBMdbPlotPoolProportions", {
+
+  skip_if_not_installed("qs2")
 
   out <- spadesCBMdbPlotPoolProportions(spadesCBMdb, years = c(1985, 2011))
 
@@ -47,6 +53,8 @@ test_that("spadesCBMdbPlotPoolProportions", {
 
 test_that("simPlotPoolProportions", {
 
+  skip_if_not_installed("qs2")
+
   out <- simPlotPoolProportions(simCBM, years = c(1985, 2011))
 
   expect_is(out, "ggplot")
@@ -62,6 +70,8 @@ test_that("simPlotPoolProportions", {
 
 test_that("spadesCBMdbMapTotalCarbon", {
 
+  skip_if_not_installed("qs2")
+
   out <- spadesCBMdbMapTotalCarbon(spadesCBMdb, masterRaster = masterRaster, year = 1985, useCache = FALSE)
   expect_is(out, "ggplot")
   expect_match(out$labels$title, "Total Carbon in 1985", fixed = TRUE)
@@ -71,6 +81,8 @@ test_that("spadesCBMdbMapTotalCarbon", {
 })
 
 test_that("simMapTotalCarbon", {
+
+  skip_if_not_installed("qs2")
 
   out <- simMapTotalCarbon(simCBM, year = 1985, useCache = FALSE)
   expect_is(out, "ggplot")
@@ -82,6 +94,8 @@ test_that("simMapTotalCarbon", {
 
 test_that("spadesCBMdbMapNPP", {
 
+  skip_if_not_installed("qs2")
+
   out <- spadesCBMdbMapNPP(spadesCBMdb, masterRaster = masterRaster, year = 1985, useCache = FALSE)
   expect_is(out, "ggplot")
   expect_match(out$labels$title, "Net Primary Productivity (NPP) in 1985", fixed = TRUE)
@@ -92,6 +106,8 @@ test_that("spadesCBMdbMapNPP", {
 })
 
 test_that("simMapNPP", {
+
+  skip_if_not_installed("qs2")
 
   out <- simMapNPP(simCBM, year = 1985, useCache = FALSE)
   expect_is(out, "ggplot")

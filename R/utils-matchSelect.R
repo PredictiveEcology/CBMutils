@@ -24,7 +24,7 @@
 #'
 #' @rdname matchSelect
 #' @keywords internal
-#' @importFrom crayon yellow
+#' @importFrom cli col_yellow
 #' @importFrom knitr kable
 .matchSelect <- function(inputs, choices, allowNA = FALSE, allowMulti = FALSE,
                          identical = TRUE, nearMatches = NULL,
@@ -118,7 +118,7 @@
           "MATCH OPTIONS:",
           knitr::kable(chPrint, format = "simple"),
           "",
-          crayon::yellow(paste0(
+          col_yellow(paste0(
             "Enter the row ID of the correct match",
             if (!is.null(choiceTableExtra)){
               " or \"more\" to view more information about the choices"
@@ -137,7 +137,7 @@
             "MATCH OPTIONS:",
             knitr::kable(cbind(chPrint, choiceTableExtra[chMatch,]), format = "simple"),
             "",
-            crayon::yellow("Enter the row ID of the correct match: ")
+            col_yellow("Enter the row ID of the correct match: ")
           ), collapse = "\n")))
         }
         cat("\n")

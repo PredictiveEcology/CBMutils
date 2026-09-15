@@ -61,11 +61,11 @@ importFrom(RSQLite,
   dbListTables,
   dbReadTable
 )
-importFrom(cowplot,plot_grid)
-importFrom(crayon,
-  red,
-  yellow
+importFrom(cli,
+  col_red,
+  col_yellow
 )
+importFrom(cowplot,plot_grid)
 importFrom(data.table,
   as.data.table,
   copy,

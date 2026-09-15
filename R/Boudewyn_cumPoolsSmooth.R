@@ -14,14 +14,15 @@ utils::globalVariables(c(
 #'
 #' @author Celine Boisvenue and Eliot McIntire
 #' @export
-#' @importFrom crayon red
+#' @importFrom cli col_red
 #' @importFrom data.table copy
 #' @importFrom robustbase nlrob
 #' @importFrom stats approx as.formula na.omit predict runif
 #' @importFrom utils tail
 cumPoolsSmooth <- function(cumPoolsRaw, colsToUse = c("totMerch", "fol", "other"),
-                           colsToUseNew = paste0(colsToUse, "_New"))  {
-  message(crayon::red(
+                           colsToUseNew = paste0(colsToUse, "_New")){
+
+  message(col_red(
     "The translation of m3/ha using the Boudewyn et al. stand level translation, ",
     "often results in some curves having peaks and/or swiggles. ",
     "We have built-in an automatic smoothing algorithm that uses a Chapman-Richards ",
@@ -30,6 +31,7 @@ cumPoolsSmooth <- function(cumPoolsRaw, colsToUse = c("totMerch", "fol", "other"
     " the original curve is used. It is the users' responsibility to inspect curves. ",
     "This process is highly likely to require user intervention."
   ))
+
   cpr <- cumPoolsRaw # no copy -- just convenience
   cpr[, (colsToUse) := lapply(.SD, as.numeric), .SDcols = colsToUse]
 
