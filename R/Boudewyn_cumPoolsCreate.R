@@ -1,23 +1,35 @@
+
 #' Create `cumPools` data.table
 #'
 #' @param fullSpecies Study area species' names
 #' @param gcMeta Growth curve metadata table
 #' @param userGcM3 Table of growth curve volume by age
-#' @param stable3 Boudewyn et al. 2007 stem wood biomass model parameters table for merchantable-sized trees
-#' @param stable4 Boudewyn et al. 2007 stem wood biomass model parameters table for non-merchantable-sized trees
-#' @param stable5 Boudewyn et al. 2007 stem wood biomass model parameters table for sapling-sized trees
-#' @param stable6 Boudewyn et al. 2007 stem wood biomass model parameters table for proportion model parameters
-#' @param stable7 Boudewyn et al. 2007 stem wood biomass model parameters table for caps on proportion models
 #' @param thisAdmin Ecozone and spatial unit information table for the study area
-#' @param biomassToCarbonRate Conversion factor of biomass to carbon
+#' @template bTable3
+#' @template bTable4
+#' @template bTable5
+#' @template bTable6
+#' @template bTable7
+#' @template bRateBiomassToCarbon
 #'
 #' @return `cumPools` data.table
 #'
 #' @export
 #' @importFrom data.table data.table rbindlist
-cumPoolsCreate <- function(fullSpecies, gcMeta, userGcM3,
-                           stable3, stable4, stable5, stable6, stable7, thisAdmin,
-                           biomassToCarbonRate = 0.5){
+cumPoolsCreate <- function(fullSpecies, gcMeta, userGcM3, thisAdmin,
+                           bTable3 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv",
+                           bTable4 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv",
+                           bTable5 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table5.csv",
+                           bTable6 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv",
+                           bTable7 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv",
+                           bRateBiomassToCarbon = 0.5){
+
+  # Read Boudewyn parameters
+  if (!is.data.table(bTable3)) bTable3 <- ifelse(is.data.frame(bTable3), as.data.table(bTable3), fread(bTable3))
+  if (!is.data.table(bTable4)) bTable4 <- ifelse(is.data.frame(bTable4), as.data.table(bTable4), fread(bTable4))
+  if (!is.data.table(bTable5)) bTable5 <- ifelse(is.data.frame(bTable5), as.data.table(bTable5), fread(bTable5))
+  if (!is.data.table(bTable6)) bTable6 <- ifelse(is.data.frame(bTable6), as.data.table(bTable6), fread(bTable6))
+  if (!is.data.table(bTable7)) bTable7 <- ifelse(is.data.frame(bTable7), as.data.table(bTable7), fread(bTable7))
 
   counter <- 0L
   cumBiomList <- list()
@@ -37,13 +49,19 @@ cumPoolsCreate <- function(fullSpecies, gcMeta, userGcM3,
       # series of fncts results in curves of merch, foliage and other (SW or HW)
 
       cumBiom <- as.matrix(convertM3biom(
-        meta = meta, gCvalues = userGcM3, spsMatch = gcMeta,
-        ecozones = thisAdmin, params3 = unique(stable3), params4 = unique(stable4),
-        params5 = unique(stable5), params6 = unique(stable6), params7 = unique(stable7)
+        meta     = meta,
+        gCvalues = userGcM3,
+        spsMatch = gcMeta,
+        ecozones = thisAdmin,
+        bTable3  = unique(bTable3),
+        bTable4  = unique(bTable4),
+        bTable5  = unique(bTable5),
+        bTable6  = unique(bTable6),
+        bTable7  = unique(bTable7)
       ))
 
       # going from tonnes of biomass/ha to tonnes of carbon/ha here
-      cumBiom <- cumBiom * biomassToCarbonRate
+      cumBiom <- cumBiom * bRateBiomassToCarbon
       # calculating the increments per year for each of the three pools (merch,
       # foliage and other (SW or HW))
       # inc <- diff(cumBiom)

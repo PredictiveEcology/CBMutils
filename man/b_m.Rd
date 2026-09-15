@@ -4,13 +4,16 @@
 \alias{b_m}
 \title{Calculate stemwood biomass (per ha) of live merchantable trees}
 \usage{
-b_m(table3, vol)
+b_m(
+  vol,
+  bTable3 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv"
+)
 }
 \arguments{
-\item{table3}{\code{data.frame} corresponding to Table 3 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv}.}
-
 \item{vol}{gross merchantable volume per hectare (\eqn{m^3/ha})}
+
+\item{bTable3}{Boudewyn et al. (2007) stem wood biomass model parameters for merchantable-sized trees.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv}.}
 }
 \value{
 stemwood biomass of merchantable trees (\eqn{b_m} in units \eqn{T/ha})
@@ -18,7 +21,7 @@ stemwood biomass of merchantable trees (\eqn{b_m} in units \eqn{T/ha})
 \description{
 Implements equation 1 of Boudewyn et al. (2007) to determines the total stemwood biomass of
 merchantable trees (in metric tonnes per hectare; \eqn{T/ha}),
-using parameters \eqn{a} and \eqn{b} from Table 3 (\code{table3}).
+using parameters \eqn{a} and \eqn{b} from Table 3.
 }
 \references{
 Boudewyn, P., Song, X., Magnussen, S., & Gillis, M. D. (2007). Model-based, volume-to-biomass

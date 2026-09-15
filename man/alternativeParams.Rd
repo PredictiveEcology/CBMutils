@@ -16,7 +16,7 @@ parameters.}
 }
 \value{
 A single \code{data.table} containing a row for each curve with all required
-parameters from both \code{table6}, \code{table7}, and \code{tableMerchantability}.
+parameters from \code{bTable6tb}, \code{bTable7tb}, and \code{tableMerch}.
 }
 \description{
 When there is no match for the given ecozone, the parameters for a different
