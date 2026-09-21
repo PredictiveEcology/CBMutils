@@ -4,24 +4,38 @@
 \alias{getParameters}
 \title{Extract the parameters to apply to convert total biomass into pool biomass.}
 \usage{
-getParameters(table6, table7, tableMerchantability, curves)
+getParameters(
+  curves,
+  tableMerch,
+  bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
+  bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv"
+)
 }
 \arguments{
-\item{table6}{\code{data.frame} corresponding to Table 3 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv}.}
-
-\item{table7}{\code{data.frame} corresponding to Table 4 from Boudewyn et al. (2007),
-available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
-
-\item{tableMerchantability}{\code{data.frame} Parameters to estimate the proportion
-of stemwood that is merchantable, approximates the relationship between stemwood
-biomass and nonmerchfactor predicted by equation 2 of Boudewyn et al., 2007.}
-
 \item{curves}{A \code{data.table} with unique combinations of \code{canfi_species}, \code{ecozone}, \code{juris_id}.}
+
+\item{tableMerch}{data.table with one row per \code{b_nm}.
+Parameters to estimate the proportion of stemwood biomass that is merchantable
+where \code{b_m/b_nm = k - exp(-a * (b_nm - b))}
+when \code{b_nm} is the total stemwood biomass and \code{b_m} is the total merchantable stemwood biomass.
+Available from \url{https://drive.google.com/file/d/1wa2QMd7Eo-bPpfigchdpPPPxo7NVpPiC}.
+Parameters were estimated by approximating the relationship between stemwood biomass and
+nonmerchfactor predicted by equation 2 of Boudewyn et al. (2007).}
+
+\item{bTable6tb}{Boudewyn et al. (2007) an alternative set of proportion model parameters
+to use when total biomass per hectare in tonnes (tb = stem wood + stem bark + branches + foliage)
+is the independent variable instead of gross merchantable volume per hectare.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv}.}
+
+\item{bTable7tb}{Boudewyn et al. (2007) an alternative set of caps on proportion models
+to use in conjunction with the alternative set of proportion models
+when total biomass per hectare in tonnes (tb = stem wood + stem bark + branches + foliage)
+is the independent variable instead of gross merchantable volume per hectare.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
 }
 \value{
 A single \code{data.table} containing a row for each curve with all required
-parameters from both \code{table6}, \code{table7}, and \code{tableMerchantability}.
+parameters from \code{bTable6tb}, \code{bTable7tb}, and \code{tableMerch}.
 }
 \description{
 Extract the species- and location- specific parameters for equation 4-7 of

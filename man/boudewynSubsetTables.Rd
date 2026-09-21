@@ -4,10 +4,10 @@
 \alias{boudewynSubsetTables}
 \title{Subset Boudewyn tables to fit study area}
 \usage{
-boudewynSubsetTables(table, thisAdmin)
+boudewynSubsetTables(bTable, thisAdmin)
 }
 \arguments{
-\item{table}{Boudewyn table to subset}
+\item{bTable}{Boudewyn table to subset}
 
 \item{thisAdmin}{Table defining study area with columns
 \code{juris_id}: jurisdiction abbreviation(s); and

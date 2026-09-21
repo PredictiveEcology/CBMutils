@@ -16,8 +16,8 @@ four-column matrix will columns corresponding to \eqn{p_{stemwood}}, \eqn{p_{bar
 }
 \description{
 Implements equations 4-7 of Boudewyn et al. (2007) adapted for biomass input
-using parameters \eqn{a}, \eqn{b}, and \eqn{c }from Table 6 (\code{table6}) and
-biomass-proportion caps from Table 7 (\code{table7}).
+using parameters \eqn{a}, \eqn{b}, and \eqn{c} from Table 6 (\code{bTable6tb}) and
+biomass-proportion caps from Table 7 (\code{bTable7tb}).
 }
 \references{
 Boudewyn, P., Song, X., Magnussen, S., & Gillis, M. D. (2007). Model-based, volume-to-biomass

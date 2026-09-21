@@ -40,11 +40,11 @@ for (i in 1:nrow(spatial_units)){
       ecozone  = spatial_units[i,]$eco_boundary_id
     )
 
-    expect_is(boudewynSubsetTables(table = bParams$table3, thisAdmin = thisAdmin), "data.table")
-    expect_is(boudewynSubsetTables(table = bParams$table4, thisAdmin = thisAdmin), "data.table")
-    expect_is(boudewynSubsetTables(table = bParams$table5, thisAdmin = thisAdmin), "data.table")
-    expect_is(boudewynSubsetTables(table = bParams$table6, thisAdmin = thisAdmin), "data.table")
-    expect_is(boudewynSubsetTables(table = bParams$table7, thisAdmin = thisAdmin), "data.table")
+    expect_is(boudewynSubsetTables(bParams$table3, thisAdmin = thisAdmin), "data.table")
+    expect_is(boudewynSubsetTables(bParams$table4, thisAdmin = thisAdmin), "data.table")
+    expect_is(boudewynSubsetTables(bParams$table5, thisAdmin = thisAdmin), "data.table")
+    expect_is(boudewynSubsetTables(bParams$table6, thisAdmin = thisAdmin), "data.table")
+    expect_is(boudewynSubsetTables(bParams$table7, thisAdmin = thisAdmin), "data.table")
   })
 }
 

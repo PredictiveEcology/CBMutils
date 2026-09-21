@@ -18,7 +18,7 @@ utils::globalVariables(c(
 #' @param a_frp "a" value for fine root proportion
 #' @param b_frp "b" value for fine root proportion
 #' @param c_frp "c" value for fine root proportion
-#' @param biomassToCarbonRate Conversion factor of biomass to carbon
+#' @template bRateBiomassToCarbon
 #'
 #' @references
 #' Li, Z., Kurz, W. A., Apps, M. J., & Beukema, S. J. (2003). Belowground biomass
@@ -33,7 +33,7 @@ calcRootC <- function(aboveGroundC,
                       a_sw = 0.222, b_sw = 1,
                       a_hw = 1.576, b_hw = 0.615,
                       a_frp = 0.072, b_frp = 0.354, c_frp = -0.060212,
-                      biomassToCarbonRate = 0.5){
+                      bRateBiomassToCarbon = 0.5){
 
   # Choose column set
   AGcols <- list(
@@ -69,8 +69,8 @@ calcRootC <- function(aboveGroundC,
   }
 
   # Convert Mg/ha of Carbon to Mg/ha of biomass
-  aboveGroundC[, SoftwoodAGB := SoftwoodAG / biomassToCarbonRate]
-  aboveGroundC[, HardwoodAGB := HardwoodAG / biomassToCarbonRate]
+  aboveGroundC[, SoftwoodAGB := SoftwoodAG / bRateBiomassToCarbon]
+  aboveGroundC[, HardwoodAGB := HardwoodAG / bRateBiomassToCarbon]
 
   # Calculate root total biomass
   aboveGroundC[, SoftwoodRootB := a_sw * SoftwoodAGB^b_sw]
@@ -81,10 +81,10 @@ calcRootC <- function(aboveGroundC,
   aboveGroundC[, HardwoodRootProp := a_frp + b_frp * exp(c_frp * HardwoodRootB)]
 
   # Calculate tonnes/ha of carbon
-  aboveGroundC[, SoftwoodCoarseRoots := biomassToCarbonRate * SoftwoodRootB * (1 - SoftwoodRootProp)]
-  aboveGroundC[, SoftwoodFineRoots   := biomassToCarbonRate * SoftwoodRootB * SoftwoodRootProp]
-  aboveGroundC[, HardwoodCoarseRoots := biomassToCarbonRate * HardwoodRootB * (1 - HardwoodRootProp)]
-  aboveGroundC[, HardwoodFineRoots   := biomassToCarbonRate * HardwoodRootB * HardwoodRootProp]
+  aboveGroundC[, SoftwoodCoarseRoots := bRateBiomassToCarbon * SoftwoodRootB * (1 - SoftwoodRootProp)]
+  aboveGroundC[, SoftwoodFineRoots   := bRateBiomassToCarbon * SoftwoodRootB * SoftwoodRootProp]
+  aboveGroundC[, HardwoodCoarseRoots := bRateBiomassToCarbon * HardwoodRootB * (1 - HardwoodRootProp)]
+  aboveGroundC[, HardwoodFineRoots   := bRateBiomassToCarbon * HardwoodRootB * HardwoodRootProp]
 
   return(aboveGroundC[, .(SoftwoodCoarseRoots, HardwoodCoarseRoots, SoftwoodFineRoots, HardwoodFineRoots)])
 }

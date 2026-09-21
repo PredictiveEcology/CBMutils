@@ -17,7 +17,7 @@ bParams <- lapply(
     table6tb = "appendix2_table6_tb.csv",
     table7   = "appendix2_table7.csv",
     table7tb = "appendix2_table7_tb.csv"
-    #table14  = "appendix2_table14.csv"
+    #table14  = "appendix6_table14.csv"
   ),
   function(f) data.table::fread(file.path("https://nfi.nfis.org/resources/biomass_models", f))
 )

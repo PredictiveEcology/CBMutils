@@ -2,20 +2,26 @@
 % Please edit documentation in R/Boudewyn_cumPoolsCreateAGB.R
 \name{propMerch}
 \alias{propMerch}
-\title{Calculates the proportion of total stemwood considered merchantable.}
+\title{propMerch}
 \usage{
-propMerch(totalStemWood, age, params)
+propMerch(b_nm, age, tableMerch)
 }
 \arguments{
-\item{totalStemWood}{\code{numeric} Total Stemwood vector.}
+\item{b_nm}{numeric. Vector of total stemwood biomass in live trees.}
 
-\item{age}{\code{numeric} Age of the cohort.}
+\item{age}{numeric. Vector of cohort ages.}
 
-\item{params}{\code{data.table} Parameters to calculate propotion of merchantable stemwood.}
+\item{tableMerch}{data.table with one row per \code{b_nm}.
+Parameters to estimate the proportion of stemwood biomass that is merchantable
+where \code{b_m/b_nm = k - exp(-a * (b_nm - b))}
+when \code{b_nm} is the total stemwood biomass and \code{b_m} is the total merchantable stemwood biomass.
+Available from \url{https://drive.google.com/file/d/1wa2QMd7Eo-bPpfigchdpPPPxo7NVpPiC}.
+Parameters were estimated by approximating the relationship between stemwood biomass and
+nonmerchfactor predicted by equation 2 of Boudewyn et al. (2007).}
 }
 \value{
 \code{numeric} Vector of the proportion of stemwood that is merchantable.
 }
 \description{
-Calculates the proportion of total stemwood considered merchantable.
+Calculate the proportion of total stemwood considered merchantable.
 }
