@@ -60,10 +60,13 @@ cumPoolsCreateAGB <- function(AGB, pixGroupCol,
   # 3. Set pools to 0 where total biomass is 0
   AGB[B == 0, c("merch", "foliage", "other") := 0]
 
+  if (nrow(AGB[B != 0 & age == 0]) > 0) stop(
+    "Cannot convert biomass to 'merch', 'foliage', and 'other' pools where age == 0 and biomass > 0")
+
   # 4. Split biomass into pools
   # IMPORTANT: BOURDEWYN PARAMETERS FOR NOT HANDLE AGE 0
   # It returns a data.table with merch, foliage, and other biomass pools
-  AGB[B != 0 & age > 0, c("merch", "foliage", "other") := convertAGB2pools(AGB[age > 0 & B != 0], allParams)]
+  AGB[B != 0, c("merch", "foliage", "other") := convertAGB2pools(AGB[B != 0], allParams)]
 
   if (anyNA(AGB$merch)) stop("Conversion of biomass to 'merch', 'foliage', and 'other' pools failed")
 
