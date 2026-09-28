@@ -24,11 +24,13 @@ utils::globalVariables(c(
 #'
 #' @importFrom data.table as.data.table fread is.data.table
 #' @export
-b_m <- function(vol,
-                bTable3 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv"){
+b_m <- function(vol, bTable3){
 
   # Read Boudewyn parameters
-  if (!is.data.table(bTable3)) bTable3 <- if (is.data.frame(bTable3)) as.data.table(bTable3) else fread(bTable3)
+  colExpect <- c("a", "b", "volm")
+  if (!all(colExpect %in% names(bTable3))) stop(
+    "bTable3 must have columns: ", paste(shQuote(colExpect), collapse = ", "))
+  if (!isTRUE(nrow(bTable3) == 1)) stop("bTable3 must be single row of parameters")
 
   # flag if vol in growth curve is above the max vol the model was developed on
   if (!is.na(unique(bTable3$volm))) {
@@ -62,11 +64,13 @@ b_m <- function(vol,
 #'
 #' @importFrom data.table as.data.table fread is.data.table
 #' @export
-nmfac <- function(eq1, vol,
-                  bTable4 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv") {
+nmfac <- function(eq1, vol, bTable4) {
 
   # Read Boudewyn parameters
-  if (!is.data.table(bTable4)) bTable4 <- if (is.data.frame(bTable4)) as.data.table(bTable4) else fread(bTable4)
+  colExpect <- c("a", "b", "k", "cap", "volm")
+  if (!all(colExpect %in% names(bTable4))) stop(
+    "bTable4 must have columns: ", paste(shQuote(colExpect), collapse = ", "))
+  if (!isTRUE(nrow(bTable4) == 1)) stop("bTable4 must be single row of parameters")
 
   # flag if vol in growth curve is above the max vol the model was developed on
   if (!is.na(unique(bTable4$volm))) {
@@ -105,11 +109,13 @@ nmfac <- function(eq1, vol,
 #'
 #' @importFrom data.table as.data.table fread is.data.table
 #' @export
-sapfac <- function(eq2, vol,
-                   bTable5 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table5.csv"){
+sapfac <- function(eq2, vol, bTable5){
 
   # Read Boudewyn parameters
-  if (!is.data.table(bTable5)) bTable5 <- if (is.data.frame(bTable5)) as.data.table(bTable5) else fread(bTable5)
+  colExpect <- c("a", "b", "k", "cap", "volm")
+  if (!all(colExpect %in% names(bTable5))) stop(
+    "bTable5 must have columns: ", paste(shQuote(colExpect), collapse = ", "))
+  if (!isTRUE(nrow(bTable5) == 1)) stop("bTable5 must be single row of parameters")
 
   # flag if vol in growth curve is above the max vol the model was developed on
   if (!is.na(unique(bTable5$volm))) {
@@ -146,8 +152,8 @@ sapfac <- function(eq2, vol,
 #' @param type `character` specifies if the `x` represents gross merchantable
 #' volume per hectare ("volume") or total biomass ("biomass").
 #' @template bTable6
-#' @template bTable6tb
 #' @template bTable7
+#' @template bTable6tb
 #' @template bTable7tb
 #'
 #' @return four-column matrix will columns corresponding to \eqn{p_{stemwood}}, \eqn{p_{bark}},
@@ -155,20 +161,20 @@ sapfac <- function(eq2, vol,
 #'
 #' @importFrom data.table as.data.table fread is.data.table
 #' @export
-biomProp <- function(x, type = "volume",
-                     bTable6   = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv",
-                     bTable7   = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv",
-                     bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
-                     bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv"){
+biomProp <- function(x, type = "volume", bTable6 = NULL, bTable7 = NULL, bTable6tb = NULL, bTable7tb = NULL){
 
   # Read Boudewyn parameters
   if (!type %in% c("volume", "biomass")) stop("The argument type in biomProp() needs to be `volume` or `biomass`")
+  if (type == "volume"){
+    if (!isTRUE(nrow(bTable6) == 1)) stop("bTable6 must be single row of parameters")
+    if (!isTRUE(nrow(bTable7) == 1)) stop("bTable7 must be single row of parameters")
+  }
   if (type == "biomass"){
+    if (!isTRUE(nrow(bTable6tb) == 1)) stop("bTable6tb must be single row of parameters")
+    if (!isTRUE(nrow(bTable7tb) == 1)) stop("bTable7tb must be single row of parameters")
     bTable6 <- bTable6tb
     bTable7 <- bTable7tb
   }
-  if (!is.data.table(bTable6)) bTable6 <- if (is.data.frame(bTable6)) as.data.table(bTable6) else fread(bTable6)
-  if (!is.data.table(bTable7)) bTable7 <- if (is.data.frame(bTable7)) as.data.table(bTable7) else fread(bTable7)
 
   if (type == "volume"){
     if(any(!(c("vol_min", "vol_max") %in% colnames(bTable7)))) {
