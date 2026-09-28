@@ -22,7 +22,7 @@ utils::globalVariables(c(
 #'
 #' @return stemwood biomass of merchantable trees (\eqn{b_m} in units \eqn{T/ha})
 #'
-#' @importFrom data.table as.data.table fread is.data.table
+#' @importFrom data.table as.data.table
 #' @export
 b_m <- function(vol, bTable3){
 
@@ -30,7 +30,8 @@ b_m <- function(vol, bTable3){
   colExpect <- c("a", "b", "volm")
   if (!all(colExpect %in% names(bTable3))) stop(
     "bTable3 must have columns: ", paste(shQuote(colExpect), collapse = ", "))
-  if (!isTRUE(nrow(bTable3) == 1)) stop("bTable3 must be single row of parameters")
+  bTable3 <- unique(as.data.table(bTable3)[, .SD, .SDcols = colExpect])
+  if (!isTRUE(nrow(bTable3) == 1)) stop("bTable3 must contain a single unique set of parameters")
 
   # flag if vol in growth curve is above the max vol the model was developed on
   if (!is.na(unique(bTable3$volm))) {
@@ -62,7 +63,7 @@ b_m <- function(vol, bTable3){
 #'
 #' @return two-column matrix with columns corresponding to \eqn{b_n} and \eqn{b_{nm}}
 #'
-#' @importFrom data.table as.data.table fread is.data.table
+#' @importFrom data.table as.data.table
 #' @export
 nmfac <- function(eq1, vol, bTable4) {
 
@@ -70,7 +71,8 @@ nmfac <- function(eq1, vol, bTable4) {
   colExpect <- c("a", "b", "k", "cap", "volm")
   if (!all(colExpect %in% names(bTable4))) stop(
     "bTable4 must have columns: ", paste(shQuote(colExpect), collapse = ", "))
-  if (!isTRUE(nrow(bTable4) == 1)) stop("bTable4 must be single row of parameters")
+  bTable4 <- unique(as.data.table(bTable4)[, .SD, .SDcols = colExpect])
+  if (!isTRUE(nrow(bTable4) == 1)) stop("bTable4 must contain a single unique set of parameters")
 
   # flag if vol in growth curve is above the max vol the model was developed on
   if (!is.na(unique(bTable4$volm))) {
@@ -107,7 +109,7 @@ nmfac <- function(eq1, vol, bTable4) {
 #'
 #' @return stemwood biomass of sapling-sized trees (\eqn{b_s} in units \eqn{T/ha})
 #'
-#' @importFrom data.table as.data.table fread is.data.table
+#' @importFrom data.table as.data.table
 #' @export
 sapfac <- function(eq2, vol, bTable5){
 
@@ -115,7 +117,8 @@ sapfac <- function(eq2, vol, bTable5){
   colExpect <- c("a", "b", "k", "cap", "volm")
   if (!all(colExpect %in% names(bTable5))) stop(
     "bTable5 must have columns: ", paste(shQuote(colExpect), collapse = ", "))
-  if (!isTRUE(nrow(bTable5) == 1)) stop("bTable5 must be single row of parameters")
+  bTable5 <- unique(as.data.table(bTable5)[, .SD, .SDcols = colExpect])
+  if (!isTRUE(nrow(bTable5) == 1)) stop("bTable5 must contain a single unique set of parameters")
 
   # flag if vol in growth curve is above the max vol the model was developed on
   if (!is.na(unique(bTable5$volm))) {
@@ -166,12 +169,12 @@ biomProp <- function(x, type = "volume", bTable6 = NULL, bTable7 = NULL, bTable6
   # Read Boudewyn parameters
   if (!type %in% c("volume", "biomass")) stop("The argument type in biomProp() needs to be `volume` or `biomass`")
   if (type == "volume"){
-    if (!isTRUE(nrow(bTable6) == 1)) stop("bTable6 must be single row of parameters")
-    if (!isTRUE(nrow(bTable7) == 1)) stop("bTable7 must be single row of parameters")
+    if (!isTRUE(nrow(bTable6) == 1)) stop("bTable6 must contain a single unique set of parameters")
+    if (!isTRUE(nrow(bTable7) == 1)) stop("bTable7 must contain a single unique set of parameters")
   }
   if (type == "biomass"){
-    if (!isTRUE(nrow(bTable6tb) == 1)) stop("bTable6tb must be single row of parameters")
-    if (!isTRUE(nrow(bTable7tb) == 1)) stop("bTable7tb must be single row of parameters")
+    if (!isTRUE(nrow(bTable6tb) == 1)) stop("bTable6tb must contain a single unique set of parameters")
+    if (!isTRUE(nrow(bTable7tb) == 1)) stop("bTable7tb must contain a single unique set of parameters")
     bTable6 <- bTable6tb
     bTable7 <- bTable7tb
   }
@@ -309,6 +312,7 @@ convertM3biom <- function(meta, gCvalues, spsMatch, ecozones,
   # Boudewyn et al. 2007 p7 (Fig3)
   # eq1 returns the total stem wood biomass in metric tonnes/ha, when you give it
   # the gross merchantable volume/ha. Parameters a and b are in bTable3
+  browser()
   eq1 <- b_m(oneCurve$MerchVolume, bTable3 = bTable3)
   # eq2 returns a two column matrix giving the biomass of the non-merch sized
   # trees (b_n) and b_nm which is the sum of the total stem wood biomass of merch size
