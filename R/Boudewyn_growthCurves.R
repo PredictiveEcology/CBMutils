@@ -28,7 +28,7 @@ b_m <- function(vol,
                 bTable3 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv"){
 
   # Read Boudewyn parameters
-  if (!is.data.table(bTable3)) bTable3 <- ifelse(is.data.frame(bTable3), as.data.table(bTable3), fread(bTable3))
+  if (!is.data.table(bTable3)) bTable3 <- if (is.data.frame(bTable3)) as.data.table(bTable3) else fread(bTable3)
 
   # flag if vol in growth curve is above the max vol the model was developed on
   if (!is.na(unique(bTable3$volm))) {
@@ -66,7 +66,7 @@ nmfac <- function(eq1, vol,
                   bTable4 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv") {
 
   # Read Boudewyn parameters
-  if (!is.data.table(bTable4)) bTable4 <- ifelse(is.data.frame(bTable4), as.data.table(bTable4), fread(bTable4))
+  if (!is.data.table(bTable4)) bTable4 <- if (is.data.frame(bTable4)) as.data.table(bTable4) else fread(bTable4)
 
   # flag if vol in growth curve is above the max vol the model was developed on
   if (!is.na(unique(bTable4$volm))) {
@@ -109,7 +109,7 @@ sapfac <- function(eq2, vol,
                    bTable5 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table5.csv"){
 
   # Read Boudewyn parameters
-  if (!is.data.table(bTable5)) bTable5 <- ifelse(is.data.frame(bTable5), as.data.table(bTable5), fread(bTable5))
+  if (!is.data.table(bTable5)) bTable5 <- if (is.data.frame(bTable5)) as.data.table(bTable5) else fread(bTable5)
 
   # flag if vol in growth curve is above the max vol the model was developed on
   if (!is.na(unique(bTable5$volm))) {
@@ -167,8 +167,8 @@ biomProp <- function(x, type = "volume",
     bTable6 <- bTable6tb
     bTable7 <- bTable7tb
   }
-  if (!is.data.table(bTable6)) bTable6 <- ifelse(is.data.frame(bTable6), as.data.table(bTable6), fread(bTable6))
-  if (!is.data.table(bTable7)) bTable7 <- ifelse(is.data.frame(bTable7), as.data.table(bTable7), fread(bTable7))
+  if (!is.data.table(bTable6)) bTable6 <- if (is.data.frame(bTable6)) as.data.table(bTable6) else fread(bTable6)
+  if (!is.data.table(bTable7)) bTable7 <- if (is.data.frame(bTable7)) as.data.table(bTable7) else fread(bTable7)
 
   if (type == "volume"){
     if(any(!(c("vol_min", "vol_max") %in% colnames(bTable7)))) {
@@ -269,11 +269,11 @@ convertM3biom <- function(meta, gCvalues, spsMatch, ecozones,
                           bTable7 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv") {
 
   # Read Boudewyn parameters
-  if (!is.data.table(bTable3)) bTable3 <- ifelse(is.data.frame(bTable3), as.data.table(bTable3), fread(bTable3))
-  if (!is.data.table(bTable4)) bTable4 <- ifelse(is.data.frame(bTable4), as.data.table(bTable4), fread(bTable4))
-  if (!is.data.table(bTable5)) bTable5 <- ifelse(is.data.frame(bTable5), as.data.table(bTable5), fread(bTable5))
-  if (!is.data.table(bTable6)) bTable6 <- ifelse(is.data.frame(bTable6), as.data.table(bTable6), fread(bTable6))
-  if (!is.data.table(bTable7)) bTable7 <- ifelse(is.data.frame(bTable7), as.data.table(bTable7), fread(bTable7))
+  if (!is.data.table(bTable3)) bTable3 <- if (is.data.frame(bTable3)) as.data.table(bTable3) else fread(bTable3)
+  if (!is.data.table(bTable4)) bTable4 <- if (is.data.frame(bTable4)) as.data.table(bTable4) else fread(bTable4)
+  if (!is.data.table(bTable5)) bTable5 <- if (is.data.frame(bTable5)) as.data.table(bTable5) else fread(bTable5)
+  if (!is.data.table(bTable6)) bTable6 <- if (is.data.frame(bTable6)) as.data.table(bTable6) else fread(bTable6)
+  if (!is.data.table(bTable7)) bTable7 <- if (is.data.frame(bTable7)) as.data.table(bTable7) else fread(bTable7)
 
   oneCurve <- gCvalues[gcids == meta$gcids, ]
   # the Boudewyn models do not deal with 0s

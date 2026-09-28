@@ -25,11 +25,11 @@ cumPoolsCreate <- function(fullSpecies, gcMeta, userGcM3, thisAdmin,
                            bRateBiomassToCarbon = 0.5){
 
   # Read Boudewyn parameters
-  if (!is.data.table(bTable3)) bTable3 <- ifelse(is.data.frame(bTable3), as.data.table(bTable3), fread(bTable3))
-  if (!is.data.table(bTable4)) bTable4 <- ifelse(is.data.frame(bTable4), as.data.table(bTable4), fread(bTable4))
-  if (!is.data.table(bTable5)) bTable5 <- ifelse(is.data.frame(bTable5), as.data.table(bTable5), fread(bTable5))
-  if (!is.data.table(bTable6)) bTable6 <- ifelse(is.data.frame(bTable6), as.data.table(bTable6), fread(bTable6))
-  if (!is.data.table(bTable7)) bTable7 <- ifelse(is.data.frame(bTable7), as.data.table(bTable7), fread(bTable7))
+  if (!is.data.table(bTable3)) bTable3 <- if (is.data.frame(bTable3)) as.data.table(bTable3) else fread(bTable3)
+  if (!is.data.table(bTable4)) bTable4 <- if (is.data.frame(bTable4)) as.data.table(bTable4) else fread(bTable4)
+  if (!is.data.table(bTable5)) bTable5 <- if (is.data.frame(bTable5)) as.data.table(bTable5) else fread(bTable5)
+  if (!is.data.table(bTable6)) bTable6 <- if (is.data.frame(bTable6)) as.data.table(bTable6) else fread(bTable6)
+  if (!is.data.table(bTable7)) bTable7 <- if (is.data.frame(bTable7)) as.data.table(bTable7) else fread(bTable7)
 
   counter <- 0L
   cumBiomList <- list()

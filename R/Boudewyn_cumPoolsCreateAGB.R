@@ -39,9 +39,9 @@ cumPoolsCreateAGB <- function(AGB, pixGroupCol,
                               bRateBiomassToCarbon = 0.5){
 
   # Read Boudewyn parameters
-  if (!is.data.table(bTable6tb))  bTable6tb  <- ifelse(is.data.frame(bTable6tb),  as.data.table(bTable6tb),  fread(bTable6tb))
-  if (!is.data.table(bTable7tb))  bTable7tb  <- ifelse(is.data.frame(bTable7tb),  as.data.table(bTable7tb),  fread(bTable7tb))
-  if (!is.data.table(tableMerch)) tableMerch <- ifelse(is.data.frame(tableMerch), as.data.table(tableMerch), fread(tableMerch))
+  if (!is.data.table(bTable6tb))  bTable6tb  <- if (is.data.frame(bTable6tb))  as.data.table(bTable6tb)  else fread(bTable6tb)
+  if (!is.data.table(bTable7tb))  bTable7tb  <- if (is.data.frame(bTable7tb))  as.data.table(bTable7tb)  else fread(bTable7tb)
+  if (!is.data.table(tableMerch)) tableMerch <- if (is.data.frame(tableMerch)) as.data.table(tableMerch) else fread(tableMerch)
 
   # 1. Input validation
   expectedColumns <- c(pixGroupCol, "juris_id", "ecozone", "canfi_species", "age", "B")
@@ -154,9 +154,9 @@ getParameters <- function(curves,
                           bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv"){
 
   # Read Boudewyn parameters
-  if (!is.data.table(bTable6tb))  bTable6tb  <- ifelse(is.data.frame(bTable6tb),  as.data.table(bTable6tb),  fread(bTable6tb))
-  if (!is.data.table(bTable7tb))  bTable7tb  <- ifelse(is.data.frame(bTable7tb),  as.data.table(bTable7tb),  fread(bTable7tb))
-  if (!is.data.table(tableMerch)) tableMerch <- ifelse(is.data.frame(tableMerch), as.data.table(tableMerch), fread(tableMerch))
+  if (!is.data.table(bTable6tb))  bTable6tb  <- if (is.data.frame(bTable6tb))  as.data.table(bTable6tb)  else fread(bTable6tb)
+  if (!is.data.table(bTable7tb))  bTable7tb  <- if (is.data.frame(bTable7tb))  as.data.table(bTable7tb)  else fread(bTable7tb)
+  if (!is.data.table(tableMerch)) tableMerch <- if (is.data.frame(tableMerch)) as.data.table(tableMerch) else fread(tableMerch)
 
   table6_dt <- copy(bTable6tb)
   table7_dt <- copy(bTable7tb)

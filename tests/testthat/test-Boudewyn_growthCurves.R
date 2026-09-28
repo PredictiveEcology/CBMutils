@@ -43,8 +43,8 @@ test_that("biomProp", {
                c(pstem = 0.79, pbark = 0.10, pbranches = 0.08, pfol = 0.04)) # expected from table 7
 
   expect_error(biomProp(vol, type = "notacorrectype", bTable6tb = params6, bTable7tb = params7))
-  expect_error(biomProp(vol,                          bTable6tb = params6, bTable7tb = params7))
-  expect_error(biomProp(vol, type = "volume",         bTable6tb = params6, bTable7tb = params7))
+  expect_error(biomProp(vol,                          bTable6   = params6, bTable7   = params7))
+  expect_error(biomProp(vol, type = "volume",         bTable6   = params6, bTable7   = params7))
 })
 
 test_that("b_m", {
