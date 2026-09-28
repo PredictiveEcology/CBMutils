@@ -168,13 +168,7 @@ biomProp <- function(x, type = "volume", bTable6 = NULL, bTable7 = NULL, bTable6
 
   # Read Boudewyn parameters
   if (!type %in% c("volume", "biomass")) stop("The argument type in biomProp() needs to be `volume` or `biomass`")
-  if (type == "volume"){
-    if (!isTRUE(nrow(bTable6) == 1)) stop("bTable6 must contain a single unique set of parameters")
-    if (!isTRUE(nrow(bTable7) == 1)) stop("bTable7 must contain a single unique set of parameters")
-  }
   if (type == "biomass"){
-    if (!isTRUE(nrow(bTable6tb) == 1)) stop("bTable6tb must contain a single unique set of parameters")
-    if (!isTRUE(nrow(bTable7tb) == 1)) stop("bTable7tb must contain a single unique set of parameters")
     bTable6 <- bTable6tb
     bTable7 <- bTable7tb
   }
@@ -312,7 +306,6 @@ convertM3biom <- function(meta, gCvalues, spsMatch, ecozones,
   # Boudewyn et al. 2007 p7 (Fig3)
   # eq1 returns the total stem wood biomass in metric tonnes/ha, when you give it
   # the gross merchantable volume/ha. Parameters a and b are in bTable3
-  browser()
   eq1 <- b_m(oneCurve$MerchVolume, bTable3 = bTable3)
   # eq2 returns a two column matrix giving the biomass of the non-merch sized
   # trees (b_n) and b_nm which is the sum of the total stem wood biomass of merch size
