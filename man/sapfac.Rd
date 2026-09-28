@@ -4,11 +4,7 @@
 \alias{sapfac}
 \title{Expansion factor for sapling-sized trees}
 \usage{
-sapfac(
-  eq2,
-  vol,
-  bTable5 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table5.csv"
-)
+sapfac(eq2, vol, bTable5)
 }
 \arguments{
 \item{eq2}{two-column matrix giving stemwood biomass of non-merchantable trees

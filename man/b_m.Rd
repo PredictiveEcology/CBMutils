@@ -4,10 +4,7 @@
 \alias{b_m}
 \title{Calculate stemwood biomass (per ha) of live merchantable trees}
 \usage{
-b_m(
-  vol,
-  bTable3 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table3.csv"
-)
+b_m(vol, bTable3)
 }
 \arguments{
 \item{vol}{gross merchantable volume per hectare (\eqn{m^3/ha})}

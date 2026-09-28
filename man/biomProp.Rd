@@ -7,10 +7,10 @@
 biomProp(
   x,
   type = "volume",
-  bTable6 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6.csv",
-  bTable7 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7.csv",
-  bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
-  bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv"
+  bTable6 = NULL,
+  bTable7 = NULL,
+  bTable6tb = NULL,
+  bTable7tb = NULL
 )
 }
 \arguments{

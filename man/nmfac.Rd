@@ -4,11 +4,7 @@
 \alias{nmfac}
 \title{Expansion factor for non-merchantable live tree biomass}
 \usage{
-nmfac(
-  eq1,
-  vol,
-  bTable4 = "https://nfi.nfis.org/resources/biomass_models/appendix2_table4.csv"
-)
+nmfac(eq1, vol, bTable4)
 }
 \arguments{
 \item{eq1}{stemwood biomass of merchantable trees (\eqn{T/ha}) from equation 1 of
