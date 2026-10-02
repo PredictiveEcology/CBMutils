@@ -6,7 +6,6 @@
 \usage{
 cumPoolsCreateAGB(
   AGB,
-  pixGroupCol,
   tableMerch,
   bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
   bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv",
@@ -16,8 +15,6 @@ cumPoolsCreateAGB(
 \arguments{
 \item{AGB}{\code{data.frame} with the following columns:
 \code{juris_id}, \code{ecozone}, \code{canfi_species}, \code{age}, \code{B} and a column for pixel group identifier.}
-
-\item{pixGroupCol}{the name of the column in \code{AGB} serving as the pixel group identifier.}
 
 \item{tableMerch}{data.table with one row per \code{b_nm}.
 Parameters to estimate the proportion of stemwood biomass that is merchantable

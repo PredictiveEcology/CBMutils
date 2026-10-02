@@ -84,7 +84,7 @@ test_that("cumPoolsCreateAGB", {
   data.table::setorder(dt, speciesCode, age, poolsPixelGroup)
 
   out <- cumPoolsCreateAGB(
-    data.table::copy(dt), pixGroupCol = "poolsPixelGroup",
+    data.table::copy(dt),
     bTable6 = bParams$table6tb, bTable7 = bParams$table7tb, tableMerch = tableMerchAGB)
 
   expect_equal(rowSums(out[,c("merch", "foliage", "other")]), dt$B/2)
@@ -95,7 +95,7 @@ test_that("cumPoolsCreateAGB", {
   # Check for failure if age == 0 and B != 0
   expect_error(
     cumPoolsCreateAGB(
-      data.table::copy(dt)[age == 0][, B := 10], pixGroupCol = "poolsPixelGroup",
+      data.table::copy(dt)[age == 0][, B := 10],
       bTable6 = bParams$table6tb, bTable7 = bParams$table7tb, tableMerch = tableMerchAGB)
   )
 
@@ -111,7 +111,7 @@ test_that("cumPoolsCreateAGB", {
   )
   dt$speciesCode <- "as"
   out <- cumPoolsCreateAGB(
-    data.table::copy(dt), pixGroupCol = "poolsPixelGroup",
+    data.table::copy(dt),
     bTable6 = bParams$table6tb, bTable7 = bParams$table7tb, tableMerch = tableMerchAGB)
 
   expect_equal(rowSums(out[,c("merch", "foliage", "other")]), dt$B/2)
