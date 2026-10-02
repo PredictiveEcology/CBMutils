@@ -1,6 +1,6 @@
 utils::globalVariables(
   c("..colToCheck",
-    "age", "B", "speciesCode", "pixGroupCol",
+    "age", "B",
     "merch", "foliage", "other",
     "a1", "a2", "a3", "b1", "b2", "b3", "c1", "c2", "c3", "biom_min", "biom_max",
     "p_sw_low", "p_sb_low", "p_br_low", "p_fl_low", "p_sw_high", "p_sb_high",
@@ -21,7 +21,6 @@ utils::globalVariables(
 #'
 #' @param AGB `data.frame` with the following columns:
 #' `juris_id`, `ecozone`, `canfi_species`, `age`, `B` and a column for pixel group identifier.
-#' @param pixGroupCol the name of the column in `AGB` serving as the pixel group identifier.
 #' @inheritParams propMerch tableMerch
 #' @template bTable6tb
 #' @template bTable7tb
@@ -32,7 +31,7 @@ utils::globalVariables(
 #'
 #' @importFrom data.table as.data.table fread is.data.table
 #' @export
-cumPoolsCreateAGB <- function(AGB, pixGroupCol,
+cumPoolsCreateAGB <- function(AGB,
                               tableMerch,
                               bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
                               bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv",
@@ -44,7 +43,7 @@ cumPoolsCreateAGB <- function(AGB, pixGroupCol,
   if (!is.data.table(tableMerch)) tableMerch <- if (is.data.frame(tableMerch)) as.data.table(tableMerch) else fread(tableMerch)
 
   # 1. Input validation
-  expectedColumns <- c(pixGroupCol, "juris_id", "ecozone", "canfi_species", "age", "B")
+  expectedColumns <- c("juris_id", "ecozone", "canfi_species", "age", "B")
   if (any(!(expectedColumns %in% colnames(AGB)))) {
     stop("The AGB table needs the following columns ", paste(expectedColumns, collapse = " "))
   }
