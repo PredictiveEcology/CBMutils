@@ -4,19 +4,38 @@
 \alias{convertAGB2pools}
 \title{Convert total above ground biomass into 3 pools (\eqn{T/ha}).}
 \usage{
-convertAGB2pools(AGB, allParams)
+convertAGB2pools(
+  AGB,
+  tableMerch,
+  bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
+  bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv"
+)
 }
 \arguments{
-\item{AGB}{\code{data.frame} with at least four following columns: \code{canfi_species},
-\code{ecozone}, \code{juris_id}, and \code{B}.}
+\item{AGB}{\code{data.frame} with columns: \code{juris_id}, \code{ecozone}, \code{canfi_species}, \code{age}, \code{B}.}
 
-\item{allParams}{\code{data.frame} containing a row for each curve with all required
-parameters of both \code{bTable6tb} and \code{bTable7tb} from Boudewyn et al. (2007) and parameters
-on merchantability of stemwood.}
+\item{tableMerch}{data.table with one row per \code{b_nm}.
+Parameters to estimate the proportion of stemwood biomass that is merchantable
+where \code{b_m/b_nm = k - exp(-a * (b_nm - b))}
+when \code{b_nm} is the total stemwood biomass and \code{b_m} is the total merchantable stemwood biomass.
+Available from \url{https://drive.google.com/file/d/1wa2QMd7Eo-bPpfigchdpPPPxo7NVpPiC}.
+Parameters were estimated by approximating the relationship between stemwood biomass and
+nonmerchfactor predicted by equation 2 of Boudewyn et al. (2007).}
+
+\item{bTable6tb}{Boudewyn et al. (2007) an alternative set of proportion model parameters
+to use when total biomass per hectare in tonnes (tb = stem wood + stem bark + branches + foliage)
+is the independent variable instead of gross merchantable volume per hectare.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv}.}
+
+\item{bTable7tb}{Boudewyn et al. (2007) an alternative set of caps on proportion models
+to use in conjunction with the alternative set of proportion models
+when total biomass per hectare in tonnes (tb = stem wood + stem bark + branches + foliage)
+is the independent variable instead of gross merchantable volume per hectare.
+Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
 }
 \value{
-three-column matrix with columns corresponding to biomass (\eqn{T/ha}) for
-total merchantable, foliage, and other wood.
+\code{AGB} table updated by reference with additional columns
+\code{merch}, \code{foliage}, and \code{other} with biomass (\eqn{T/ha}) in each above ground pool.
 }
 \description{
 Implements the flowchart from figure 3 of Boudewyn et al. (2007) using an alternative
