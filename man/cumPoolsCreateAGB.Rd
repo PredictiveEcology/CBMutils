@@ -11,7 +11,8 @@ Biomass to converted to carbon using the biomass to carbon conversion factor.}
 cumPoolsCreateAGB(AGB, bRateBiomassToCarbon = 0.5, ...)
 }
 \arguments{
-\item{AGB}{\code{data.frame} with columns: \code{juris_id}, \code{ecozone}, \code{canfi_species}, \code{age}, \code{B}.}
+\item{AGB}{\code{data.frame} with columns: \code{juris_id}, \code{ecozone}, \code{age}, \code{B}
+and \code{species}, \code{speciesCode}, or \code{canfi_species}.}
 
 \item{bRateBiomassToCarbon}{numeric. Conversion factor of biomass to carbon.}
 

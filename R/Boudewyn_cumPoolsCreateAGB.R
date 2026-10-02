@@ -49,8 +49,11 @@ cumPoolsCreateAGB <- function(AGB, bRateBiomassToCarbon = 0.5, ...){
 #' conversion for forested and vegetated land in Canada (BC-X-411). Natural Resource Canada,
 #' Pacific Forestry Centre. <https://cfs.nrcan.gc.ca/pubwarehouse/pdfs/27434.pdf>
 #'
-#' @param AGB `data.frame` with columns: `juris_id`, `ecozone`, `canfi_species`, `age`, `B`.
+#' @param AGB `data.frame` with columns: `juris_id`, `ecozone`, `age`, `B`
+#' and `species`, `speciesCode`, or `canfi_species`.
 #' @inheritParams getParameters
+#' @param ... arguments to \code{\link{sppMatch}} to get the CanFI species code
+#' if `AGB` does not have a `canfi_species` column.
 #'
 #' @return `AGB` table updated by reference with additional columns
 #' `merch`, `foliage`, and `other` with biomass (\eqn{T/ha}) in each above ground pool.
@@ -60,13 +63,20 @@ cumPoolsCreateAGB <- function(AGB, bRateBiomassToCarbon = 0.5, ...){
 convertAGB2pools <- function(AGB,
                              tableMerch,
                              bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
-                             bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv"){
+                             bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv",
+                             ...){
 
-  expectedColumns <- c("juris_id", "ecozone", "canfi_species", "age", "B")
-  if (any(!(expectedColumns %in% colnames(AGB)))) {
-    stop("The AGB table needs the following columns ", paste(expectedColumns, collapse = " "))
-  }
+  expectedColumns <- c("juris_id", "ecozone", "age", "B")
+  if (any(!expectedColumns %in% colnames(AGB))) stop(
+    "AGB requires columns: ", paste(shQuote(expectedColumns), collapse = ", "))
   if (!is.data.table(AGB)) AGB <- as.data.table(AGB)
+
+  if (!"canfi_species" %in% names(AGB)){
+    matchCol <- intersect(c("species", "speciesCode"), names(AGB))[1]
+    if (length(matchCol) == 0)  stop(
+      "AGB requires one of column(s): ", paste(shQuote(c("species", "speciesCode", "canfi_code")), collapse = ", "))
+    AGB[, canfi_species := sppMatch(as.character(AGB[[matchCol]]), return = "CanfiCode", ...)$CanfiCode]
+  }
 
   if (nrow(AGB) == 0) return(AGB[, c("merch", "foliage", "other") := numeric(0)])
 

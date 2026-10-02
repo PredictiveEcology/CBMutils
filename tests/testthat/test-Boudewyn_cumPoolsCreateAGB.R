@@ -70,6 +70,13 @@ test_that("convertAGB2pools", {
   convertAGB2pools(dtCopy, tableMerch = tableMerchAGB, bTable6tb = bParams$table6tb, bTable7tb = bParams$table7tb)
   expect_equal(dtCopy, out)
 
+  # Check using LandR species code instead of canfi_species
+  dtLandR <- data.table::copy(dt)
+  dtLandR[, speciesCode   := "PINU_CON"]
+  dtLandR[, canfi_species := NULL]
+  outLandR <- convertAGB2pools(dtLandR, match = "LandR", tableMerch = tableMerchAGB, bTable6tb = bParams$table6tb, bTable7tb = bParams$table7tb)
+  expect_equal(out, outLandR[, .SD, .SDcols = names(out)])
+
   # Check input with 0 rows
   out0 <- convertAGB2pools(dt[0,], tableMerch = tableMerchAGB, bTable6tb = bParams$table6tb, bTable7tb = bParams$table7tb)
   expect_equal(nrow(out0), 0)

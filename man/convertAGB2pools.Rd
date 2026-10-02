@@ -8,11 +8,13 @@ convertAGB2pools(
   AGB,
   tableMerch,
   bTable6tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table6_tb.csv",
-  bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv"
+  bTable7tb = "https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv",
+  ...
 )
 }
 \arguments{
-\item{AGB}{\code{data.frame} with columns: \code{juris_id}, \code{ecozone}, \code{canfi_species}, \code{age}, \code{B}.}
+\item{AGB}{\code{data.frame} with columns: \code{juris_id}, \code{ecozone}, \code{age}, \code{B}
+and \code{species}, \code{speciesCode}, or \code{canfi_species}.}
 
 \item{tableMerch}{data.table with one row per \code{b_nm}.
 Parameters to estimate the proportion of stemwood biomass that is merchantable
@@ -32,6 +34,9 @@ to use in conjunction with the alternative set of proportion models
 when total biomass per hectare in tonnes (tb = stem wood + stem bark + branches + foliage)
 is the independent variable instead of gross merchantable volume per hectare.
 Available from \url{https://nfi.nfis.org/resources/biomass_models/appendix2_table7_tb.csv}.}
+
+\item{...}{arguments to \code{\link{sppMatch}} to get the CanFI species code
+if \code{AGB} does not have a \code{canfi_species} column.}
 }
 \value{
 \code{AGB} table updated by reference with additional columns
