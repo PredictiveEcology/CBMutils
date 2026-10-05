@@ -44,26 +44,43 @@ test_that("convertAGB2pools", {
     )
   )
   dt$B <- c(50, 100, 200)
-  params <- getParameters(data.table(canfi_species = 204, ecozone = 4, juris_id = "AB"),
-                          tableMerch = tableMerchAGB, bTable6tb = bParams$table6tb, bTable7tb = bParams$table7tb)
 
-  out <- convertAGB2pools(dt, params)
+  out <- convertAGB2pools(data.table::copy(dt), tableMerch = tableMerchAGB, bTable6tb = bParams$table6tb, bTable7tb = bParams$table7tb)
+
+  # Check output structure
+  expect_equal(nrow(out), nrow(dt))
+  expect_equal(names(out), c(names(dt), "merch", "foliage", "other"))
 
   # Sum of the pools equal total AGB
-  expect_equal(rowSums(out), dt$B)
+  expect_equal(rowSums(out[, .(merch, foliage, other)]), dt$B)
 
   # First line is under minimum age (merch should be 0), and under the biomass cap
+  params <- getParameters(data.table(canfi_species = 204, ecozone = 4, juris_id = "AB"),
+                          tableMerch = tableMerchAGB, bTable6tb = bParams$table6tb, bTable7tb = bParams$table7tb)
   expected_result = data.table(merch = 0,
                                foliage = params$p_fl_low * dt$B[1],
                                other = dt$B[1] * (1-params$p_fl_low))
-  expect_equal(out[1, ], expected_result)
+  expect_equal(out[1, .(merch, foliage, other)], expected_result)
+
   # Over the maximum cap
   expect_equal(out$foliage[3], dt$B[3] * params$p_fl_high)
 
-  # Check output structure
-  expect_true(all(colnames(out) == c("merch", "foliage", "other")))
-  expect_true(all(!is.na(out)))
-  expect_equal(dim(out), c(3,3))
+  # Check updating by reference
+  dtCopy <- data.table::copy(dt)
+  convertAGB2pools(dtCopy, tableMerch = tableMerchAGB, bTable6tb = bParams$table6tb, bTable7tb = bParams$table7tb)
+  expect_equal(dtCopy, out)
+
+  # Check using LandR species code instead of canfi_species
+  dtLandR <- data.table::copy(dt)
+  dtLandR[, speciesCode   := "PINU_CON"]
+  dtLandR[, canfi_species := NULL]
+  outLandR <- convertAGB2pools(dtLandR, match = "LandR", tableMerch = tableMerchAGB, bTable6tb = bParams$table6tb, bTable7tb = bParams$table7tb)
+  expect_equal(out, outLandR[, .SD, .SDcols = names(out)])
+
+  # Check input with 0 rows
+  out0 <- convertAGB2pools(dt[0,], tableMerch = tableMerchAGB, bTable6tb = bParams$table6tb, bTable7tb = bParams$table7tb)
+  expect_equal(nrow(out0), 0)
+  expect_equal(names(out0), c(names(dt), "merch", "foliage", "other"))
 
 })
 
