@@ -84,12 +84,12 @@ cbm4PlotPoolProportions <- function(cbm4_results, years = NULL, yearStart = 1){
 
   timesteps <- if (!is.null(years)) years - yearStart + 1
 
-  cbm4_results <- CBM4r::cbm4_results_processor(cbm4_results)
+  cbm4_results <- CBM4r::SQLResultsProcessor(cbm4_results)
 
-  cbm4_totals <- CBM4r::cbm4_results_totals(
+  cbm4_totals <- CBM4r::cbm4_results_timestep(
     cbm4_results,
-    timesteps    = timesteps,
-    view_name    = "pool_indicators")[, .(
+    timesteps = timesteps,
+    view      = "pool_indicators")[, .(
       year   = timestep + yearStart - 1,
       Soil   = sum(AboveGroundVeryFastSoil, BelowGroundVeryFastSoil,
                    AboveGroundFastSoil, BelowGroundFastSoil,

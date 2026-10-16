@@ -1,4 +1,4 @@
 #' @param cbm4_results character or `SQLResultsProcessor`.
 #' Path to CBM4 spatial datasets directory
-#' or a `SQLResultsProcessor` object created with \code{\link[CBM4r]{cbm4_results_processor}}.
+#' or a `SQLResultsProcessor` object created with `CBM4r::SQLResultsProcessor`.
 NULL

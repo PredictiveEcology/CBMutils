@@ -9,7 +9,7 @@ cbm4PlotPoolProportions(cbm4_results, years = NULL, yearStart = 1)
 \arguments{
 \item{cbm4_results}{character or \code{SQLResultsProcessor}.
 Path to CBM4 spatial datasets directory
-or a \code{SQLResultsProcessor} object created with \code{\link[CBM4r]{cbm4_results_processor}}.}
+or a \code{SQLResultsProcessor} object created with \code{CBM4r::SQLResultsProcessor}.}
 
 \item{years}{integer. Year(s) of simulation results.}
 
