@@ -53,23 +53,23 @@ cbm4PlotEmissionsProducts <- function(cbm4_results, years = NULL, yearStart = 1)
 
   timesteps <- if (!is.null(years)) years - yearStart + 1
 
-  cbm4_results <- CBM4r::cbm4_results_processor(cbm4_results)
+  cbm4_results <- CBM4r::SQLResultsProcessor(cbm4_results)
 
   cbm4_totals <- merge(
-    CBM4r::cbm4_results_totals(
+    CBM4r::cbm4_results_timestep(
       cbm4_results,
-      timesteps    = timesteps,
-      view_name    = "composite_flux_indicators",
-      view_columns = c(
+      timesteps = timesteps,
+      view      = "composite_flux_indicators",
+      select    = c(
         "CH4" = "Emissions - Emissions By Gas - Total CH4",
         "CO"  = "Emissions - Emissions By Gas - Total CO",
         "CO2" = "Emissions - Emissions By Gas - Total CO2"
       )),
-    CBM4r::cbm4_results_totals(
+    CBM4r::cbm4_results_timestep(
       cbm4_results,
-      timesteps    = timesteps,
-      view_name    = "composite_disturbance_indicators",
-      view_columns = c(
+      timesteps = timesteps,
+      view      = "composite_disturbance_indicators",
+      select    = c(
         "Products" = "Ecosystem Transfers - Ecosystem to Forest Products - Total Harvest (Biomass + Snags)"
       )),
     all = TRUE)[, .(

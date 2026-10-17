@@ -56,11 +56,12 @@ cbm4MapTotalCarbon <- function(cbm4_results, years = NULL, yearStart = 1){
 
   if (length(find.package("CBM4r", quiet = TRUE)) == 0) stop("CBM4r package required")
 
-  rastTC <- CBM4r::cbm4_results_raster(
+  rastTC <- CBM4r::cbm4_results_pixel(
     cbm4_results,
-    timesteps   = if (!is.null(years)) years - yearStart + 1,
-    view_name   = "spatial_composite_pool_indicators",
-    view_column = "Total Ecosystem"
+    timesteps = if (!is.null(years)) years - yearStart + 1,
+    view      = "spatial_composite_pool_indicators",
+    select    = "Total Ecosystem",
+    rast      = TRUE
   )
 
   if (is.null(years)) years <- as.numeric(names(rastTC)) + yearStart - 1
