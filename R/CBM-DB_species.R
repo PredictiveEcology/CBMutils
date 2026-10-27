@@ -28,7 +28,9 @@ sppMatch <- function(species, match = c("LandR", "Latin_full", "EN_generic_short
 
   # Read species equivalencies table
   if (is.null(sppEquiv)){
-    sppEquiv <- data.table::fread("https://github.com/PredictiveEcology/LandR/raw/refs/heads/development/data-raw/sppEquivalencies_CA.csv")
+    sppEquiv <- data.table::fread(
+      "https://github.com/PredictiveEcology/LandR/raw/refs/heads/development/data-raw/sppEquivalencies_CA.csv",
+      showProgress = FALSE)
   }else{
     sppEquiv <- data.table::data.table(sppEquiv)
   }
